@@ -81,8 +81,8 @@ class AllowedSecurity(Document):
             + "sell_collateral_application  {sell_collateral_application}".format(
                 str(sell_collateral_application)
             )
-            + "\ntop_up_application  {top_up_application}".format(top_up_application),
-            title=("Allowed Security get_loan_application"),
+            + "\n top_up_application  {top_up_application}".format(top_up_application),
+            title=("Allowed Security"),
         )
         if unpledge_application:
             for unpledge in unpledge_application:
