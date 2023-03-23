@@ -4558,7 +4558,8 @@ def shares_eligibility(**kwargs):
                         for i in res_json["Response"]
                         if i.get("Price") > 0 and i.get("Quantity") > 0
                     ]
-                    print("one securities_list", securities_list)
+                    security_stock_at_list = [i["Stock_At"] for i in securities_list]
+
                     if res_json["Response"]:
                         # bulk insert fields
                         fields = [
@@ -4646,6 +4647,7 @@ def shares_eligibility(**kwargs):
                     securities_category_map_list = []
                     for i in securities_category_map:
                         securities_category_map_list.append(i)
+                    final_securities_list = []
                     if securities_category_map_list:
                         pledge_waiting_securitites = frappe.db.sql(
                             """
@@ -4779,7 +4781,7 @@ def shares_eligibility(**kwargs):
                                     ][i["pledgor_boid"]] = i["unpledged_quantity"]
                                 except KeyError:
                                     continue
-                        final_securities_list = []
+
                         for i in securities_list:
                             # process actual qty
                             if i.get("Holding_As_On", None) and not isinstance(
@@ -4897,8 +4899,11 @@ def shares_eligibility(**kwargs):
                         "Securities": final_securities_list,
                         "lender_info": lender_info,
                     }
-                    # if not data.get("Securities") and not res_json["Response"]:
-                    #     raise lms.exceptions.NotFoundException()
+                    if (
+                        not data.get("Securities")
+                        and not demat_acc_no in security_stock_at_list
+                    ):
+                        raise lms.exceptions.NotFoundException()
                     if res_json["Response"] and not data.get("Securities"):
                         return utils.respondWithSuccess(data=data)
                     return utils.respondWithSuccess(data=data)
