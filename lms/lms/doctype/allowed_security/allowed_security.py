@@ -73,6 +73,17 @@ class AllowedSecurity(Document):
         unpledge_link = ""
         sell_link = ""
         topup_link = ""
+
+        frappe.log_error(
+            message="unpledge_application  {unpledge_application}".format(
+                str(unpledge_application)
+            )
+            + "sell_collateral_application  {sell_collateral_application}".format(
+                str(sell_collateral_application)
+            )
+            + "\ntop_up_application  {top_up_application}".format(top_up_application),
+            title=("Allowed Security get_loan_application"),
+        )
         if unpledge_application:
             for unpledge in unpledge_application:
                 unpledge_link += """ <a target="_blank" rel="noreferrer noopener" href="/app/unpledge-application/{unpledge}">{unpledge}</a>""".format(
