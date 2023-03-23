@@ -2341,6 +2341,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         file_.is_private = 0
                         file_.save(ignore_permissions=True)
                         frappe.db.commit()
+                        file_.reload()
                     pdf_file_path = file_.file_url
                     file_base_name = pdf_file_path.replace(".pdf", "")
                     reader = PdfReader(pdf_file_path)

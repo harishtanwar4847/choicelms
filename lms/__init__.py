@@ -3729,7 +3729,8 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         file_.is_private = 0
         file_.save(ignore_permissions=True)
         frappe.db.commit()
-    existing_pdf = PdfReader(frappe.utils.get_files_path(file_.file_name), "rb")
+        file_.reload()
+    existing_pdf = PdfReader(frappe.utils.get_url("files/" + file_.file_name), "rb")
     reader = PdfReader(file_.file_url)
     num_of_page = len(existing_pdf.pages)
     output = PdfWriter()
