@@ -61,7 +61,7 @@
    "fieldtype": "Table",
    "label": "Item",
    "options": "Loan Application Item",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\";",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" || doc.status != \"Pledge executed\" ||doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -271,7 +271,7 @@
   }
  ],
  "links": [],
- "modified": "2023-03-23 15:25:42.377177",
+ "modified": "2023-03-23 18:55:15.348883",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
