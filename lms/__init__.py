@@ -3723,15 +3723,15 @@ def compress_image(input_image_path, user, quality=100):
 def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
 
-    file_name = frappe.db.get_value("File", {"file_url": esigned_doc})
-    file_ = frappe.get_doc("File", file_name)
-    if file_.is_private:
-        file_.is_private = 0
-        file_.save(ignore_permissions=True)
-        frappe.db.commit()
-        file_.reload()
-    existing_pdf = PdfReader(frappe.utils.get_url("files/" + file_.file_name), "rb")
-    reader = PdfReader(file_.file_url)
+    lfile_name = esigned_doc.split("files/", 1)
+    l_file = lfile_name[1]
+    pdf_file_path = frappe.utils.get_files_path(
+        l_file,
+    )
+    # read your existing PDF
+    pdf_path = pdf_file_path  # for u its ur original pdf
+    existing_pdf = PdfReader(open(pdf_file_path, "rb"))
+    reader = PdfReader(pdf_path)
     num_of_page = len(existing_pdf.pages)
     output = PdfWriter()
     for i in range(30):

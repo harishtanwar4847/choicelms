@@ -37,7 +37,7 @@ class SellCollateralApplication(Document):
             i.security_category = security.security_category
         self.process_items()
         self.process_sell_items()
-        if self.status == "Rejected":
+        if self.status == "Rejected" and not self.processed:
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request rejected", fields=["*"]
             )

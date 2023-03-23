@@ -3,14 +3,6 @@
 
 frappe.ui.form.on("Loan Application", {
   refresh: function (frm) {
-    if (frm.doc.status == "Pledge executed") {
-      var df = frappe.meta.get_docfield(
-        "Loan Application Item",
-        "lender_approval_status",
-        cur_frm.doc.name
-      );
-      df.read_only = 0;
-    }
     if (frm.doc.status != "Waiting to be pledged") {
       frm.get_field("items").grid.only_sortable();
       $(".grid-add-row").hide();

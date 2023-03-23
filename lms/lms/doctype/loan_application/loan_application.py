@@ -732,6 +732,19 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             self.pledgee_boid = lender.demat_account_number
         if self.instrument_type == "Shares" and not self.pledgor_boid:
             frappe.throw("Pledgor BOID can not be empty for LAS")
+
+        if self.lender_esigned_document and self.status in ["Esign Done", "Approved"]:
+            file_name = frappe.db.get_value(
+                "File", {"file_url": self.lender_esigned_document}
+            )
+            file_ = frappe.get_doc("File", file_name)
+            if file_.is_private:
+                file_.is_private = 0
+                file_.save(ignore_permissions=True)
+                frappe.db.commit()
+                file_.reload()
+                print(file_.file_url)
+            self.self.lender_esigned_document = file_.file_url
         if self.is_offline_loan:
             for i in self.items:
                 if i.date_of_pledge and i.date_of_pledge >= self.expiry_date:
@@ -2332,17 +2345,13 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
                 from PyPDF2 import PdfReader, PdfWriter
 
+                lender_esign_file = self.lender_esigned_document
                 if self.lender_esigned_document:
-                    file_name = frappe.db.get_value(
-                        "File", {"file_url": self.lender_esigned_document}
+                    lfile_name = lender_esign_file.split("files/", 1)
+                    l_file = lfile_name[1]
+                    pdf_file_path = frappe.utils.get_files_path(
+                        l_file,
                     )
-                    file_ = frappe.get_doc("File", file_name)
-                    if file_.is_private:
-                        file_.is_private = 0
-                        file_.save(ignore_permissions=True)
-                        frappe.db.commit()
-                        file_.reload()
-                    pdf_file_path = file_.file_url
                     file_base_name = pdf_file_path.replace(".pdf", "")
                     reader = PdfReader(pdf_file_path)
                     pages = [
