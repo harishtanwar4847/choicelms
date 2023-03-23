@@ -98,6 +98,40 @@ class AllowedSecurity(Document):
                 )
             )
 
+        if (
+            unpledge_application
+            and sell_collateral_application
+            and not top_up_application
+        ):
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Sell Collateral Application{}<br />\u2022 """.format(
+                    unpledge_link,
+                    sell_link,
+                )
+            )
+
+        if (
+            unpledge_application
+            and not sell_collateral_application
+            and top_up_application
+        ):
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Top up Application{}""".format(
+                    unpledge_link, topup_link
+                )
+            )
+
+        if (
+            sell_collateral_application
+            and top_up_application
+            and not unpledge_application
+        ):
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Sell Collateral Application{}<br />\u2022 Top up Application{}""".format(
+                    sell_link, topup_link
+                )
+            )
+
         if unpledge_application:
             frappe.throw(
                 "Please approve/reject Unpledge Application {}".format(unpledge_link)
