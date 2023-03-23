@@ -743,8 +743,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 file_.save(ignore_permissions=True)
                 frappe.db.commit()
                 file_.reload()
-                print(file_.file_url)
-            self.self.lender_esigned_document = file_.file_url
+            self.lender_esigned_document = file_.file_url
         if self.is_offline_loan:
             for i in self.items:
                 if i.date_of_pledge and i.date_of_pledge >= self.expiry_date:

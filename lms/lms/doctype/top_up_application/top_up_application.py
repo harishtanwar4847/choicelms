@@ -651,6 +651,17 @@ class TopupApplication(Document):
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
+        if self.lender_esigned_document and self.status in ["Esign Done", "Approved"]:
+            file_name = frappe.db.get_value(
+                "File", {"file_url": self.lender_esigned_document}
+            )
+            file_ = frappe.get_doc("File", file_name)
+            if file_.is_private:
+                file_.is_private = 0
+                file_.save(ignore_permissions=True)
+                frappe.db.commit()
+                file_.reload()
+            self.lender_esigned_document = file_.file_url
         user_role = []
         for i in list(user_roles):
             user_role.append(i[0])
