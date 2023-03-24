@@ -32,126 +32,144 @@ class LoanApplication(Document):
         return frappe.get_doc("Loan", self.loan)
 
     def esign_request(self, increase_loan):
-        customer = self.get_customer()
-        user = frappe.get_doc("User", customer.user)
-        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-        lender = self.get_lender()
-        diff = self.drawing_power
-        if self.loan:
-            loan = self.get_loan()
-            # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-            #     (self.total_collateral_value + loan.total_collateral_value)
-            #     * self.allowable_ltv
-            #     / 100
-            # )
-            increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                loan.drawing_power + self.drawing_power
+        try:
+            customer = self.get_customer()
+            user = frappe.get_doc("User", customer.user)
+            user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+            lender = self.get_lender()
+            diff = self.drawing_power
+            if self.loan:
+                loan = self.get_loan()
+                # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                #     (self.total_collateral_value + loan.total_collateral_value)
+                #     * self.allowable_ltv
+                #     / 100
+                # )
+                increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                    loan.drawing_power + self.drawing_power
+                )
+                new_increased_sanctioned_limit = (
+                    increased_sanctioned_limit
+                    if increased_sanctioned_limit < lender.maximum_sanctioned_limit
+                    else lender.maximum_sanctioned_limit
+                )
+                frappe.db.set_value(
+                    self.doctype,
+                    self.name,
+                    "increased_sanctioned_limit",
+                    new_increased_sanctioned_limit,
+                    update_modified=False,
+                )
+                diff = new_increased_sanctioned_limit - loan.sanctioned_limit
+
+            if user_kyc.address_details:
+                address_details = frappe.get_doc(
+                    "Customer Address Details", user_kyc.address_details
+                )
+                address = (
+                    (
+                        (str(address_details.perm_line1) + ", ")
+                        if address_details.perm_line1
+                        else ""
+                    )
+                    + (
+                        (str(address_details.perm_line2) + ", ")
+                        if address_details.perm_line2
+                        else ""
+                    )
+                    + (
+                        (str(address_details.perm_line3) + ", ")
+                        if address_details.perm_line3
+                        else ""
+                    )
+                    + str(address_details.perm_city)
+                    + ", "
+                    + str(address_details.perm_dist)
+                    + ", "
+                    + str(address_details.perm_state)
+                    + ", "
+                    + str(address_details.perm_country)
+                    + ", "
+                    + str(address_details.perm_pin)
+                )
+            else:
+                address = ""
+
+            if user_kyc.address_details:
+                address_details = frappe.get_doc(
+                    "Customer Address Details", user_kyc.address_details
+                )
+
+                line1 = str(address_details.perm_line1)
+                if line1:
+                    addline1 = "{},<br/>".format(line1)
+                else:
+                    addline1 = ""
+
+                line2 = str(address_details.perm_line2)
+                if line2:
+                    addline2 = "{},<br/>".format(line2)
+                else:
+                    addline2 = ""
+
+                line3 = str(address_details.perm_line3)
+                if line3:
+                    addline3 = "{},<br/>".format(line3)
+                else:
+                    addline3 = ""
+
+                perm_city = str(address_details.perm_city)
+                perm_dist = str(address_details.perm_dist)
+                perm_state = str(address_details.perm_state)
+                perm_pin = str(address_details.perm_pin)
+
+            else:
+                address_details = ""
+
+            interest_config = frappe.get_value(
+                "Interest Configuration",
+                {
+                    "to_amount": [
+                        ">=",
+                        lms.validate_rupees(
+                            float(
+                                new_increased_sanctioned_limit
+                                if self.loan and not self.loan_margin_shortfall
+                                else self.drawing_power
+                            )
+                        ),
+                    ],
+                },
+                order_by="to_amount asc",
             )
-            new_increased_sanctioned_limit = (
-                increased_sanctioned_limit
-                if increased_sanctioned_limit < lender.maximum_sanctioned_limit
-                else lender.maximum_sanctioned_limit
+            int_config = frappe.get_doc("Interest Configuration", interest_config)
+            roi_ = round((int_config.base_interest * 12), 2)
+            charges = lms.charges_for_apr(
+                lender.name,
+                lms.validate_rupees(float(diff)),
             )
-            frappe.db.set_value(
-                self.doctype,
+            apr = lms.calculate_apr(
                 self.name,
-                "increased_sanctioned_limit",
-                new_increased_sanctioned_limit,
-                update_modified=False,
-            )
-            diff = new_increased_sanctioned_limit - loan.sanctioned_limit
-
-        if user_kyc.address_details:
-            address_details = frappe.get_doc(
-                "Customer Address Details", user_kyc.address_details
-            )
-            address = (
-                (
-                    (str(address_details.perm_line1) + ", ")
-                    if address_details.perm_line1
-                    else ""
-                )
-                + (
-                    (str(address_details.perm_line2) + ", ")
-                    if address_details.perm_line2
-                    else ""
-                )
-                + (
-                    (str(address_details.perm_line3) + ", ")
-                    if address_details.perm_line3
-                    else ""
-                )
-                + str(address_details.perm_city)
-                + ", "
-                + str(address_details.perm_dist)
-                + ", "
-                + str(address_details.perm_state)
-                + ", "
-                + str(address_details.perm_country)
-                + ", "
-                + str(address_details.perm_pin)
-            )
-        else:
-            address = ""
-
-        if user_kyc.address_details:
-            address_details = frappe.get_doc(
-                "Customer Address Details", user_kyc.address_details
-            )
-
-            line1 = str(address_details.perm_line1)
-            if line1:
-                addline1 = "{},<br/>".format(line1)
-            else:
-                addline1 = ""
-
-            line2 = str(address_details.perm_line2)
-            if line2:
-                addline2 = "{},<br/>".format(line2)
-            else:
-                addline2 = ""
-
-            line3 = str(address_details.perm_line3)
-            if line3:
-                addline3 = "{},<br/>".format(line3)
-            else:
-                addline3 = ""
-
-            perm_city = str(address_details.perm_city)
-            perm_dist = str(address_details.perm_dist)
-            perm_state = str(address_details.perm_state)
-            perm_pin = str(address_details.perm_pin)
-
-        else:
-            address_details = ""
-
-        interest_config = frappe.get_value(
-            "Interest Configuration",
-            {
-                "to_amount": [
-                    ">=",
+                roi_,
+                12,
+                int(
                     lms.validate_rupees(
                         float(
                             new_increased_sanctioned_limit
                             if self.loan and not self.loan_margin_shortfall
                             else self.drawing_power
                         )
-                    ),
-                ],
-            },
-            order_by="to_amount asc",
-        )
-        int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
-        charges = lms.charges_for_apr(
-            lender.name,
-            lms.validate_rupees(float(diff)),
-        )
-        apr = lms.calculate_apr(
-            self.name,
-            roi_,
-            12,
-            int(
+                    )
+                ),
+                charges.get("total"),
+            )
+            annual_default_interest = lender.default_interest * 12
+            sanctionlimit = (
+                new_increased_sanctioned_limit
+                if self.loan and not self.loan_margin_shortfall
+                else self.drawing_power
+            )
+            interest_charges_in_amount = int(
                 lms.validate_rupees(
                     float(
                         new_increased_sanctioned_limit
@@ -159,207 +177,203 @@ class LoanApplication(Document):
                         else self.drawing_power
                     )
                 )
-            ),
-            charges.get("total"),
-        )
-        annual_default_interest = lender.default_interest * 12
-        sanctionlimit = (
-            new_increased_sanctioned_limit
-            if self.loan and not self.loan_margin_shortfall
-            else self.drawing_power
-        )
-        interest_charges_in_amount = int(
-            lms.validate_rupees(
-                float(
-                    new_increased_sanctioned_limit
-                    if self.loan and not self.loan_margin_shortfall
-                    else self.drawing_power
-                )
-            )
-        ) * (roi_ / 100)
-        doc = {
-            "esign_date": "",
-            "loan_account_number": loan.name if self.loan else "",
-            "loan_application_number": self.name,
-            "borrower_name": customer.full_name,
-            "borrower_address": address,
-            "addline1": addline1,
-            "addline2": addline2,
-            "addline3": addline3,
-            "city": perm_city,
-            "district": perm_dist,
-            "state": perm_state,
-            "pincode": perm_pin,
-            # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
-            "sanctioned_amount": frappe.utils.fmt_money(
-                float(
-                    new_increased_sanctioned_limit
-                    if self.loan and not self.loan_margin_shortfall
-                    else self.drawing_power
-                )
-            ),
-            "sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees(
+            ) * (roi_ / 100)
+            doc = {
+                "esign_date": "",
+                "loan_account_number": loan.name if self.loan else "",
+                "loan_application_number": self.name,
+                "borrower_name": customer.full_name,
+                "borrower_address": address,
+                "addline1": addline1,
+                "addline2": addline2,
+                "addline3": addline3,
+                "city": perm_city,
+                "district": perm_dist,
+                "state": perm_state,
+                "pincode": perm_pin,
+                # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+                "sanctioned_amount": frappe.utils.fmt_money(
                     float(
                         new_increased_sanctioned_limit
                         if self.loan and not self.loan_margin_shortfall
-                        else self.drawing_power,
+                        else self.drawing_power
                     )
+                ),
+                "sanctioned_amount_in_words": lms.number_to_word(
+                    lms.validate_rupees(
+                        float(
+                            new_increased_sanctioned_limit
+                            if self.loan and not self.loan_margin_shortfall
+                            else self.drawing_power,
+                        )
+                    )
+                ).title(),
+                "roi": roi_,
+                "apr": apr,
+                "documentation_charges_kfs": frappe.utils.fmt_money(
+                    charges.get("documentation_charges")
+                ),
+                "processing_charges_kfs": frappe.utils.fmt_money(
+                    charges.get("processing_fees")
+                ),
+                "net_disbursed_amount": frappe.utils.fmt_money(
+                    float(sanctionlimit) - charges.get("total")
+                ),
+                "total_amount_to_be_paid": frappe.utils.fmt_money(
+                    float(sanctionlimit)
+                    + charges.get("total")
+                    + interest_charges_in_amount
+                ),
+                "loan_application_no": self.name,
+                "rate_of_interest": lender.rate_of_interest,
+                "rebate_interest": int_config.rebait_interest,
+                "default_interest": annual_default_interest,
+                "rebait_threshold": lender.rebait_threshold,
+                "documentation_charges_kfs": frappe.utils.fmt_money(
+                    charges.get("documentation_charges")
+                ),
+                "processing_charges_kfs": frappe.utils.fmt_money(
+                    charges.get("processing_fees")
+                ),
+                "interest_charges_in_amount": frappe.utils.fmt_money(
+                    interest_charges_in_amount
+                ),
+                "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+                if lender.renewal_charge_type == "Fix"
+                else lms.validate_percent(lender.renewal_charges),
+                "renewal_charge_type": lender.renewal_charge_type,
+                "renewal_charge_in_words": lms.number_to_word(
+                    lms.validate_rupees(lender.renewal_charges)
+                ).title()
+                if lender.renewal_charge_type == "Fix"
+                else "",
+                "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+                "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+                "documentation_charge": lms.validate_rupees(
+                    lender.documentation_charges
                 )
-            ).title(),
-            "roi": roi_,
-            "apr": apr,
-            "documentation_charges_kfs": frappe.utils.fmt_money(
-                charges.get("documentation_charges")
-            ),
-            "processing_charges_kfs": frappe.utils.fmt_money(
-                charges.get("processing_fees")
-            ),
-            "net_disbursed_amount": frappe.utils.fmt_money(
-                float(sanctionlimit) - charges.get("total")
-            ),
-            "total_amount_to_be_paid": frappe.utils.fmt_money(
-                float(sanctionlimit) + charges.get("total") + interest_charges_in_amount
-            ),
-            "loan_application_no": self.name,
-            "rate_of_interest": lender.rate_of_interest,
-            "rebate_interest": int_config.rebait_interest,
-            "default_interest": annual_default_interest,
-            "rebait_threshold": lender.rebait_threshold,
-            "documentation_charges_kfs": frappe.utils.fmt_money(
-                charges.get("documentation_charges")
-            ),
-            "processing_charges_kfs": frappe.utils.fmt_money(
-                charges.get("processing_fees")
-            ),
-            "interest_charges_in_amount": frappe.utils.fmt_money(
-                interest_charges_in_amount
-            ),
-            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
-            if lender.renewal_charge_type == "Fix"
-            else lms.validate_percent(lender.renewal_charges),
-            "renewal_charge_type": lender.renewal_charge_type,
-            "renewal_charge_in_words": lms.number_to_word(
-                lms.validate_rupees(lender.renewal_charges)
-            ).title()
-            if lender.renewal_charge_type == "Fix"
-            else "",
-            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
-            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
-            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
-            if lender.documentation_charge_type == "Fix"
-            else lms.validate_percent(lender.documentation_charges),
-            "documentation_charge_type": lender.documentation_charge_type,
-            "documentation_charge_in_words": lms.number_to_word(
-                lms.validate_rupees(lender.documentation_charges)
-            ).title()
-            if lender.documentation_charge_type == "Fix"
-            else "",
-            "documentation_min_amt": lms.validate_rupees(
-                lender.lender_documentation_minimum_amount
-            ),
-            "documentation_max_amt": lms.validate_rupees(
-                lender.lender_documentation_maximum_amount
-            ),
-            "lender_processing_fees_type": lender.lender_processing_fees_type,
-            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
-            if lender.lender_processing_fees_type == "Fix"
-            else lms.validate_percent(lender.lender_processing_fees),
-            "processing_charge_in_words": lms.number_to_word(
-                lms.validate_rupees(lender.lender_processing_fees)
-            ).title()
-            if lender.lender_processing_fees_type == "Fix"
-            else "",
-            "processing_min_amt": lms.validate_rupees(
-                lender.lender_processing_minimum_amount
-            ),
-            "processing_max_amt": lms.validate_rupees(
-                lender.lender_processing_maximum_amount
-            ),
-            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            "transaction_charges_per_request": lms.validate_rupees(
-                lender.transaction_charges_per_request
-            ),
-            "security_selling_share": lender.security_selling_share,
-            "cic_charges": lms.validate_rupees(lender.cic_charges),
-            "total_pages": lender.total_pages,
-            "lien_initiate_charge_type": lender.lien_initiate_charge_type,
-            "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
-            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
-            "lien_initiate_charge_minimum_amount": lms.validate_rupees(
-                lender.lien_initiate_charge_minimum_amount
-            ),
-            "lien_initiate_charge_maximum_amount": lms.validate_rupees(
-                lender.lien_initiate_charge_maximum_amount
-            ),
-            "lien_initiate_charges": lms.validate_rupees(lender.lien_initiate_charges)
-            if lender.lien_initiate_charge_type == "Fix"
-            else lms.validate_percent(lender.lien_initiate_charges),
-            "invoke_initiate_charges_minimum_amount": lms.validate_rupees(
-                lender.invoke_initiate_charges_minimum_amount
-            ),
-            "invoke_initiate_charges_maximum_amount": lms.validate_rupees(
-                lender.invoke_initiate_charges_maximum_amount
-            ),
-            "invoke_initiate_charges": lms.validate_rupees(
-                lender.invoke_initiate_charges
+                if lender.documentation_charge_type == "Fix"
+                else lms.validate_percent(lender.documentation_charges),
+                "documentation_charge_type": lender.documentation_charge_type,
+                "documentation_charge_in_words": lms.number_to_word(
+                    lms.validate_rupees(lender.documentation_charges)
+                ).title()
+                if lender.documentation_charge_type == "Fix"
+                else "",
+                "documentation_min_amt": lms.validate_rupees(
+                    lender.lender_documentation_minimum_amount
+                ),
+                "documentation_max_amt": lms.validate_rupees(
+                    lender.lender_documentation_maximum_amount
+                ),
+                "lender_processing_fees_type": lender.lender_processing_fees_type,
+                "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+                if lender.lender_processing_fees_type == "Fix"
+                else lms.validate_percent(lender.lender_processing_fees),
+                "processing_charge_in_words": lms.number_to_word(
+                    lms.validate_rupees(lender.lender_processing_fees)
+                ).title()
+                if lender.lender_processing_fees_type == "Fix"
+                else "",
+                "processing_min_amt": lms.validate_rupees(
+                    lender.lender_processing_minimum_amount
+                ),
+                "processing_max_amt": lms.validate_rupees(
+                    lender.lender_processing_maximum_amount
+                ),
+                # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+                "transaction_charges_per_request": lms.validate_rupees(
+                    lender.transaction_charges_per_request
+                ),
+                "security_selling_share": lender.security_selling_share,
+                "cic_charges": lms.validate_rupees(lender.cic_charges),
+                "total_pages": lender.total_pages,
+                "lien_initiate_charge_type": lender.lien_initiate_charge_type,
+                "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
+                "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+                "lien_initiate_charge_minimum_amount": lms.validate_rupees(
+                    lender.lien_initiate_charge_minimum_amount
+                ),
+                "lien_initiate_charge_maximum_amount": lms.validate_rupees(
+                    lender.lien_initiate_charge_maximum_amount
+                ),
+                "lien_initiate_charges": lms.validate_rupees(
+                    lender.lien_initiate_charges
+                )
+                if lender.lien_initiate_charge_type == "Fix"
+                else lms.validate_percent(lender.lien_initiate_charges),
+                "invoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                    lender.invoke_initiate_charges_minimum_amount
+                ),
+                "invoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                    lender.invoke_initiate_charges_maximum_amount
+                ),
+                "invoke_initiate_charges": lms.validate_rupees(
+                    lender.invoke_initiate_charges
+                )
+                if lender.invoke_initiate_charge_type == "Fix"
+                else lms.validate_percent(lender.invoke_initiate_charges),
+                "revoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                    lender.revoke_initiate_charges_minimum_amount
+                ),
+                "revoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                    lender.revoke_initiate_charges_maximum_amount
+                ),
+                "revoke_initiate_charges": lms.validate_rupees(
+                    lender.revoke_initiate_charges
+                )
+                if lender.revoke_initiate_charge_type == "Fix"
+                else lms.validate_percent(lender.revoke_initiate_charges),
+            }
+
+            if increase_loan:
+                doc["old_sanctioned_amount"] = frappe.utils.fmt_money(
+                    loan.sanctioned_limit
+                )
+                doc["old_sanctioned_amount_in_words"] = lms.number_to_word(
+                    lms.validate_rupees(loan.sanctioned_limit)
+                ).title()
+                agreement_template = lender.get_loan_enhancement_agreement_template()
+                loan_agreement_file = "loan-enhancement-aggrement.pdf"
+                coordinates = lender.enhancement_coordinates.split(",")
+                esign_page = lender.enhancement_esign_page
+            else:
+                agreement_template = lender.get_loan_agreement_template()
+                loan_agreement_file = "loan-aggrement.pdf"
+                coordinates = lender.coordinates.split(",")
+                esign_page = lender.esign_page
+
+            agreement = frappe.render_template(
+                agreement_template.get_content(), {"doc": doc}
             )
-            if lender.invoke_initiate_charge_type == "Fix"
-            else lms.validate_percent(lender.invoke_initiate_charges),
-            "revoke_initiate_charges_minimum_amount": lms.validate_rupees(
-                lender.revoke_initiate_charges_minimum_amount
-            ),
-            "revoke_initiate_charges_maximum_amount": lms.validate_rupees(
-                lender.revoke_initiate_charges_maximum_amount
-            ),
-            "revoke_initiate_charges": lms.validate_rupees(
-                lender.revoke_initiate_charges
+
+            # from frappe.utils.pdf import get_pdf
+
+            agreement_pdf = lms.get_pdf(agreement)
+            las_settings = frappe.get_single("LAS Settings")
+            headers = {"userId": las_settings.choice_user_id}
+            files = {"file": (loan_agreement_file, agreement_pdf)}
+
+            return {
+                "file_upload_url": "{}{}".format(
+                    las_settings.esign_host, las_settings.esign_upload_file_uri
+                ),
+                "headers": headers,
+                "files": files,
+                "esign_url_dict": {
+                    "x": coordinates[0],
+                    "y": coordinates[1],
+                    "page_number": esign_page,
+                },
+                "esign_url": "{}{}".format(
+                    las_settings.esign_host, las_settings.esign_request_uri
+                ),
+            }
+        except:
+            frappe.log_error(
+                title="Esign Request Loan Doc",
+                message=frappe.get_traceback() + "\n\nLoan name \n" + str(self.name),
             )
-            if lender.revoke_initiate_charge_type == "Fix"
-            else lms.validate_percent(lender.revoke_initiate_charges),
-        }
-
-        if increase_loan:
-            doc["old_sanctioned_amount"] = frappe.utils.fmt_money(loan.sanctioned_limit)
-            doc["old_sanctioned_amount_in_words"] = lms.number_to_word(
-                lms.validate_rupees(loan.sanctioned_limit)
-            ).title()
-            agreement_template = lender.get_loan_enhancement_agreement_template()
-            loan_agreement_file = "loan-enhancement-aggrement.pdf"
-            coordinates = lender.enhancement_coordinates.split(",")
-            esign_page = lender.enhancement_esign_page
-        else:
-            agreement_template = lender.get_loan_agreement_template()
-            loan_agreement_file = "loan-aggrement.pdf"
-            coordinates = lender.coordinates.split(",")
-            esign_page = lender.esign_page
-
-        agreement = frappe.render_template(
-            agreement_template.get_content(), {"doc": doc}
-        )
-
-        # from frappe.utils.pdf import get_pdf
-
-        agreement_pdf = lms.get_pdf(agreement)
-        las_settings = frappe.get_single("LAS Settings")
-        headers = {"userId": las_settings.choice_user_id}
-        files = {"file": (loan_agreement_file, agreement_pdf)}
-
-        return {
-            "file_upload_url": "{}{}".format(
-                las_settings.esign_host, las_settings.esign_upload_file_uri
-            ),
-            "headers": headers,
-            "files": files,
-            "esign_url_dict": {
-                "x": coordinates[0],
-                "y": coordinates[1],
-                "page_number": esign_page,
-            },
-            "esign_url": "{}{}".format(
-                las_settings.esign_host, las_settings.esign_request_uri
-            ),
-        }
 
     def after_insert(self):
         user_roles = frappe.db.get_values(
