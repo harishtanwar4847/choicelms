@@ -1198,11 +1198,16 @@ def loan_details(**kwargs):
                 "customer": loan.customer,
                 "status": ["not IN", ["Approved", "Rejected"]],
             },
-            fields=["count(name) as in_process"],
+            fields=["count(name) as in_process", "name"],
         )
         topup = None
+        topup_application = None
+        topup_application_name = ""
         if existing_topup_application[0]["in_process"] == 0:
             topup = loan.max_topup_amount()
+            topup_application = 1
+        else:
+            topup_application_name = existing_topup_application[0].name
 
         # Increase Loan
         existing_loan_application = frappe.get_all(
@@ -1212,12 +1217,15 @@ def loan_details(**kwargs):
                 "customer": loan.customer,
                 "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
             },
-            fields=["count(name) as in_process"],
+            fields=["count(name) as in_process", "name"],
         )
 
         increase_loan = None
+        increase_loan_name = ""
         if existing_loan_application[0]["in_process"] == 0:
             increase_loan = 1
+        else:
+            increase_loan_name = existing_loan_application[0].name
 
         res = {
             "loan": loan,
@@ -1228,6 +1236,9 @@ def loan_details(**kwargs):
             "interest": interest,
             "topup": topup if topup else None,
             "increase_loan": increase_loan,
+            "increase_loan_name": increase_loan_name,
+            "topup_application": topup_application,
+            "topup_application_name": topup_application_name,
             "invoke_charge_details": invoke_initiate_charges
             if loan.instrument_type == "Mutual Fund"
             else {},

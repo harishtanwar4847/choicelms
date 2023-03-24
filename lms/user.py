@@ -876,12 +876,33 @@ def my_pledge_securities(**kwargs):
                 "customer": loan.customer,
                 "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
             },
-            fields=["count(name) as in_process"],
+            fields=["count(name) as in_process", "name"],
         )
 
         res["increase_loan"] = None
+        res["increase_loan_name"] = ""
         if existing_loan_application[0]["in_process"] == 0:
             res["increase_loan"] = 1
+        else:
+            res["increase_loan_name"] = existing_loan_application[0].name
+
+        # for topup application
+        existing_topup_application = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": loan.name,
+                "customer": loan.customer,
+                "status": ["not IN", ["Approved", "Rejected"]],
+            },
+            fields=["count(name) as in_process", "name"],
+        )
+
+        res["topup_application"] = None
+        res["topup_application_name"] = ""
+        if existing_topup_application[0]["in_process"] == 0:
+            res["topup_application"] = 1
+        else:
+            res["topup_application_name"] = existing_topup_application[0].name
 
         # check if any pending unpledge application exist
         unpledge_application_exist = frappe.get_all(
