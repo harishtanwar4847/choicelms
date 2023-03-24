@@ -369,7 +369,7 @@ class LoanApplication(Document):
                     las_settings.esign_host, las_settings.esign_request_uri
                 ),
             }
-        except:
+        except Exception:
             frappe.log_error(
                 title="Esign Request Loan Doc",
                 message=frappe.get_traceback() + "\n\nLoan name \n" + str(self.name),
