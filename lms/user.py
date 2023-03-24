@@ -1477,7 +1477,7 @@ def get_profile_set_alerts(**kwargs):
             if status == "Approved" and loan:
                 loan_name = loan[0].name
             else:
-                status = "pending"
+                status = "Pending"
         else:
             status = ""
             instrument_type = ""
