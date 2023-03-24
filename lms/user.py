@@ -4940,6 +4940,7 @@ def get_distinct_securities(lender_list, levels):
             ),
             as_dict=True,
         )
+        print("securities_list", securities_list)
         lender_info = frappe.db.sql(
             """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
                 lender
@@ -4970,10 +4971,10 @@ def get_distinct_securities(lender_list, levels):
                 scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
 
         data = {"Securities": securities_list, "lender_info": lender_info}
-        if not data.get("Securities"):
-            raise lms.exceptions.NotFoundException()
-        # if res_json["Response"] and not data.get("Securities"):
-        #     return utils.respondWithSuccess(data=data)
+        # if not data.get("Securities") and :
+        #     raise lms.exceptions.NotFoundException()
+        if not securities_list and not data.get("Securities"):
+            return utils.respondWithSuccess(data=data)
         return utils.respondWithSuccess(data=data)
     except Exception as e:
         lms.log_api_error()
