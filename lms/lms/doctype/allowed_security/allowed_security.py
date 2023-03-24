@@ -88,7 +88,7 @@ class AllowedSecurity(Document):
         )
         if unpledge_application:
             for unpledge in unpledge_application:
-                unpledge_link += """ <a target="_blank" rel="noreferrer noopener" href="/app/unpledge-application/{unpledge}">{unpledge}</a>""".format(
+                unpledge_link += """<a target="_blank" rel="noreferrer noopener" href="/app/unpledge-application/{unpledge}">{unpledge}</a>""".format(
                     unpledge=unpledge
                 )
 
@@ -117,7 +117,7 @@ class AllowedSecurity(Document):
             and not top_up_application
         ):
             frappe.throw(
-                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Sell Collateral Application{}<br />\u2022 """.format(
+                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Sell Collateral Application{}<br />""".format(
                     unpledge_link,
                     sell_link,
                 )
