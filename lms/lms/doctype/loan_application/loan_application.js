@@ -3,23 +3,7 @@
 
 frappe.ui.form.on("Loan Application", {
   refresh: function (frm) {
-    // var is_true = frappe.user_roles.find((role) => role === "Loan Customer");
-    // if (!is_true || frappe.session.user == "Administrator") {
-    //   if (["Approved", "Rejected"].includes(frm.doc.status)) {
-    //     frm.set_df_property("items", "read_only", 1);
-    //     frm.set_df_property("expiry_date", "read_only", 1);
-    //     frm.set_df_property("pledge_status", "read_only", 1);
-    //     frm.set_df_property("instrument_type", "read_only", 1);
-    //     frm.set_df_property("scheme_type", "read_only", 1);
-    //     frm.set_df_property("pledgor_boid", "read_only", 1);
-    //     frm.set_df_property("pledgee_boid", "read_only", 1);
-    //     frm.set_df_property("application_type", "read_only", 1);
-    //   }
-    // } else {
-    if (frm.doc.status != "Executing pledge") {
-      frm.set_df_property("items", "read_only", 1);
-    }
-    if (frm.doc.status != "Executing pledge") {
+    if (frm.doc.status != "Waiting to be pledged") {
       frm.get_field("items").grid.only_sortable();
       $(".grid-add-row").hide();
       $(".grid-remove-rows").hide();

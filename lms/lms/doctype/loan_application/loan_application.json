@@ -1,311 +1,311 @@
 {
- "actions": [],
- "autoname": "LA.######",
- "creation": "2020-07-28 10:26:29.613712",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "total_collateral_value",
-  "total_collateral_value_str",
-  "drawing_power",
-  "drawing_power_str",
-  "lender",
-  "status",
-  "customer_esigned_document",
-  "pledged_total_collateral_value",
-  "pledged_total_collateral_value_str",
-  "loan_margin_shortfall",
-  "remarks",
-  "sl_entries",
-  "loan_application_column_break",
-  "customer",
-  "customer_name",
-  "expiry_date",
-  "loan",
-  "lender_esigned_document",
-  "pledge_status",
-  "pledgor_boid",
-  "pledgee_boid",
-  "instrument_type",
-  "scheme_type",
-  "notification_sent",
-  "items_section",
-  "items",
-  "section_break_23",
-  "minimum_sanctioned_limit",
-  "application_type",
-  "column_break_25",
-  "maximum_sanctioned_limit",
-  "increased_sanctioned_limit",
-  "is_offline_loan"
- ],
- "fields": [
-  {
-   "fieldname": "loan_application_column_break",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "expiry_date",
-   "fieldtype": "Date",
-   "label": "Expiry Date",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
-   "reqd": 1
-  },
-  {
-   "fieldname": "items_section",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "label": "Item",
-   "options": "Loan Application Item",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
-   "reqd": 1
-  },
-  {
-   "default": "Waiting to be pledged",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "Waiting to be pledged\nExecuting pledge\nPledge executed\nPledge accepted by Lender\nEsign Done\nReady for Approval\nApproved\nRejected\nPledge Failure",
-   "read_only": 1
-  },
-  {
-   "fieldname": "total_collateral_value",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Total Collateral Value",
-   "read_only": 1
-  },
-  {
-   "fieldname": "customer",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Customer ID",
-   "options": "Loan Customer",
-   "reqd": 1,
-   "set_only_once": 1
-  },
-  {
-   "fieldname": "loan",
-   "fieldtype": "Link",
-   "label": "Loan",
-   "options": "Loan",
-   "set_only_once": 1
-  },
-  {
-   "fieldname": "drawing_power",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Sanctioned Limit",
-   "read_only": 1
-  },
-  {
-   "fieldname": "customer_esigned_document",
-   "fieldtype": "Attach",
-   "label": "Customer Esigned Document"
-  },
-  {
-   "fieldname": "lender_esigned_document",
-   "fieldtype": "Attach",
-   "label": "Lender Esigned Document"
-  },
-  {
-   "fieldname": "lender",
-   "fieldtype": "Link",
-   "label": "Lender",
-   "options": "Lender",
-   "reqd": 1,
-   "set_only_once": 1
-  },
-  {
-   "fieldname": "pledged_total_collateral_value",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Pledged Request Value",
-   "read_only": 1
-  },
-  {
-   "default": "Pending",
-   "fieldname": "pledge_status",
-   "fieldtype": "Select",
-   "label": "Pledge Status",
-   "options": "Pending\nSuccess\nPartial Success\nFailure",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
-   "reqd": 1
-  },
-  {
-   "fieldname": "loan_margin_shortfall",
-   "fieldtype": "Link",
-   "label": "Loan Margin Shortfall",
-   "options": "Loan Margin Shortfall",
-   "read_only": 1
-  },
-  {
-   "fieldname": "total_collateral_value_str",
-   "fieldtype": "Data",
-   "label": "Total Collateral Value Str",
-   "read_only": 1
-  },
-  {
-   "fieldname": "drawing_power_str",
-   "fieldtype": "Data",
-   "label": "Sanctioned Limit Str",
-   "read_only": 1
-  },
-  {
-   "fieldname": "pledged_total_collateral_value_str",
-   "fieldtype": "Data",
-   "label": "Pledged Request Value Str",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "customer.full_name",
-   "fieldname": "customer_name",
-   "fieldtype": "Read Only",
-   "in_list_view": 1,
-   "label": "Customer Name"
-  },
-  {
-   "depends_on": "eval:doc.instrument_type==\"Shares\";",
-   "fieldname": "pledgor_boid",
-   "fieldtype": "Data",
-   "label": "Pledgor BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
-  },
-  {
-   "depends_on": "eval:doc.instrument_type==\"Shares\";",
-   "fieldname": "pledgee_boid",
-   "fieldtype": "Data",
-   "label": "Pledgee BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
-  },
-  {
-   "default": "Shares",
-   "fieldname": "instrument_type",
-   "fieldtype": "Select",
-   "label": "Instrument Type",
-   "options": "Shares\nMutual Fund",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
-   "reqd": 1
-  },
-  {
-   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
-   "fieldname": "scheme_type",
-   "fieldtype": "Select",
-   "label": "Scheme Type",
-   "options": "\nEquity\nDebt"
-  },
-  {
-   "fieldname": "application_type",
-   "fieldtype": "Select",
-   "label": "Application Type",
-   "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall",
-   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
-   "reqd": 1
-  },
-  {
-   "fieldname": "minimum_sanctioned_limit",
-   "fieldtype": "Currency",
-   "label": "Minimum Sanctioned Limit",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_25",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "maximum_sanctioned_limit",
-   "fieldtype": "Currency",
-   "label": "Maximum Sanctioned Limit",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_23",
-   "fieldtype": "Section Break"
-  },
-  {
-   "depends_on": "eval:doc.application_type == \"Increase Loan\"",
-   "fieldname": "increased_sanctioned_limit",
-   "fieldtype": "Currency",
-   "label": "Increased Sanctioned Limit",
-   "read_only": 1
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Data",
-   "label": "Remarks",
-   "read_only": 1
-  },
-  {
-   "fieldname": "sl_entries",
-   "fieldtype": "Link",
-   "label": "SL Entries",
-   "options": "Sanction Letter and CIAL Log"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_offline_loan",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Is Offline Loan"
-  },
-  {
-   "default": "0",
-   "fieldname": "notification_sent",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "notification sent"
-  }
- ],
- "links": [],
- "modified": "2023-03-21 13:09:15.664121",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Loan Application",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Loan Customer",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Lender",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+"actions": [],
+"autoname": "LA.######",
+"creation": "2020-07-28 10:26:29.613712",
+"doctype": "DocType",
+"editable_grid": 1,
+"engine": "InnoDB",
+"field_order": [
+"total_collateral_value",
+"total_collateral_value_str",
+"drawing_power",
+"drawing_power_str",
+"lender",
+"status",
+"customer_esigned_document",
+"pledged_total_collateral_value",
+"pledged_total_collateral_value_str",
+"loan_margin_shortfall",
+"remarks",
+"sl_entries",
+"loan_application_column_break",
+"customer",
+"customer_name",
+"expiry_date",
+"loan",
+"lender_esigned_document",
+"pledge_status",
+"pledgor_boid",
+"pledgee_boid",
+"instrument_type",
+"scheme_type",
+"notification_sent",
+"items_section",
+"items",
+"section_break_23",
+"minimum_sanctioned_limit",
+"application_type",
+"column_break_25",
+"maximum_sanctioned_limit",
+"increased_sanctioned_limit",
+"is_offline_loan"
+],
+"fields": [
+{
+"fieldname": "loan_application_column_break",
+"fieldtype": "Column Break"
+},
+{
+"fieldname": "expiry_date",
+"fieldtype": "Date",
+"label": "Expiry Date",
+"read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
+"reqd": 1
+},
+{
+"fieldname": "items_section",
+"fieldtype": "Section Break"
+},
+{
+"fieldname": "items",
+"fieldtype": "Table",
+"label": "Item",
+"options": "Loan Application Item",
+"read_only_depends_on": "eval:[\"Pledge accepted by Lender\",\"Esign Done\",\"Ready for Approval\",\"Approved\",\"Rejected\",\"Pledge Failure\"].includes(doc.status);",
+"reqd": 1
+},
+{
+"default": "Waiting to be pledged",
+"fieldname": "status",
+"fieldtype": "Select",
+"in_list_view": 1,
+"label": "Status",
+"options": "Waiting to be pledged\nExecuting pledge\nPledge executed\nPledge accepted by Lender\nEsign Done\nReady for Approval\nApproved\nRejected\nPledge Failure",
+"read_only": 1
+},
+{
+"fieldname": "total_collateral_value",
+"fieldtype": "Currency",
+"in_list_view": 1,
+"label": "Total Collateral Value",
+"read_only": 1
+},
+{
+"fieldname": "customer",
+"fieldtype": "Link",
+"in_list_view": 1,
+"label": "Customer ID",
+"options": "Loan Customer",
+"reqd": 1,
+"set_only_once": 1
+},
+{
+"fieldname": "loan",
+"fieldtype": "Link",
+"label": "Loan",
+"options": "Loan",
+"set_only_once": 1
+},
+{
+"fieldname": "drawing_power",
+"fieldtype": "Currency",
+"in_list_view": 1,
+"label": "Sanctioned Limit",
+"read_only": 1
+},
+{
+"fieldname": "customer_esigned_document",
+"fieldtype": "Attach",
+"label": "Customer Esigned Document"
+},
+{
+"fieldname": "lender_esigned_document",
+"fieldtype": "Attach",
+"label": "Lender Esigned Document"
+},
+{
+"fieldname": "lender",
+"fieldtype": "Link",
+"label": "Lender",
+"options": "Lender",
+"reqd": 1,
+"set_only_once": 1
+},
+{
+"fieldname": "pledged_total_collateral_value",
+"fieldtype": "Currency",
+"in_list_view": 1,
+"label": "Pledged Request Value",
+"read_only": 1
+},
+{
+"default": "Pending",
+"fieldname": "pledge_status",
+"fieldtype": "Select",
+"label": "Pledge Status",
+"options": "Pending\nSuccess\nPartial Success\nFailure",
+"read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
+"reqd": 1
+},
+{
+"fieldname": "loan_margin_shortfall",
+"fieldtype": "Link",
+"label": "Loan Margin Shortfall",
+"options": "Loan Margin Shortfall",
+"read_only": 1
+},
+{
+"fieldname": "total_collateral_value_str",
+"fieldtype": "Data",
+"label": "Total Collateral Value Str",
+"read_only": 1
+},
+{
+"fieldname": "drawing_power_str",
+"fieldtype": "Data",
+"label": "Sanctioned Limit Str",
+"read_only": 1
+},
+{
+"fieldname": "pledged_total_collateral_value_str",
+"fieldtype": "Data",
+"label": "Pledged Request Value Str",
+"read_only": 1
+},
+{
+"fetch_from": "customer.full_name",
+"fieldname": "customer_name",
+"fieldtype": "Read Only",
+"in_list_view": 1,
+"label": "Customer Name"
+},
+{
+"depends_on": "eval:doc.instrument_type==\"Shares\";",
+"fieldname": "pledgor_boid",
+"fieldtype": "Data",
+"label": "Pledgor BOID",
+"mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+"read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
+},
+{
+"depends_on": "eval:doc.instrument_type==\"Shares\";",
+"fieldname": "pledgee_boid",
+"fieldtype": "Data",
+"label": "Pledgee BOID",
+"mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+"read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
+},
+{
+"default": "Shares",
+"fieldname": "instrument_type",
+"fieldtype": "Select",
+"label": "Instrument Type",
+"options": "Shares\nMutual Fund",
+"read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
+"reqd": 1
+},
+{
+"depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
+"fieldname": "scheme_type",
+"fieldtype": "Select",
+"label": "Scheme Type",
+"options": "\nEquity\nDebt"
+},
+{
+"fieldname": "application_type",
+"fieldtype": "Select",
+"label": "Application Type",
+"options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall",
+"read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
+"reqd": 1
+},
+{
+"fieldname": "minimum_sanctioned_limit",
+"fieldtype": "Currency",
+"label": "Minimum Sanctioned Limit",
+"read_only": 1
+},
+{
+"fieldname": "column_break_25",
+"fieldtype": "Column Break"
+},
+{
+"fieldname": "maximum_sanctioned_limit",
+"fieldtype": "Currency",
+"label": "Maximum Sanctioned Limit",
+"read_only": 1
+},
+{
+"fieldname": "section_break_23",
+"fieldtype": "Section Break"
+},
+{
+"depends_on": "eval:doc.application_type == \"Increase Loan\"",
+"fieldname": "increased_sanctioned_limit",
+"fieldtype": "Currency",
+"label": "Increased Sanctioned Limit",
+"read_only": 1
+},
+{
+"fieldname": "remarks",
+"fieldtype": "Data",
+"label": "Remarks",
+"read_only": 1
+},
+{
+"default": "0",
+"fieldname": "notification_sent",
+"fieldtype": "Check",
+"hidden": 1,
+"label": "notification sent"
+},
+{
+"fieldname": "sl_entries",
+"fieldtype": "Link",
+"label": "SL Entries",
+"options": "Sanction Letter and CIAL Log"
+},
+{
+"default": "0",
+"fieldname": "is_offline_loan",
+"fieldtype": "Check",
+"hidden": 1,
+"label": "Is Offline Loan"
+}
+],
+"links": [],
+"modified": "2023-03-23 19:16:46.858527",
+"modified_by": "Administrator",
+"module": "Lms",
+"name": "Loan Application",
+"owner": "Administrator",
+"permissions": [
+{
+"create": 1,
+"delete": 1,
+"email": 1,
+"export": 1,
+"print": 1,
+"read": 1,
+"report": 1,
+"role": "System Manager",
+"share": 1,
+"write": 1
+},
+{
+"create": 1,
+"delete": 1,
+"email": 1,
+"export": 1,
+"print": 1,
+"read": 1,
+"report": 1,
+"role": "Loan Customer",
+"share": 1,
+"write": 1
+},
+{
+"email": 1,
+"export": 1,
+"print": 1,
+"read": 1,
+"report": 1,
+"role": "Lender",
+"share": 1,
+"write": 1
+}
+],
+"sort_field": "modified",
+"sort_order": "DESC",
+"track_changes": 1
 }
