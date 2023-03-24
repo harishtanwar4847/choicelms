@@ -2336,7 +2336,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             }
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
-                elif self.sl_entries:
+                elif self.sl_entries and self.status != "Approved":
                     sl = frappe.get_doc("Sanction Letter and CIAL Log", self.sl_entries)
                     ssl = frappe.get_all(
                         "Sanction Letter Entries",

@@ -967,6 +967,23 @@ class TopupApplication(Document):
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
+        elif self.sl_entries and self.status != "Approved":
+            sl = frappe.get_doc("Sanction Letter and CIAL Log", self.sl_entries)
+            ssl = frappe.get_all(
+                "Sanction Letter Entries",
+                filters={
+                    "topup_application_no": self.name,
+                    "parent": self.sl_entries,
+                },
+                fields=["*"],
+            )
+            sl = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
+            previous_letter = sl.sanction_letter
+            sl.sanction_letter = sL_letter
+            sl.save(ignore_permissions=True)
+            self.sl_entries = sl[0].name
+            frappe.db.commit()
+
         if self.status == "Approved":
             import os
 
