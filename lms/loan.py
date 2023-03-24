@@ -1435,7 +1435,7 @@ def loan_withdraw_request(**kwargs):
         if not data.get("bank_account_name", None):
             default_bank = None
             for i in banks:
-                if i.is_spark_default:
+                if i.is_default:
                     default_bank = i.name
                     break
             data["bank_account_name"] = default_bank
@@ -1496,8 +1496,8 @@ def loan_withdraw_request(**kwargs):
         )
         withdrawal_transaction.save(ignore_permissions=True)
 
-        bank_account.is_spark_default = 1
-        bank_account.save(ignore_permissions=True)
+        # bank_account.is_spark_default = 1
+        # bank_account.save(ignore_permissions=True)
         frappe.db.commit()
 
         data = {"loan_transaction_name": withdrawal_transaction.name}
