@@ -1474,9 +1474,10 @@ def get_profile_set_alerts(**kwargs):
             status = loan_application[0].status
             instrument_type = loan_application[0].instrument_type
             pledgor_boid = loan_application[0].pledgor_boid
-            if status == "Approved":
-                if loan:
-                    loan_name = loan[0].name
+            if status == "Approved" and loan:
+                loan_name = loan[0].name
+            else:
+                status = "pending"
         else:
             status = ""
             instrument_type = ""
@@ -4940,7 +4941,6 @@ def get_distinct_securities(lender_list, levels):
             ),
             as_dict=True,
         )
-        print("securities_list", securities_list)
         lender_info = frappe.db.sql(
             """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
                 lender
