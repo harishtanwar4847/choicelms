@@ -2420,24 +2420,32 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             return
         except Exception:
             frappe.log_error(
-                message=frappe.get_traceback(),
+                message=frappe.get_traceback()
+                + "\nLoan Application : {}".format(self.name),
                 title=(_("Sanction Letter failed in Loan application")),
             )
 
     def create_attachment(self):
-        attachments = []
-        doc_name = self.lender_esigned_document
-        fname = doc_name.split("files/", 1)
-        file = fname[1].split(".", 1)
-        file_name = file[0]
-        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-        with open(log_file, "rb") as fileobj:
-            filedata = fileobj.read()
+        try:
+            attachments = []
+            doc_name = self.lender_esigned_document
+            fname = doc_name.split("files/", 1)
+            file = fname[1].split(".", 1)
+            file_name = file[0]
+            log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+            with open(log_file, "rb") as fileobj:
+                filedata = fileobj.read()
 
-        sanction_letter = {"fname": fname[1], "fcontent": filedata}
-        attachments.append(sanction_letter)
+            sanction_letter = {"fname": fname[1], "fcontent": filedata}
+            attachments.append(sanction_letter)
 
-        return attachments
+            return attachments
+        except:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nLoan Application : {}".format(self.name),
+                title=(_("Create attachment failed in Loan application")),
+            )
 
 
 def check_for_pledge(loan_application_doc):
