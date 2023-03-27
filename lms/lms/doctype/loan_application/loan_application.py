@@ -2346,10 +2346,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         },
                         fields=["*"],
                     )
-                    sl = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
+                    sel = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
                     previous_letter = sl.sanction_letter
-                    sl.sanction_letter = sL_letter
-                    sl.save(ignore_permissions=True)
+                    sel.sanction_letter = sL_letter
+                    sel.save(ignore_permissions=True)
                     self.sl_entries = sl[0].name
                     frappe.db.commit()
 
@@ -2630,9 +2630,15 @@ def process_pledge_old(loan_application_name=""):
 
 
 def only_pdf_upload(doc, method):
-    if doc.attached_to_doctype == "Loan Application":
-        if doc.file_name.split(".")[-1].lower() != "pdf":
-            frappe.throw("Kindly upload PDF files only.")
+    try:
+        if doc.attached_to_doctype == "Loan Application":
+            if doc.file_name.split(".")[-1].lower() != "pdf":
+                frappe.throw("Kindly upload PDF files only.")
+    except Exception:
+        frappe.log_error(
+            title="only_pdf_upload",
+            message=frappe.get_traceback() + "\n\nLoan name \n" + str(doc.name),
+        )
 
 
 @frappe.whitelist()
