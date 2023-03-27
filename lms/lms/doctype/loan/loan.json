@@ -271,7 +271,6 @@
    "read_only": 1
   },
   {
-<<<<<<< HEAD
    "fieldname": "custom_roi_section",
    "fieldtype": "Section Break",
    "label": "Custom ROI"
@@ -318,12 +317,12 @@
    "label": "Amended From",
    "no_copy": 1,
    "options": "Loan",
-   "print_hide": 1,
-=======
+   "print_hide": 1
+  },
+  {
    "fieldname": "available_topup_amt",
    "fieldtype": "Currency",
    "label": "Available TopUp Amount",
->>>>>>> loan-renewal-master-merge
    "read_only": 1
   },
   {
