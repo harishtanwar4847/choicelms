@@ -11,6 +11,7 @@
   "pan_no",
   "kyc_status",
   "duplicate_kyc",
+  "parent_kyc",
   "consent_given",
   "basic_details_column_break",
   "kyc_type",
@@ -694,16 +695,23 @@
    "options": "Customer Address Details"
   },
   {
-   "depends_on": "eval:doc.consent_given == 1;",
+   "depends_on": "eval:doc.consent_given == 1 && doc.duplicate_kyc;",
    "fieldname": "duplicate_kyc",
    "fieldtype": "Table MultiSelect",
    "label": "Duplicate KYC",
    "length": 10,
    "options": "Duplicate KYC"
+  },
+  {
+   "depends_on": "eval:doc.consent_given == 1 && doc.parent_kyc;",
+   "fieldname": "parent_kyc",
+   "fieldtype": "Link",
+   "label": "Parent KYC",
+   "options": "User KYC"
   }
  ],
  "links": [],
- "modified": "2023-02-15 15:48:51.796713",
+ "modified": "2023-03-27 16:55:10.532301",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

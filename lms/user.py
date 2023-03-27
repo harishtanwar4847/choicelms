@@ -4078,6 +4078,8 @@ def ckyc_search(**kwargs):
             ckyc_no_ = ",".join(
                 [
                     "".join(filter(str.isdigit, pid.get("CKYC_NO")))
+                    + ":"
+                    + pid.get("KYC_DATE")
                     for pid in pid_data
                     if not pid.get("CONSTITUTION_TYPE")
                 ]
@@ -4129,6 +4131,7 @@ def ckyc_download(**kwargs):
             "%d-%m-%Y"
         )
         data["ckyc_no"] = data.get("ckyc_no").split(",")
+        kyc_dict = {}
 
         for ckyc in data.get("ckyc_no"):
             res_json = lms.ckyc_dot_net(
@@ -4136,7 +4139,7 @@ def ckyc_download(**kwargs):
                 pan_no=data.get("pan_no"),
                 is_for_download=True,
                 dob=data.get("dob"),
-                ckyc_no=ckyc,
+                ckyc_no=ckyc.split(":")[0],
             )
 
             if res_json.get("status") == 200 and not res_json.get("error"):
@@ -4147,7 +4150,6 @@ def ckyc_download(**kwargs):
                     identity_details = pid_data.get("IDENTITY_DETAILS")
                     related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
                     image_details = pid_data.get("IMAGE_DETAILS")
-                    kyc_dict = {}
 
                     user_kyc = frappe.get_doc(
                         {
@@ -4443,7 +4445,7 @@ def ckyc_download(**kwargs):
                     kyc_dict.update(
                         {
                             user_kyc_name: datetime.strptime(
-                                user_kyc.kyc_date, "%d-%m-%Y"
+                                ckyc.split(":")[1], "%d-%m-%Y"
                             )
                         }
                     )
@@ -4459,7 +4461,38 @@ def ckyc_download(**kwargs):
                     message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
                     data=res_json.get("error"),
                 )
-        user_kyc_name = min(kyc_dict, key=kyc_dict.get)
+        user_kyc_name = ",".join(
+            dict(sorted(kyc_dict.items(), key=lambda item: item[1])).keys()
+        )
+        if len(user_kyc_name) > 1:
+            duplicate_kyc_list = []
+            for dup_kyc in user_kyc_name.split(",")[1:]:
+                dup_kyc_doc = frappe.get_doc(
+                    {
+                        "doctype": "Duplicate KYC",
+                        "user_kyc": dup_kyc,
+                        "user": lms.__user().name,
+                        "parent": user_kyc_name.split(",")[0],
+                        "parentfield": "duplicate_kyc",
+                        "parenttype": "User KYC",
+                    }
+                ).insert(ignore_permissions=True)
+
+            filter = "= '{}'".format(user_kyc_name.split(",")[1])
+            if len(user_kyc_name.split(",")[1:]) > 1:
+                filter = "in {}".format(
+                    lms.convert_list_to_tuple_string(
+                        [d.name for d in user_kyc_name.split(",")[1:]]
+                    )
+                )
+            frappe.db.sql(
+                "update `tabUser KYC` set parent_kyc='{main_kyc}' where name {filter}".format(
+                    main_kyc=user_kyc_name.split(",")[0], filter=filter
+                ),
+                debug=True,
+            )
+
+            frappe.db.commit()
         return utils.respondWithSuccess(data={"user_kyc_name": user_kyc_name})
     except utils.exceptions.APIException as e:
         frappe.db.rollback
@@ -4596,7 +4629,12 @@ def ckyc_consent_details(**kwargs):
                 "accept_terms": "",
             },
         )
-
+        # user kyc name = first entry in kyc doctype
+        # multiple kyc = remaining kyc entries
+        # add multiple kyc names in parent kyc doctype
+        # add parent kyc to all multiple kyc
+        multiple_kyc = data.get("user_kyc_name").split(",")[1:]
+        data["user_kyc_name"] = data.get("user_kyc_name").split(",")[0]
         try:
             user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
         except UserKYCNotFoundException:
@@ -4873,6 +4911,14 @@ def ckyc_consent_details(**kwargs):
                 user_kyc_doc.is_edited = 1
                 ckyc_address_doc.is_edited = 1
                 ckyc_address_doc.save(ignore_permissions=True)
+            if multiple_kyc:
+                for kyc in multiple_kyc:
+                    kyc_doc = frappe.get_doc("User KYC", kyc)
+                    kyc_doc.consent_given = 1
+                    kyc_doc.address_details = ckyc_address_doc.name
+                    if False in address:
+                        kyc_doc.is_edited = 1
+                    kyc_doc.save(ignore_permissions=True)
             user_kyc_doc.save(ignore_permissions=True)
             kyc_consent_doc = frappe.get_doc(
                 {
