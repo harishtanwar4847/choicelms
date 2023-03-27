@@ -113,7 +113,7 @@ class UserToken(Document):
                     token=self.token,
                     otp_hash=las_settings.app_identification_hash_string,
                 )
-            if self.toke_type == "Sell Collateral OTP":
+            if self.token_type == "Sell Collateral OTP":
                 mess = """<#> Dear customer, use OTP {token} to complete your sell securities request with confidence & ease.
 
 {otp_hash}
