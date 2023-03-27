@@ -117,12 +117,12 @@ class LoanMarginShortfall(Document):
 
         if (
             margin_shortfall_action
-            and old_shortfall_action != margin_shortfall_action.name
+            # and old_shortfall_action != margin_shortfall_action.name
         ):
-            if old_shortfall_action:
-                old_shortfall_action = frappe.get_doc(
-                    "Margin Shortfall Action", old_shortfall_action
-                ).sell_off_deadline_eod
+            # if old_shortfall_action:
+            #     old_shortfall_action = frappe.get_doc(
+            #         "Margin Shortfall Action", old_shortfall_action
+            #     ).sell_off_deadline_eod
 
             """suppose mg shortfall deadline was after 72 hours and suddenly more shortfall happens the deadline will be
             EOD and before EOD security values increased and margin shortfall percentage gone below 20% then deadline should be 72 hrs which was started at initial stage"""
@@ -170,7 +170,8 @@ class LoanMarginShortfall(Document):
                 self.status = "Sell Triggered"
 
             self.save(ignore_permissions=True)
-            self.notify_customer(margin_shortfall_action)
+            if old_shortfall_action != margin_shortfall_action.name:
+                self.notify_customer(margin_shortfall_action)
             frappe.db.commit()
 
     def on_update(self):
@@ -544,7 +545,6 @@ def set_timer(loan_margin_shortfall_name):
 @frappe.whitelist()
 def mark_sell_triggered():
     try:
-        a = frappe.utils.now_datetime()
         all_shortfall = frappe.db.get_list(
             "Loan Margin Shortfall",
             filters={
@@ -566,11 +566,6 @@ def mark_sell_triggered():
                     method="lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.send_notification_for_sell_triggered",
                     single_shortfall=single_shortfall,
                 )
-        frappe.logger().info(str(frappe.utils.now_datetime()))
-        frappe.logger().info(
-            "Total time took - mark_sell_triggered "
-            + str((frappe.utils.now_datetime() - a).total_seconds())
-        )
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback()

@@ -106,10 +106,21 @@ class UserToken(Document):
             #     app_hash_string=app_hash_string,
             #     expiry_in_minutes=expiry_in_minutes,
             # )
-            # customer = [self.entity]
-            mess = frappe.get_doc("Spark SMS Notification", "OTP").message.format(
+
+            # mess = frappe._(
+            #     "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
+            # ).format(
+            #     token_type=self.token_type.replace(" ", ""),
+            #     token=self.token,
+            #     # expiry_in_minutes=expiry_in_minutes,
+            # )
+            las_settings = frappe.get_single("LAS Settings")
+            mess = """<#> Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your OTP with anyone. Valid for 10 minutes only 
+- Spark Loans 
+{otp_hash}""".format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
+                otp_hash=las_settings.app_identification_hash_string,
             )
             # lms.send_sms_notification(customer=customer,msg=mess)
             # mess = frappe._(

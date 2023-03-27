@@ -33,6 +33,9 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
 from frappe.utils import scrub_urls
+
+# from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from frappe.utils.csvutils import read_csv_content
 from PIL import Image
 from PyPDF2 import PdfReader, PdfWriter
 from razorpay.errors import SignatureVerificationError
@@ -54,7 +57,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.13.4"
+__version__ = "5.14.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -211,7 +214,6 @@ def get_user(input, throw=False):
         (input, input),
         as_dict=1,
     )
-    # print("get_user", frappe.as_json(user_data))
     if len(user_data) >= 1:
         return user_data[0].name
     else:
@@ -404,7 +406,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
     select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
     allowed = ""
     if instrument_type == "Mutual Fund":
-        select += ", als.scheme_type, als.allowed"
+        select += ", als.scheme_type, als.amc_code, als.allowed"
         allowed = "and als.allowed = 1"
 
     if type(lender) == list:
@@ -428,7 +430,8 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
         isin=convert_list_to_tuple_string(securities),
     )
 
-    results = frappe.db.sql(query, as_dict=1)
+    results = frappe.db.sql(query, as_dict=1, debug=True)
+    create_log({"query": str(results)}, "allowed_security_log")
 
     security_map = {}
 
@@ -732,7 +735,9 @@ def create_log(log, file_name):
         os.remove(log_file)
         frappe.log_error(
             message=frappe.get_traceback()
-            + "\n\nFile name -\n{}\n\nLog details -\n{}".format(file_name, str(log)),
+            + "\n\nFile name -\n{}\n\nBackup File name -\n{}\n\nLog details -\n{}".format(
+                file_name, log_text_file, str(log)
+            ),
             title="Create Log JSONDecodeError",
         )
     except Exception as e:
@@ -1150,6 +1155,15 @@ def log_api_error(mess=""):
         headers = {k: v for k, v in frappe.local.request.headers.items()}
         customer = frappe.get_all("Loan Customer", filters={"user": __user().name})
 
+        if request_parameters.get("cmd").split(".")[
+            -1
+        ] == "au_penny_drop" and request_parameters.get("personalized_cheque"):
+            personalized_cheque_log(
+                request_parameters.get("account_number"),
+                request_parameters.get("personalized_cheque"),
+                "png",
+            )
+            request_parameters["personalized_cheque"] = ""
         if len(customer) == 0:
             message = "Request Parameters : {}\n\nHeaders : {}".format(
                 str(request_parameters), str(headers)
@@ -1223,14 +1237,16 @@ def rzp_payment_webhook_callback(**kwargs):
                     data
                     and len(data) > 0
                     and data["entity"] == "event"
-                    and data["event"]
-                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                    and data["event"] in ["payment.captured", "payment.failed"]
                 ):
-                    frappe.enqueue(
-                        method="lms.update_rzp_payment_transaction",
-                        data=data,
-                        job_name="Payment Webhook",
-                    )
+                    # frappe.enqueue(
+                    #     method="lms.update_rzp_payment_transaction",
+                    #     data=data,
+                    #     job_name="Payment Webhook",
+                    # )
+                    update_rzp_payment_transaction(data)
+                else:
+                    create_log({"authorized_log": data}, "rzp_authorized_log")
             if not rzp_user:
                 frappe.log_error(
                     message=frappe.get_traceback()
@@ -1283,8 +1299,8 @@ def update_rzp_payment_transaction(data):
             )
             older_razorpay_event = loan_transaction.razorpay_event
             # Assign RZP event to loan transaction
-            if data["event"] == "payment.authorized":
-                razorpay_event = "Authorized"
+            # if data["event"] == "payment.authorized":
+            #     razorpay_event = "Authorized"
             if data["event"] == "payment.captured":
                 razorpay_event = "Captured"
             if data["event"] == "payment.failed":
@@ -1397,7 +1413,7 @@ def update_rzp_payment_transaction(data):
                 loan_transaction.on_submit()
 
             # Send notification depended on events
-            if data["event"] == "payment.authorized":
+            if data["event"] == "payment.captured":
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
                 # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
@@ -1722,7 +1738,6 @@ def decrypt_lien_marking_response():
             schemes = res.get("schemedetails").get("scheme")
             if type(schemes) != list:
                 schemes = [schemes]
-            # print(schemes)
 
             for i in schemes:
                 cart.append(
@@ -2023,6 +2038,10 @@ def system_report_enqueue():
             queue="long",
             job_name="interest calculation enqueue",
         )
+    frappe.enqueue(
+        method="lms.lms.doctype.loan.loan.available_top_up_update",
+        queue="long",
+    )
 
 
 def download_file(dataframe, file_name, file_extention, sheet_name):
@@ -2067,6 +2086,1399 @@ def get_linenumber():
     return "line no" + str(cf.f_back.f_lineno)
 
 
+def ckyc_commit(res_json, customer, dob):
+    pid_data = json.loads(res_json.get("data")).get("PID_DATA")
+
+    personal_details = pid_data.get("PERSONAL_DETAILS")
+    identity_details = pid_data.get("IDENTITY_DETAILS")
+    related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
+    image_details = pid_data.get("IMAGE_DETAILS")
+
+    user_kyc = frappe.get_doc(
+        {
+            "doctype": "User KYC",
+            "owner": customer.user,
+            "user": customer.user,
+            "kyc_type": "CKYC",
+            "pan_no": personal_details.get("PAN"),
+            "date_of_birth": datetime.strptime(dob, "%d-%m-%Y"),
+            "consti_type": personal_details.get("CONSTI_TYPE"),
+            "acc_type": personal_details.get("ACC_TYPE"),
+            "ckyc_no": personal_details.get("CKYC_NO"),
+            "prefix": personal_details.get("PREFIX"),
+            "fname": personal_details.get("FNAME"),
+            "mname": personal_details.get("MNAME"),
+            "lname": personal_details.get("LNAME"),
+            "fullname": personal_details.get("FULLNAME"),
+            "maiden_prefix": personal_details.get("MAIDEN_PREFIX"),
+            "maiden_fname": personal_details.get("MAIDEN_FNAME"),
+            "maiden_mname": personal_details.get("MAIDEN_MNAME"),
+            "maiden_lname": personal_details.get("MAIDEN_LNAME"),
+            "maiden_fullname": personal_details.get("MAIDEN_FULLNAME"),
+            "fatherspouse_flag": personal_details.get("FATHERSPOUSE_FLAG"),
+            "father_prefix": personal_details.get("FATHER_PREFIX"),
+            "father_fname": personal_details.get("FATHER_FNAME"),
+            "father_mname": personal_details.get("FATHER_MNAME"),
+            "father_lname": personal_details.get("FATHER_LNAME"),
+            "father_fullname": personal_details.get("FATHER_FULLNAME"),
+            "mother_prefix": personal_details.get("MOTHER_PREFIX"),
+            "mother_fname": personal_details.get("MOTHER_FNAME"),
+            "mother_mname": personal_details.get("MOTHER_MNAME"),
+            "mother_lname": personal_details.get("MOTHER_LNAME"),
+            "mother_fullname": personal_details.get("MOTHER_FULLNAME"),
+            "gender": personal_details.get("GENDER"),
+            "dob": personal_details.get("DOB"),
+            "pan": personal_details.get("PAN"),
+            "form_60": personal_details.get("FORM_60"),
+            "perm_line1": personal_details.get("PERM_LINE1"),
+            "perm_line2": personal_details.get("PERM_LINE2"),
+            "perm_line3": personal_details.get("PERM_LINE3"),
+            "perm_city": personal_details.get("PERM_CITY"),
+            "perm_dist": personal_details.get("PERM_DIST"),
+            "perm_state": personal_details.get("PERM_STATE"),
+            "perm_country": personal_details.get("PERM_COUNTRY"),
+            "perm_state_name": frappe.db.get_value(
+                "Pincode Master",
+                {"state": personal_details.get("PERM_STATE")},
+                "state_name",
+            ),
+            "perm_country_name": frappe.db.get_value(
+                "Country Master",
+                {"name": personal_details.get("PERM_COUNTRY")},
+                "country",
+            ),
+            "perm_pin": personal_details.get("PERM_PIN"),
+            "perm_poa": personal_details.get("PERM_POA"),
+            "perm_corres_sameflag": personal_details.get("PERM_CORRES_SAMEFLAG"),
+            "corres_line1": personal_details.get("CORRES_LINE1"),
+            "corres_line2": personal_details.get("CORRES_LINE2"),
+            "corres_line3": personal_details.get("CORRES_LINE3"),
+            "corres_city": personal_details.get("CORRES_CITY"),
+            "corres_dist": personal_details.get("CORRES_DIST"),
+            "corres_state": personal_details.get("CORRES_STATE"),
+            "corres_country": personal_details.get("CORRES_COUNTRY"),
+            "corres_state_name": frappe.db.get_value(
+                "Pincode Master",
+                {"state": personal_details.get("CORRES_STATE")},
+                "state_name",
+            ),
+            "corres_country_name": frappe.db.get_value(
+                "Country Master",
+                {"name": personal_details.get("CORRES_COUNTRY")},
+                "country",
+            ),
+            "corres_pin": personal_details.get("CORRES_PIN"),
+            "corres_poa": personal_details.get("CORRES_POA"),
+            "resi_std_code": personal_details.get("RESI_STD_CODE"),
+            "resi_tel_num": personal_details.get("RESI_TEL_NUM"),
+            "off_std_code": personal_details.get("OFF_STD_CODE"),
+            "off_tel_num": personal_details.get("OFF_TEL_NUM"),
+            "mob_code": personal_details.get("MOB_CODE"),
+            "mob_num": personal_details.get("MOB_NUM"),
+            "email": personal_details.get("EMAIL"),
+            "email_id": personal_details.get("EMAIL"),
+            "remarks": personal_details.get("REMARKS"),
+            "dec_date": personal_details.get("DEC_DATE"),
+            "dec_place": personal_details.get("DEC_PLACE"),
+            "kyc_date": personal_details.get("KYC_DATE"),
+            "doc_sub": personal_details.get("DOC_SUB"),
+            "kyc_name": personal_details.get("KYC_NAME"),
+            "kyc_designation": personal_details.get("KYC_DESIGNATION"),
+            "kyc_branch": personal_details.get("KYC_BRANCH"),
+            "kyc_empcode": personal_details.get("KYC_EMPCODE"),
+            "org_name": personal_details.get("ORG_NAME"),
+            "org_code": personal_details.get("ORG_CODE"),
+            "num_identity": personal_details.get("NUM_IDENTITY"),
+            "num_related": personal_details.get("NUM_RELATED"),
+            "num_images": personal_details.get("NUM_IMAGES"),
+        }
+    )
+
+    if user_kyc.gender == "M":
+        gender_full = "Male"
+    elif user_kyc.gender == "F":
+        gender_full = "Female"
+    else:
+        gender_full = "Transgender"
+
+    user_kyc.gender_full = gender_full
+
+    if identity_details:
+        identity = identity_details.get("IDENTITY")
+        if identity:
+            if type(identity) != list:
+                identity = [identity]
+
+            for i in identity:
+                user_kyc.append(
+                    "identity_details",
+                    {
+                        "sequence_no": i.get("SEQUENCE_NO"),
+                        "ident_type": i.get("IDENT_TYPE"),
+                        "ident_num": i.get("IDENT_NUM"),
+                        "idver_status": i.get("IDVER_STATUS"),
+                        "ident_category": frappe.db.get_value(
+                            "Identity Code",
+                            {"name": i.get("IDENT_TYPE")},
+                            "category",
+                        ),
+                    },
+                )
+
+    if related_person_details:
+        related_person = related_person_details.get("RELATED_PERSON")
+        if related_person:
+            if type(related_person) != list:
+                related_person = [related_person]
+
+            for r in related_person:
+                photos_ = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=r.get("REL_TYPE"),
+                    image_=r.get("PHOTO_DATA"),
+                    img_format=r.get("PHOTO_TYPE"),
+                )
+                perm_poi_photos_ = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=r.get("REL_TYPE"),
+                    image_=r.get("PERM_POI_DATA"),
+                    img_format=r.get("PERM_POI_IMAGE_TYPE"),
+                )
+                corres_poi_photos_ = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=r.get("REL_TYPE"),
+                    image_=r.get("CORRES_POI_DATA"),
+                    img_format=r.get("CORRES_POI_IMAGE_TYPE"),
+                )
+                user_kyc.append(
+                    "related_person_details",
+                    {
+                        "sequence_no": r.get("SEQUENCE_NO"),
+                        "rel_type": r.get("REL_TYPE"),
+                        "add_del_flag": r.get("ADD_DEL_FLAG"),
+                        "ckyc_no": r.get("CKYC_NO"),
+                        "prefix": r.get("PREFIX"),
+                        "fname": r.get("FNAME"),
+                        "mname": r.get("MNAME"),
+                        "lname": r.get("LNAME"),
+                        "maiden_prefix": r.get("MAIDEN_PREFIX"),
+                        "maiden_fname": r.get("MAIDEN_FNAME"),
+                        "maiden_mname": r.get("MAIDEN_MNAME"),
+                        "maiden_lname": r.get("MAIDEN_LNAME"),
+                        "fatherspouse_flag": r.get("FATHERSPOUSE_FLAG"),
+                        "father_prefix": r.get("FATHER_PREFIX"),
+                        "father_fname": r.get("FATHER_FNAME"),
+                        "father_mname": r.get("FATHER_MNAME"),
+                        "father_lname": r.get("FATHER_LNAME"),
+                        "mother_prefix": r.get("MOTHER_PREFIX"),
+                        "mother_fname": r.get("MOTHER_FNAME"),
+                        "mother_mname": r.get("MOTHER_MNAME"),
+                        "mother_lname": r.get("MOTHER_LNAME"),
+                        "gender": r.get("GENDER"),
+                        "dob": r.get("DOB"),
+                        "nationality": r.get("NATIONALITY"),
+                        "pan": r.get("PAN"),
+                        "form_60": r.get("FORM_60"),
+                        "add_line1": r.get("Add_LINE1"),
+                        "add_line2": r.get("Add_LINE2"),
+                        "add_line3": r.get("Add_LINE3"),
+                        "add_city": r.get("Add_CITY"),
+                        "add_dist": r.get("Add_DIST"),
+                        "add_state": r.get("Add_STATE"),
+                        "add_country": r.get("Add_COUNTRY"),
+                        "add_pin": r.get("Add_PIN"),
+                        "perm_poi_type": r.get("PERM_POI_TYPE"),
+                        "same_as_perm_flag": r.get("SAME_AS_PERM_FLAG"),
+                        "corres_add_line1": r.get("CORRES_ADD_LINE1"),
+                        "corres_add_line2": r.get("CORRES_ADD_LINE2"),
+                        "corres_add_line3": r.get("CORRES_ADD_LINE3"),
+                        "corres_add_city": r.get("CORRES_ADD_CITY"),
+                        "corres_add_dist": r.get("CORRES_ADD_DIST"),
+                        "corres_add_state": r.get("CORRES_ADD_STATE"),
+                        "corres_add_country": r.get("CORRES_ADD_COUNTRY"),
+                        "corres_add_pin": r.get("CORRES_ADD_PIN"),
+                        "corres_poi_type": r.get("CORRES_POI_TYPE"),
+                        "resi_std_code": r.get("RESI_STD_CODE"),
+                        "resi_tel_num": r.get("RESI_TEL_NUM"),
+                        "off_std_code": r.get("OFF_STD_CODE"),
+                        "off_tel_num": r.get("OFF_TEL_NUM"),
+                        "mob_code": r.get("MOB_CODE"),
+                        "mob_num": r.get("MOB_NUM"),
+                        "email": r.get("EMAIL"),
+                        "remarks": r.get("REMARKS"),
+                        "dec_date": r.get("DEC_DATE"),
+                        "dec_place": r.get("DEC_PLACE"),
+                        "kyc_date": r.get("KYC_DATE"),
+                        "doc_sub": r.get("DOC_SUB"),
+                        "kyc_name": r.get("KYC_NAME"),
+                        "kyc_designation": r.get("KYC_DESIGNATION"),
+                        "kyc_branch": r.get("KYC_BRANCH"),
+                        "kyc_empcode": r.get("KYC_EMPCODE"),
+                        "org_name": r.get("ORG_NAME"),
+                        "org_code": r.get("ORG_CODE"),
+                        "photo_type": r.get("PHOTO_TYPE"),
+                        "photo": photos_,
+                        "perm_poi_image_type": r.get("PERM_POI_IMAGE_TYPE"),
+                        "perm_poi": perm_poi_photos_,
+                        "corres_poi_image_type": r.get("CORRES_POI_IMAGE_TYPE"),
+                        "corres_poi": corres_poi_photos_,
+                        "proof_of_possession_of_aadhaar": r.get(
+                            "PROOF_OF_POSSESSION_OF_AADHAAR"
+                        ),
+                        "voter_id": r.get("VOTER_ID"),
+                        "nrega": r.get("NREGA"),
+                        "passport": r.get("PASSPORT"),
+                        "driving_licence": r.get("DRIVING_LICENCE"),
+                        "national_poplation_reg_letter": r.get(
+                            "NATIONAL_POPLATION_REG_LETTER"
+                        ),
+                        "offline_verification_aadhaar": r.get(
+                            "OFFLINE_VERIFICATION_AADHAAR"
+                        ),
+                        "e_kyc_authentication": r.get("E_KYC_AUTHENTICATION"),
+                    },
+                )
+
+    if image_details:
+        image_ = image_details.get("IMAGE")
+        if image_:
+            if type(image_) != list:
+                image_ = [image_]
+
+            for im in image_:
+                image_data = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=im.get("SEQUENCE_NO"),
+                    image_=im.get("IMAGE_DATA"),
+                    img_format=im.get("IMAGE_TYPE"),
+                )
+                user_kyc.append(
+                    "image_details",
+                    {
+                        "sequence_no": im.get("SEQUENCE_NO"),
+                        "image_type": im.get("IMAGE_TYPE"),
+                        "image_code": im.get("IMAGE_CODE"),
+                        "global_flag": im.get("GLOBAL_FLAG"),
+                        "branch_code": im.get("BRANCH_CODE"),
+                        "image_name": frappe.db.get_value(
+                            "Document Master",
+                            {"name": im.get("IMAGE_CODE")},
+                            "document_name",
+                        ),
+                        "image": image_data,
+                    },
+                )
+
+    user_kyc.insert(ignore_permissions=True)
+    frappe.db.commit()
+    return user_kyc
+
+
+def ckyc_offline(customer, offline_customer):
+    res_json = ckyc_dot_net(
+        cust=customer,
+        pan_no=offline_customer.pan_no,
+        is_for_download=True,
+        dob=offline_customer.dob,
+        ckyc_no=offline_customer.ckyc_no,
+    )
+
+    if res_json.get("status") == 200 and not res_json.get("error"):
+        try:
+            user_kyc = ckyc_commit(
+                res_json=res_json, customer=customer, dob=offline_customer.dob
+            )
+
+            user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
+
+            perm_poa = frappe.db.get_value(
+                "Proof of Address Master",
+                {"name": user_kyc.perm_poa},
+                "poa_name",
+            )
+            corres_poa = frappe.db.get_value(
+                "Proof of Address Master",
+                {"name": user_kyc.corres_poa},
+                "poa_name",
+            )
+
+            ckyc_address_doc = frappe.get_doc(
+                {
+                    "doctype": "Customer Address Details",
+                    "perm_line1": user_kyc.perm_line1,
+                    "perm_line2": user_kyc.perm_line2,
+                    "perm_line3": user_kyc.perm_line3,
+                    "perm_city": user_kyc.perm_city,
+                    "perm_dist": user_kyc.perm_dist,
+                    "perm_state": user_kyc.perm_state_name,
+                    "perm_country": user_kyc.perm_country_name,
+                    "perm_pin": user_kyc.perm_pin,
+                    "perm_poa": perm_poa,
+                    "perm_image": frappe.db.get_value(
+                        "CKYC Image Details",
+                        {"parent": user_kyc.name, "image_name": perm_poa},
+                        "image",
+                    ),
+                    "corres_poa_image": frappe.db.get_value(
+                        "CKYC Image Details",
+                        {"parent": user_kyc.name, "image_name": corres_poa},
+                        "image",
+                    ),
+                    "perm_corres_flag": user_kyc.perm_corres_sameflag,
+                    "corres_line1": user_kyc.corres_line1,
+                    "corres_line2": user_kyc.corres_line2,
+                    "corres_line3": user_kyc.corres_line3,
+                    "corres_city": user_kyc.corres_city,
+                    "corres_dist": user_kyc.corres_dist,
+                    "corres_state": user_kyc.corres_state_name,
+                    "corres_country": user_kyc.corres_country_name,
+                    "corres_pin": user_kyc.corres_pin,
+                    "corres_poa": corres_poa,
+                }
+            ).insert(ignore_permissions=True)
+            user_kyc_doc.address_details = ckyc_address_doc.name
+            user_kyc_doc.consent_given = 1
+            user_kyc_doc.save(ignore_permissions=True)
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": customer.phone,
+                    "consent": "Ckyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+
+            # bank details
+            user_kyc_doc.append(
+                "bank_account",
+                {
+                    "bank": offline_customer.bank,
+                    "branch": offline_customer.branch,
+                    "account_number": offline_customer.account_no,
+                    "ifsc": offline_customer.ifsc,
+                    "city": offline_customer.city,
+                    "account_holder_name": offline_customer.account_holder_name,
+                    "bank_address": offline_customer.bank_address,
+                    "account_type": offline_customer.account_type,
+                },
+            ).insert(ignore_permissions=True)
+            # customer.kyc_update = 1
+            customer.choice_kyc = user_kyc.name
+            customer.offline_customer = 1
+            customer.save(ignore_permissions=True)
+            offline_customer.ckyc_status = "Success"
+            offline_customer.user_kyc_name = user_kyc.name
+            offline_customer.kyc_name = user_kyc.name
+            offline_customer.save(ignore_permissions=True)
+            frappe.db.commit()
+
+            return offline_customer.ckyc_status
+
+        except Exception as e:
+            offline_customer.ckyc_status = "Failure"
+            offline_customer.ckyc_remarks = res_json.get("error")
+            offline_customer.save(ignore_permissions=True)
+            frappe.db.commit()
+            log_api_error(mess=str(res_json))
+            return utils.respondWithFailure(
+                status=res_json.get("status"),
+                message="Something went wrong",
+                data=str(e),
+            )
+    else:
+        offline_customer.ckyc_status = "Failure"
+        offline_customer.ckyc_remarks = res_json.get("error")
+        offline_customer.save(ignore_permissions=True)
+        frappe.db.commit()
+        frappe.db.rollback
+        log_api_error(mess=str(res_json))
+
+
+@frappe.whitelist()
+def customer_file_upload(upload_file):
+    try:
+        files = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
+        file = frappe.get_doc("File", files[0].name)
+        file_path = file.get_full_path()
+        with open(file_path, "r") as upfile:
+            fcontent = upfile.read()
+
+        csv_data = read_csv_content(fcontent)
+
+        for i in csv_data[1:]:
+            message = ""
+            # validation for name
+            first_name = False
+            last_name = False
+            if " " in i[0]:
+                first_name = True
+                message += "Space not allowed in First Name.\n"
+            if " " in i[1]:
+                last_name = True
+                message += "Space not allowed in Last Name.\n"
+            reg = regex_special_characters(search=i[0] + i[1])
+            if reg:
+                message += (
+                    "Special Characters not allowed in First Name and Last Name.\n"
+                )
+
+            # Validation for Email
+            email_regex = (
+                r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+            )
+            if re.search(email_regex, i[3]) is None or (len(i[3].split("@")) > 2):
+                message += "Please enter valid email ID.\n"
+
+            # Validation for Alphanumeric
+            alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
+            pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
+            if (re.search(pan_regex, i[4]) is None) or (
+                re.search(alphanum_regex, i[10]) is None
+            ):
+                message += "Please enter valid Pan No or IFSC code.\n"
+
+            # validation for mobile number
+            if (len(i[2]) > 10) or (i[2].isnumeric == False):
+                message += "Please enter valid Mobile Number.\n"
+
+            if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
+                message += "Please enter valid CKYC Number or Account Number.\n"
+
+            # if i[11].isalpha() == False:
+            #     message += "Please enter valid city name.\n"
+
+            # entry in Spark offline customer log doctype
+            offline_customer = frappe.get_doc(
+                dict(
+                    doctype="Spark Offline Customer Log",
+                    first_name=i[0],
+                    last_name=i[1],
+                    mobile_no=i[2],
+                    email_id=i[3],
+                    customer_first_name=i[0],
+                    customer_last_name=i[1],
+                    customer_mobile=i[2],
+                    customer_email=i[3],
+                    pan_no=i[4],
+                    ckyc_no=i[6],
+                    dob=i[5],
+                    bank=i[7],
+                    # branch=i[8],
+                    account_no=i[8],
+                    ifsc=i[9],
+                    # city=i[11],
+                    account_holder_name=i[10],
+                    # bank_address=i[13],
+                    # account_type=i[11],
+                    mycams_email_id=i[11],
+                )
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+
+            if (
+                (reg)
+                or (
+                    re.search(email_regex, offline_customer.customer_email) is None
+                    or (len(offline_customer.customer_email.split("@")) > 2)
+                )
+                or (
+                    (len(offline_customer.mobile_no) > 10)
+                    or offline_customer.mobile_no.isnumeric == False
+                )
+                or (offline_customer.ckyc_no.isnumeric() == False)
+                or (
+                    (offline_customer.account_no.isnumeric() == False)
+                    or (re.search(alphanum_regex, offline_customer.ifsc) is None)
+                )
+                or (re.search(pan_regex, offline_customer.pan_no) is None)
+                or (first_name)
+                or (last_name)
+            ):
+                offline_customer.user_status = "Failure"
+                offline_customer.user_remarks = message
+                offline_customer.customer_status = "Failure"
+                offline_customer.ckyc_status = "Failure"
+                offline_customer.bank_status = "Failure"
+                offline_customer.save(ignore_permissions=True)
+                frappe.db.commit()
+                # frappe.throw(_("Please Enter valid data"))
+
+            else:
+                # user creation
+                res = frappe.get_all(
+                    "User",
+                    filters={
+                        "phone": offline_customer.mobile_no,
+                        "mobile_no": offline_customer.mobile_no,
+                    },
+                )
+                cust = frappe.get_all(
+                    "Loan Customer", filters={"phone": offline_customer.mobile_no}
+                )
+                if res and cust:
+                    offline_customer.user_status = "Failure"
+                    offline_customer.user_remarks = "Duplicate Value"
+                    offline_customer.customer_status = "Failure"
+                    offline_customer.customer_remarks = "Duplicate Values"
+                    # offline_customer.user_name == res[0].name
+                    offline_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
+                else:
+                    res_email = frappe.get_all(
+                        "User", filters={"email": offline_customer.customer_email}
+                    )
+                    res_mobile = frappe.get_all(
+                        "User",
+                        filters={
+                            "phone": offline_customer.mobile_no,
+                            "mobile_no": offline_customer.mobile_no,
+                        },
+                    )
+                    if res_email or res_mobile:
+                        d_name = res_email[0].name if res_email else res_mobile[0].name
+                        user = frappe.get_doc("User", d_name)
+                        offline_customer.user_status = "Failure"
+                        offline_customer.user_remarks = "Duplicate Value"
+                        offline_customer.customer_status = "Failure"
+                        offline_customer.customer_remarks = "Duplicate Values"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    else:
+                        user = create_user(
+                            offline_customer.first_name,
+                            offline_customer.last_name,
+                            offline_customer.mobile_no,
+                            offline_customer.customer_email,
+                            tester=0,
+                        )
+                        offline_customer.user_status = "Success"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+
+                    # loan customer creation
+                    res = frappe.get_all(
+                        "Loan Customer", filters={"phone": offline_customer.mobile_no}
+                    )
+                    res_user = frappe.get_all(
+                        "Loan Customer", filters={"user": user.name}
+                    )
+                    cust_status = ""
+                    if res or res_user:
+                        doc_name = res[0].name if res else res_user[0].name
+                        # frappe.throw(
+                        #     _(
+                        #         "Loan Customer already exists".format(
+                        #             offline_customer.mobile_no
+                        #         )
+                        #     )
+                        # )
+                        offline_customer.customer_status = "Failure"
+                        offline_customer.customer_remarks = (
+                            "Loan Customer already exists"
+                        )
+                        # offline_customer.user_name == doc_name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    else:
+                        customer = create_customer(user)
+                        customer.offline_customer = 1
+                        customer.is_email_verified = 1
+                        customer.save(ignore_permissions=True)
+                        offline_customer.customer_status = "Success"
+                        cust_status = "Success"
+                        offline_customer.customer_name = customer.name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+
+                    # User Kyc creation
+                    res_kyc = frappe.get_all("User KYC", filters={"user": user.name})
+                    if res_kyc:
+                        frappe.throw(_("User KYC already exists"))
+                        offline_customer.ckyc_status = "Failure"
+                        offline_customer.ckyc_remarks = "Duplicate Values"
+                        offline_customer.user_kyc_name = res_kyc[0].name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+
+                    else:
+                        if cust_status == "Success":
+                            ckyc_offline(
+                                customer=customer, offline_customer=offline_customer
+                            )
+    except Exception:
+        frappe.log_error(
+            title="Create User Customer Cron Error",
+            message=frappe.get_traceback()
+            + "\n\n{}".format(str(i) if i else str(upload_file)),
+        )
+
+
+@frappe.whitelist()
+def create_user_customer(upload_file):
+    try:
+        frappe.enqueue(
+            method=customer_file_upload(upload_file=upload_file),
+            queue="long",
+            job_name="Offline Customer File Processing",
+        )
+    except Exception:
+        frappe.log_error(title="Create User Customer Main Function Error")
+
+
+def penny_call_create_contact(user=None, customer=None, user_kyc=None):
+    try:
+        try:
+            user_name = user
+            if not user:
+                user = __user()
+                user_name = user.name
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            # raise exceptions.NotFoundException(_("User not found"))
+            data = {"message": "User not found"}
+            return data
+
+        # check Loan Customer
+        # if not customer:
+        customer = __customer(user_name)
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            # raise exceptions.NotFoundException(_("Customer not found"))
+            data = {"message": "Customer not found"}
+            return data
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Create contact Error",
+                message="Penny Drop Create contact Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            data = {
+                "message": "Penny Drop Create contact Error - Razorpay Key Secret Missing"
+            }
+            return data
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            data_rzp = {
+                "name": customer.full_name,
+                "email": customer.user,
+                "contact": customer.phone,
+                "type": "customer",
+                "reference_id": customer.name,
+                "notes": {},
+            }
+            raw_res = requests.post(
+                las_settings.pennydrop_create_contact,
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data_rzp),
+            )
+            data_res = raw_res.json()
+
+            if data_res.get("error"):
+                log = {
+                    "request": data_rzp,
+                    "response": data_res.get("error"),
+                }
+                create_log(log, "rzp_penny_contact_error_log")
+                # return utils.respondWithFailure(message=frappe._("failed"))
+                data = {"message": "failed"}
+                return data
+
+            # User KYC save
+            """since CKYC development not done yet, using existing user kyc to update contact ID"""
+
+            # if not user_kyc:
+            try:
+                user_kyc = __user_kyc(user_name)
+            except UserKYCNotFoundException:
+                # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+                data = {"message": "User KYC not found"}
+                return data
+
+            # update contact ID
+            contact_id = data_res.get("id")
+            create_log(data_res, "rzp_penny_contact_success_log")
+            data = {"message": contact_id}
+            return data
+            # user_kyc.save(ignore_permissions=True)
+            # frappe.db.commit()
+
+            # return utils.respondWithSuccess(message=frappe._("success"),data = contact_id)
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create contact Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create contact Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+def call_penny_create_fund_account(
+    user, ifsc=None, account_number=None, account_holder_name=None
+):
+    try:
+        utils.validator.validate_http_method("POST")
+        # data = utils.validator.validate(
+        #     kwargs,
+        #     {
+        #         "ifsc": "required",
+        #         "account_holder_name": "required",
+        #         "account_number": ["required", "decimal"],
+        #     },
+        # )
+
+        # ifsc and account holder name validation
+        reg = regex_special_characters(search=account_holder_name + ifsc)
+        if reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            data = {"message": "Special Characters not allowed"}
+            return data
+
+        # check user
+        try:
+            user_name = user
+            if not user:
+                user = __user()
+                user_name = user.name
+
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            data = {"message": "User not found"}
+            return data
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Error",
+                message="Penny Drop Fund Account Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            data = {
+                "message": "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
+            }
+            return data
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            user_kyc = __user_kyc(user_name)
+        except UserKYCNotFoundException:
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            data = {"message": "User KYC not found"}
+            return data
+
+        try:
+            data_rzp = {
+                "contact_id": user_kyc.razorpay_contact_id,
+                "account_type": "bank_account",
+                "bank_account": {
+                    "name": account_holder_name,
+                    "ifsc": ifsc,
+                    "account_number": account_number,
+                },
+            }
+            raw_res = requests.post(
+                las_settings.pennydrop_create_fund_account,
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data_rzp),
+            )
+            data_res = raw_res.json()
+            data = json.dumps(data_rzp)
+            if data_res.get("error"):
+                log = {
+                    "request": data,
+                    "response": data_res.get("error"),
+                }
+                create_log(log, "rzp_penny_fund_account_error_log")
+                # return utils.respondWithFailure(message=frappe._("failed"))
+                data = {"message": "failed"}
+                return data
+            # if not get error
+            data_resp = {"fa_id": data_res.get("id")}
+            create_log(data_res, "rzp_penny_fund_account_success_log")
+            return data_resp
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create fund account Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+def call_penny_create_fund_account_validation(
+    user=None,
+    create_fund_acc=None,
+    account_type=None,
+    branch=None,
+    city=None,
+    personalized_cheque=None,
+):
+    try:
+        # utils.validator.validate_http_method("POST")
+        # data = utils.validator.validate(
+        #     kwargs,
+        #     {
+        #         "fa_id": "required",
+        #         "bank_account_type": "",
+        #         "branch": "required",
+        #         "city": "required",
+        #         "personalized_cheque": "required",
+        #     },
+        # )
+
+        # check user
+        try:
+            user_name = user
+            if not user:
+                user = __user()
+                user_name = user.name
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            data = {"message": "User not found"}
+            return data
+
+        # check Loan Customer
+        customer = __customer(user_name)
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            data = {"message": "Customer not found"}
+            return data
+
+        # user KYC
+        try:
+            user_kyc = __user_kyc(user_name)
+        except UserKYCNotFoundException:
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            # raise exceptions.RespondWithFailureException(_("User KYC not found"))
+            data = {"message": "User KYC not found"}
+            return data
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            # raise exceptions.RespondWithFailureException()
+            data = {
+                "message": "Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing"
+            }
+            return data
+
+        if not las_settings.razorpay_bank_account:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing",
+            )
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException()
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        data = {
+            "fa_id": create_fund_acc,
+            "bank_account_type": account_type,
+            "branch": branch,
+            "city": city,
+            "personalized_cheque": personalized_cheque,
+        }
+        try:
+            if "rzp_test_" in las_settings.razorpay_key_secret:
+                data_res = {
+                    "id": "fav_JpHg4DC2VJ80Zw",
+                    "entity": "fund_account.validation",
+                    "fund_account": {
+                        "id": data.get("fa_id"),
+                        "entity": "fund_account",
+                        "contact_id": "cont_JpHHIYu00BTzNL",
+                        "account_type": "bank_account",
+                        "bank_account": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112507",
+                        },
+                        "batch_id": None,
+                        "active": True,
+                        "created_at": 1656935250,
+                        "details": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112507",
+                        },
+                    },
+                    "status": "completed",
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": data.get("branch"),
+                        "city": data.get("city"),
+                        "bank_account_type": data.get("bank_account_type"),
+                    },
+                    "results": {
+                        "account_status": "active",
+                        "registered_name": user_kyc.fname,
+                    },
+                    "created_at": 1656936646,
+                    "utr": None,
+                }
+
+            else:
+                data_rzp = {
+                    "account_number": las_settings.razorpay_bank_account,
+                    "fund_account": {"id": create_fund_acc},
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": branch,
+                        "city": city,
+                        "bank_account_type": account_type,
+                    },
+                }
+                url = las_settings.pennydrop_create_fund_account_validation
+                headers = {
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                }
+                raw_res = requests.post(
+                    url=url,
+                    headers=headers,
+                    data=json.dumps(data_rzp),
+                )
+
+                data_res = raw_res.json()
+                log = {
+                    "url": las_settings.pennydrop_create_fund_account_validation,
+                    "headers": headers,
+                    "request": data_rzp,
+                    "response": data_res,
+                }
+
+                create_log(log, "rzp_pennydrop_create_fund_account_validation")
+
+            penny_handle = penny_api_response_handle(
+                data,
+                user_kyc,
+                customer,
+                data_res,
+                personalized_cheque=personalized_cheque,
+            )
+            return penny_handle
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+def call_penny_create_fund_account_validation_by_id(
+    user=None,
+    fav_id=None,
+    personalized_cheque=None,
+):
+    try:
+        # utils.validator.validate_http_method("POST")
+        # data = utils.validator.validate(
+        #     kwargs,
+        #     {
+        #         "fav_id": "required",
+        #         "personalized_cheque": "required",
+        #     },
+        # )
+        # check user
+        # try:
+        #     user = lms.__user()
+        # except UserNotFoundException:
+        #     # return utils.respondNotFound(message=frappe._("User not found."))
+        #     raise lms.exceptions.NotFoundException(_("User not found"))
+
+        try:
+            user_name = user
+            if not user:
+                user = __user()
+                user_name = user.name
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            data = {"message": "User not found"}
+            return data
+
+        # check Loan Customer
+        customer = __customer(user_name)
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            # raise exceptions.NotFoundException(_("Customer not found"))
+            data = {"message": "Customer not found"}
+            return data
+
+        # user KYC
+        try:
+            user_kyc = __user_kyc(user_name)
+        except UserKYCNotFoundException:
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            # raise exceptions.RespondWithFailureException(_("User KYC not found"))
+            data = {"message": "User KYC not found"}
+            return data
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            # raise exceptions.RespondWithFailureException()
+            data = {
+                "message": "Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing"
+            }
+            return data
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            data = {
+                "fav_id": fav_id,
+            }
+            if "rzp_test_" in las_settings.razorpay_key_secret:
+                data_res = {
+                    "id": "fav_JpHg4DC2VJ80Zw",
+                    "entity": "fund_account.validation",
+                    "fund_account": {
+                        "id": "fa_KO3f6cc2X8oLW7",
+                        "entity": "fund_account",
+                        "contact_id": "cont_JpHHIYu00BTzNL",
+                        "account_type": "bank_account",
+                        "bank_account": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112506",
+                        },
+                        "batch_id": None,
+                        "active": True,
+                        "created_at": 1656935250,
+                        "details": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112506",
+                        },
+                    },
+                    "status": "completed",
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        # "branch": data.get("branch"),
+                        # "city": data.get("city"),
+                        # "bank_account_type": data.get("bank_account_type"),
+                    },
+                    "results": {
+                        "account_status": "active",
+                        "registered_name": user_kyc.fname,
+                    },
+                    "created_at": 1656936646,
+                    "utr": None,
+                }
+            else:
+                url = (
+                    las_settings.pennydrop_create_fund_account_validation_id
+                    + "/{}".format(data.get("fav_id"))
+                )
+                headers = {
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                }
+                raw_res = requests.get(
+                    url=url,
+                    headers=headers,
+                )
+
+                data_res = raw_res.json()
+                log = {
+                    "url": url,
+                    "headers": headers,
+                    "request": data,
+                    "response": data_res,
+                }
+
+                # create_log(log, "rzp_pennydrop_create_fund_account_validation_by_id")
+            validation_by_id = penny_api_response_handle(
+                data,
+                user_kyc,
+                customer,
+                data_res,
+                personalized_cheque=personalized_cheque,
+            )
+            return validation_by_id
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+def penny_api_response_handle(
+    data, user_kyc, customer, data_res, personalized_cheque=None
+):
+    try:
+        data_resp = {
+            "fav_id": data_res.get("id"),
+            "status": data_res.get("status"),
+        }
+        if data_res.get("error"):
+            data_resp["status"] = "failed"
+            message = "Your account details have not been successfully verified"
+            log = {
+                "request": data,
+                "response": data_res,
+            }
+            create_log(log, "rzp_penny_fund_account_validation_error_log")
+            # raise utils.respondWithFailure(message=message)
+            # raise exceptions.RespondWithFailureException(message=message)
+            data = {
+                "message": "Your account details have not been successfully verified"
+            }
+            return data
+
+        if data_res.get("status") == "failed":
+            data = {
+                "message": "Your account details have not been successfully verified"
+            }
+            return data
+            # return utils.respondWithFailuremessage=message, data=data_resp)
+            # raise exceptions.RespondFailureException(message, data_resp)
+
+        if data_res.get("status") == "created":
+            data = {"message": "waiting for response from bank"}
+            return data
+
+        account_status = data_res.get("results").get("account_status")
+        if data_res.get("status") == "completed" and account_status == "active":
+            # name validation - check user entered account holder name is same with registered name
+            # account_holder_name = (
+            #     data_res.get("fund_account")
+            #     .get("bank_account")
+            #     .get("name")
+            #     .lower()
+            #     .split(" ")
+            # )
+            registered_name = data_res.get("results").get("registered_name").lower()
+            account_status = data_res.get("results").get("account_status")
+            photos_ = personalized_cheque
+            if personalized_cheque:
+                photos_ = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=data_res.get("fund_account")
+                    .get("bank_account")
+                    .get("account_number")[-4:],
+                    image_=personalized_cheque,
+                    img_format="jpeg",
+                    img_folder="personalized_cheque",
+                )
+
+            if user_kyc.fname.lower() in registered_name:
+
+                message = "Your account details have been successfully verified"
+
+                # check bank Entry existence. if not exist then create entry
+                if user_kyc.kyc_type == "CHOICE":
+                    bank_entry_name = frappe.db.get_value(
+                        "User Bank Account",
+                        {
+                            "parentfield": "bank_account",
+                            # "razorpay_fund_account_id": data_res.get(
+                            #     "fund_account"
+                            # ).get("id"),
+                            "account_number": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("account_number"),
+                        },
+                        "name",
+                    )
+
+                    if not bank_entry_name:
+                        bank_account_list = frappe.get_all(
+                            "User Bank Account",
+                            filters={"parent": user_kyc.name},
+                            fields="*",
+                        )
+                        for b in bank_account_list:
+                            if bank_entry_name != b.name:
+                                other_bank = frappe.get_doc("User Bank Account", b.name)
+                                if other_bank.is_default == 1:
+                                    other_bank.is_default = 0
+                                    other_bank.save(ignore_permissions=True)
+                        frappe.get_doc(
+                            {
+                                "doctype": "User Bank Account",
+                                "parentfield": "bank_account",
+                                "parenttype": "User KYC",
+                                "bank": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("bank_name"),
+                                "branch": data_res.get("notes").get("branch"),
+                                "account_type": data_res.get("notes").get(
+                                    "bank_account_type"
+                                ),
+                                "account_number": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("account_number"),
+                                "ifsc": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("ifsc"),
+                                "account_holder_name": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("name"),
+                                "personalized_cheque": photos_,
+                                "city": data_res.get("notes").get("city"),
+                                "parent": user_kyc.name,
+                                "is_default": True,
+                                "razorpay_fund_account_id": data_res.get(
+                                    "fund_account"
+                                ).get("id"),
+                                "razorpay_fund_account_validation_id": data_res.get(
+                                    "id"
+                                ),
+                                "bank_status": "Pending",
+                            }
+                        ).insert(ignore_permissions=True)
+                        # frappe.db.commit()
+                    else:
+                        # For existing choice bank entries
+                        bank_account = frappe.get_doc(
+                            "User Bank Account", bank_entry_name
+                        )
+                        bank_account.account_holder_name = (
+                            data_res.get("fund_account").get("bank_account").get("name")
+                        )
+                        bank_account.razorpay_fund_account_id = (
+                            (data_res.get("fund_account").get("id")),
+                        )
+                        bank_account.razorpay_fund_account_validation_id = (
+                            data_res.get("id"),
+                        )
+                        bank_account.personalized_cheque = photos_
+                        bank_account.bank_status = "Pending"
+                        bank_account.save(ignore_permissions=True)
+                        frappe.db.commit()
+                else:
+                    # For non choice user
+                    frappe.get_doc(
+                        {
+                            "doctype": "User Bank Account",
+                            "parentfield": "bank_account",
+                            "parenttype": "User KYC",
+                            "bank": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("bank_name"),
+                            "branch": data_res.get("notes").get("branch"),
+                            "account_type": data_res.get("notes").get(
+                                "bank_account_type"
+                            ),
+                            "account_number": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("account_number"),
+                            "ifsc": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("ifsc"),
+                            "account_holder_name": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("name"),
+                            "personalized_cheque": photos_,
+                            "city": data_res.get("notes").get("city"),
+                            "parent": user_kyc.name,
+                            "is_default": True,
+                            "razorpay_fund_account_id": data_res.get(
+                                "fund_account"
+                            ).get("id"),
+                            "razorpay_fund_account_validation_id": data_res.get("id"),
+                            "bank_status": "Pending",
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+            else:
+                data_resp["status"] = "failed"
+                data = {
+                    "data_resp": data_resp,
+                    "message": "We have found a mismatch in the account holder name as per the fetched data",
+                }
+                return data
+        else:
+            data_resp["status"] = "failed"
+            data = {
+                "data_resp": data_resp,
+                "message": "Your account details have not been successfully verified",
+            }
+            return data
+
+        create_log(data_res, "rzp_penny_fund_account_validation_success_log")
+        return data_res
+    except utils.exceptions.APIException as e:
+        log_api_error(
+            str(message if message else "")
+            + "\n"
+            + str(data_resp if data_resp else data_res)
+        )
+        return e.respond()
+
+
 @frappe.whitelist(allow_guest=True)
 def penny_validate_fund_account():
     try:
@@ -2081,37 +3493,7 @@ def penny_validate_fund_account():
         log_api_error()
 
 
-def send_sms_notification(customer, msg, token_type=None):
-    try:
-        print("Customer :", customer)
-        if type(customer) != dict:
-            print("Inside sms if")
-            receiver_list = [str(customer)]
-
-        else:
-            print("Inside sms else", customer.phone)
-            receiver_list = [str(customer.phone)]
-            if customer.get_kyc().mob_num:
-                receiver_list.append(str(customer.get_kyc().mob_num))
-            if customer.get_kyc().choice_mob_no:
-                receiver_list.append(str(customer.get_kyc().choice_mob_no))
-
-        receiver_list = list(set(receiver_list))
-        print("sdfghjk")
-        # send_sms(receiver_list=receiver_list, msg=msg)
-        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-        print("receiver_list", receiver_list)
-    except Exception:
-        frappe.log_error(
-            message=frappe.get_traceback()
-            + "\n\nCustomer name -\n{}\n\nMessage details -\n{}".format(
-                customer, str(msg)
-            ),
-            title="Send SMS Notification Error",
-        )
-
-
-def au_pennydrop_api(data):
+def au_pennydrop_api(data, kyc_full_name):
     try:
         ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
             abs(randint(0, 9999) - randint(1, 99))
@@ -2133,6 +3515,7 @@ def au_pennydrop_api(data):
             "ReqId": ReqId,
             "IFSCCode": data.get("ifsc"),
             "AccNum": data.get("account_number"),
+            "BeneficiaryName": kyc_full_name,
             "HashValue": base64.b64encode(final_hash).decode("ascii"),
         }
         data["payload"] = payload
@@ -2183,6 +3566,10 @@ def name_matching(user_kyc, bank_acc_full_name):
         ) and (
             user_kyc.lname
             and user_kyc.lname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        elif (user_kyc.fname and not user_kyc.mname and not user_kyc.lname) and (
+            user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
         ):
             return True
         else:
@@ -2483,7 +3870,6 @@ def ckyc_commit(res_json, customer, dob):
     return user_kyc
 
 
-@frappe.whitelist(allow_guest=True)
 def redirect_to_url(url=""):
     try:
         if not url:
@@ -2497,16 +3883,6 @@ def redirect_to_url(url=""):
         )
 
 
-# def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
-#     try:
-#         pmt_ = np.pmt(interest_in_percentage / 12, tenure, sanction_limit)
-#         present_value = sanction_limit - charges
-#         future_value = 0
-#         apr = (
-#             np.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value) * 12 * 100
-#         )
-#         if apr < 0:
-#             apr = 0
 def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
     try:
         pmt_ = npf.pmt((interest_in_percentage / 100) / 12, tenure, sanction_limit)
@@ -2611,20 +3987,8 @@ def compress_image(input_image_path, user, quality=100):
 
 
 def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
-    # print("akash")
-    # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
     registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
-    # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
 
-    # packet = io.BytesIO()
-    # can = canvas.Canvas(packet, pagesize=letter)
-    # current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
-    # can.setFont("Calibri-Bold", 10)
-    # can.drawString(80, 790, current_time)
-    # can.save()
-    # packet.seek(0)
-
-    # new_pdf = PdfReader(packet)
     lfile_name = esigned_doc.split("files/", 1)
     l_file = lfile_name[1]
     pdf_file_path = frappe.utils.get_files_path(
@@ -2672,13 +4036,6 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     page25.merge_page(watermark)
     output.add_page(page25)
 
-    # add the "watermark" (which is the new pdf) on the existing page
-    # page = existing_pdf.pages[21]
-    # page.merge_page(new_pdf.pages[0])
-    # output.add_page(page)
-    # page = existing_pdf.pages[25]
-    # page.merge_page(new_pdf.pages[0])
-    # output.add_page(page)
     for i in range(37, num_of_page):
         page = reader.pages[i]
         output.add_page(page)
@@ -2698,31 +4055,6 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     output.write(output_stream)
     output_stream.close()
     return sanction_letter_esign_doc
-
-    #####nes#######
-    # merger = PdfWriter()
-    # input1 = open(pdf_file_path, "rb")
-    # input2 = open(sanction_letter_esign, "rb")
-    # merger.append(input1, pages=(0, 21))
-    # merger.append(input2, pages=[0])
-    # merger.append(input1, pages=(22, 25))
-    # merger.append(input2, pages=[1])
-    # merger.append(input1, pages=(26, num_of_page))
-    # # merger.append(input1, pages=[3])
-    # lender_esigned_doc_final = "Loan_Agreement_{}_{}.pdf".format(loan_application_name,frappe.utils.now_datetime().strftime("%Y-%m-%d"))
-    # lender_esigned_doc_final_path = frappe.utils.get_files_path(
-    #     lender_esigned_doc_final
-    # )
-    # if os.path.exists(lender_esigned_doc_final_path):
-    #     os.remove(lender_esigned_doc_final_path)
-    # lender_esigned_doc_final_document = frappe.utils.get_url(
-    #     "files/{}".format(lender_esigned_doc_final)
-    # )
-    # lender_esigned_doc_final = frappe.utils.get_files_path(lender_esigned_doc_final)
-    # with open(lender_esigned_doc_final, "wb") as mp:
-    #     merger.write(mp)
-    # print("lender_esigned_doc_final_document", lender_esigned_doc_final_document)
-    # print("lender_esigned_doc_final", lender_esigned_doc_final)
 
 
 PDF_CONTENT_ERRORS = [
@@ -2878,7 +4210,7 @@ def read_options_from_html(html):
             match = pattern.findall(html)
             if match:
                 options[attr] = str(match[-1][3]).strip()
-        except:
+        except Exception:
             pass
 
     return str(soup), options
@@ -2957,3 +4289,30 @@ def toggle_visible_pdf(soup):
     for tag in soup.find_all(attrs={"class": "hidden-pdf"}):
         # remove tag from html
         tag.extract()
+
+
+def personalized_cheque_log(name, image_, img_format):
+    try:
+        name = name + "_" + str(frappe.utils.now_datetime())
+
+        picture_file = "{}.{}".format(name, img_format).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
+        image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/{}.{}".format(name, img_format).replace(" ", "-")
+        )
+        create_log({"url": ckyc_image_file_url}, "personalized_cheque_log")
+
+        return ckyc_image_file_url
+    except Exception:
+        frappe.log_error(
+            title="Personalized cheque Error",
+            message=frappe.get_traceback() + "\n\nUser:{}".format(frappe.session.user),
+        )

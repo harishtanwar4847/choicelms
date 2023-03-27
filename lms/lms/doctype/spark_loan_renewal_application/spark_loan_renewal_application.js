@@ -15,6 +15,21 @@ frappe.ui.form.on("Spark Loan Renewal Application", {
         });
       });
     }
+    frm.attachments.parent.hide();
+    if (["Esign Done", "Approved"].includes(frm.doc.status)) {
+      if (frm.doc.customer_esigned_document) {
+        frm
+          .get_field("customer_esigned_document")
+          .$input_wrapper.find("[data-action=clear_attachment]")
+          .hide();
+      }
+      if (frm.doc.lender_esigned_document) {
+        frm
+          .get_field("lender_esigned_document")
+          .$input_wrapper.find("[data-action=clear_attachment]")
+          .hide();
+      }
+    }
   },
   before_load: function (frm) {
     frappe.call({

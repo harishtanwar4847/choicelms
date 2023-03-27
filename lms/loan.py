@@ -257,6 +257,7 @@ def esign(**kwargs):
             return utils.respondWithSuccess(
                 message=_("Esign URL."),
                 data={"esign_url": url, "file_id": data.get("id")},
+                # data.get("id")
             )
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
@@ -1003,6 +1004,19 @@ def loan_details(**kwargs):
         customer = lms.__customer()
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
+            for i in loan.items:
+                psn_no = frappe.db.sql(
+                    """select psn from `tabCollateral Ledger` where isin = '{isin}' and loan = '{loan}' and 
+                      application_doctype = '{application_doctype}' and request_type = '{request_type}'""".format(
+                        isin=i.isin,
+                        loan=loan.name,
+                        application_doctype="Loan Application",
+                        request_type="Pledge",
+                    ),
+                    as_dict=True,
+                    debug=True,
+                )
+                # i["psn"] = psn_no
         except frappe.DoesNotExistError:
             # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
@@ -2695,6 +2709,11 @@ def validate_securities_for_unpledge(securities, loan):
                 break
             duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
             folio_list.append(i["folio"])
+        # else:
+        #     if "psn" not in i.keys() or not i.get("psn"):
+        #         securities_valid = False
+        #         message = frappe._("psn not present")
+        #         break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
@@ -2759,9 +2778,9 @@ def validate_securities_for_unpledge(securities, loan):
                 break
 
             keys = i.keys()
-            if "isin" not in keys or "quantity" not in keys:
+            if "isin" not in keys or "quantity" not in keys or "psn" not in keys:
                 securities_valid = False
-                message = frappe._("isin or quantity not present")
+                message = frappe._("isin or quantity or psn not present")
                 break
 
             if i.get("quantity") <= 0:
@@ -2901,9 +2920,24 @@ def loan_unpledge_request(**kwargs):
                     "isin": i["isin"],
                     "quantity": i["quantity"],
                     "folio": i["folio"],
+                    "psn": i["psn"],
                 }
             )
             items.append(temp)
+
+            pledged_quantity = frappe.get_all(
+                "Collateral Ledger",
+                filters={
+                    "loan": loan.name,
+                    "isin": i["isin"],
+                    "application_doctype": "Loan Application",
+                },
+                fields=["psn", "isin", "quantity"],
+            )
+            a = 0
+            for date in pledged_quantity:
+                a += date.quantity
+            print("quantity", a)
 
         unpledge_application = frappe.get_doc(
             {
@@ -3084,6 +3118,7 @@ def sell_collateral_request(**kwargs):
                     "isin": i["isin"],
                     "quantity": i["quantity"],
                     "folio": i["folio"],
+                    "psn": i["psn"],
                 }
             )
             items.append(temp)
@@ -3281,9 +3316,9 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 break
 
             keys = i.keys()
-            if "isin" not in keys or "quantity" not in keys:
+            if "isin" not in keys or "quantity" not in keys or "psn" not in keys:
                 securities_valid = False
-                message = frappe._("isin or quantity not present")
+                message = frappe._("isin or quantity or psn not present")
                 break
 
             if i.get("quantity") <= 0:
