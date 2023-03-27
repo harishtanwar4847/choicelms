@@ -27,9 +27,17 @@ class SellCollateralApplication(Document):
         self.process_items()
 
     def before_save(self):
+        isin = [i.isin for i in self.items]
+        allowed_securities = lms.get_allowed_securities(
+            isin, self.lender, self.instrument_type
+        )
+        for i in self.items:
+            security = allowed_securities.get(i.isin)
+            i.eligible_percentage = security.eligible_percentage
+            i.security_category = security.security_category
         self.process_items()
         self.process_sell_items()
-        if self.status == "Rejected":
+        if self.status == "Rejected" and not self.processed:
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request rejected", fields=["*"]
             )
@@ -187,6 +195,8 @@ class SellCollateralApplication(Document):
                 )
 
     def before_submit(self):
+        if not self.processed:
+            frappe.throw("Please check the Processed Checkbox")
         # check if all securities are sold
         sell_quantity_map = {
             "{}{}{}".format(
@@ -251,6 +261,8 @@ class SellCollateralApplication(Document):
         las_settings = frappe.get_single("LAS Settings")
 
         if self.status == "Rejected":
+            if self.processed:
+                frappe.throw("Please uncheck the Processed Checkbox")
             if self.instrument_type == "Mutual Fund":
                 msg = frappe.get_doc(
                     "Spark SMS Notification", "Invoke request"

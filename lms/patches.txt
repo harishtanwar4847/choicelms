@@ -57,3 +57,5 @@ lms.patches.update_consent
 lms.patches.update_spark_fcm_notification 
 lms.patches.create_loan_renewal_application 
 lms.patches.au_bank_penny
+lms.patches.update_category_in_allowed_security
+lms.patches.update_url_of_agreement_in_loan

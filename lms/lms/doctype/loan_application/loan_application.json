@@ -21,7 +21,6 @@
   "loan_application_column_break",
   "customer",
   "customer_name",
-  "allowable_ltv",
   "expiry_date",
   "loan",
   "lender_esigned_document",
@@ -30,6 +29,7 @@
   "pledgee_boid",
   "instrument_type",
   "scheme_type",
+  "notification_sent",
   "items_section",
   "items",
   "section_break_23",
@@ -58,6 +58,7 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -69,6 +70,7 @@
    "fieldtype": "Table",
    "label": "Item",
    "options": "Loan Application Item",
+   "read_only_depends_on": "eval:[\"Pledge accepted by Lender\",\"Esign Done\",\"Ready for Approval\",\"Approved\",\"Rejected\",\"Pledge Failure\"].includes(doc.status);",
    "reqd": 1
   },
   {
@@ -85,14 +87,6 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Total Collateral Value",
-   "read_only": 1
-  },
-  {
-   "depends_on": "eval:doc.instrument_type==\"Shares\";",
-   "fieldname": "allowable_ltv",
-   "fieldtype": "Float",
-   "label": "Allowable LTV",
-   "mandatory_depends_on": "doc.instrument_type==\"Shares\";",
    "read_only": 1
   },
   {
@@ -149,6 +143,7 @@
    "fieldtype": "Select",
    "label": "Pledge Status",
    "options": "Pending\nSuccess\nPartial Success\nFailure",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -188,14 +183,16 @@
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
    "label": "Pledgor BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
   },
   {
    "depends_on": "eval:doc.instrument_type==\"Shares\";",
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
   },
   {
    "default": "Shares",
@@ -203,6 +200,7 @@
    "fieldtype": "Select",
    "label": "Instrument Type",
    "options": "Shares\nMutual Fund",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -217,6 +215,7 @@
    "fieldtype": "Select",
    "label": "Application Type",
    "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -302,6 +301,12 @@
    "fieldtype": "Column Break"
   },
   {
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "notification sent"
+  },
+  {
    "fieldname": "sl_entries",
    "fieldtype": "Link",
    "label": "SL Entries",
@@ -313,10 +318,17 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Is Offline Loan"
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "notification sent"
   }
  ],
  "links": [],
- "modified": "2023-03-10 18:51:17.743680",
+ "modified": "2023-03-23 19:16:46.858527",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

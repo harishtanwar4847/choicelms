@@ -182,7 +182,6 @@ def upsert(**kwargs):
             lender=data.get("lender"),
             instrument_type=data.get("instrument_type"),
         )
-
         for security in securities:
             security["quantity"] = round(security["quantity"], 3)
 
@@ -205,11 +204,11 @@ def upsert(**kwargs):
                 # )
                 raise lms.exceptions.ForbiddenException(_("Please use your own loan."))
 
-            # If pledge more/margin shortfall/increase Loan
-            sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                # If pledge more/margin shortfall/increase Loan
+                # sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
                 loan.total_collateral_value * loan.allowable_ltv / 100
-            )
-
+            # )
+            sanctioned_limit = loan.sanctioned_limit
             if data.get("loan_margin_shortfall_name", None):
                 try:
                     loan_margin_shortfall = frappe.get_doc(
@@ -310,7 +309,6 @@ def upsert(**kwargs):
                 },
             )
         cart.save(ignore_permissions=True)
-
         res = {"cart": cart}
 
         if data.get("loan_name", None):
@@ -968,10 +966,13 @@ def get_tnc(**kwargs):
                     + "</li>"
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
+                # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                #     (cart.total_collateral_value + loan.total_collateral_value)
+                #     * cart.allowable_ltv
+                #     / 100
+                # )
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    (cart.total_collateral_value + loan.total_collateral_value)
-                    * cart.allowable_ltv
-                    / 100
+                    loan.drawing_power + cart.eligible_loan
                 )
                 tnc_ul.append(
                     "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(

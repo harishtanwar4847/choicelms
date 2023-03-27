@@ -36,6 +36,14 @@ class UnpledgeApplication(Document):
                 self.scheme_type = loan.scheme_type
 
     def before_save(self):
+        isin = [i.isin for i in self.items]
+        allowed_securities = lms.get_allowed_securities(
+            isin, self.lender, self.instrument_type
+        )
+        for i in self.items:
+            security = allowed_securities.get(i.isin)
+            i.eligible_percentage = security.eligible_percentage
+            i.security_category = security.security_category
         loan = self.get_loan()
         self.actual_drawing_power = loan.actual_drawing_power
         loan_margin_shortfall = frappe.get_all(
@@ -58,9 +66,10 @@ class UnpledgeApplication(Document):
         self.customer = loan.customer
         if not self.customer_name:
             self.customer_name = loan.customer_name
-        if self.instrument_type == "Shares":
-            allowable_value = loan.max_unpledge_amount()
-            self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
+        # For ltv on shares
+        # if self.instrument_type == "Shares":
+        #     allowable_value = loan.max_unpledge_amount()
+        #     self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
 
         pending_sell_request_id = frappe.db.get_value(
             "Sell Collateral Application",

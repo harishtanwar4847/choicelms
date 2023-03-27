@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import json
 import random
+import re
 import string
 
 import frappe
@@ -20,9 +21,144 @@ import lms
 
 class AllowedSecurity(Document):
     def before_save(self):
+        if self.eligible_percentage <= 0 or self.eligible_percentage > 100:
+            frappe.throw(
+                "Eligible Percentage cannot be less than zero or greater than 100"
+            )
         self.security_name = frappe.db.get_value("Security", self.isin, "security_name")
         if self.instrument_type == "Mutual Fund":
             self.update_mycams_scheme()
+        loan_app_list = frappe.get_all(
+            "Loan Application",
+            filters={
+                "status": [
+                    "IN",
+                    [
+                        "Waiting to be pledged",
+                        "Pledge executed",
+                        "Pledge accepted by Lender",
+                    ],
+                ]
+            },
+            fields=["name"],
+        )
+        for doc_name in loan_app_list:
+            try:
+                Loan_app_doc = frappe.get_doc("Loan Application", doc_name.name)
+                for i in Loan_app_doc.items:
+                    if i.isin in self.isin:
+                        i.eligible_percentage = self.eligible_percentage
+                        Loan_app_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+                if Loan_app_doc.loan:
+                    l_name = int(Loan_app_doc.loan[2:])
+                    queue = "default" if (l_name % 2) == 0 else "short"
+                    frappe.enqueue_doc(
+                        "Loan",
+                        Loan_app_doc.loan,
+                        method="check_for_shortfall",
+                        queue=queue,
+                        on_approval=True,
+                    )
+
+            except frappe.DoesNotExistError:
+                frappe.log_error(
+                    message=frappe.get_traceback(),
+                    title=("Allowed Security get_loan_application"),
+                )
+
+        unpledge_application = self.check_unpledge_application()
+        sell_collateral_application = self.check_sell_collateral_application()
+        top_up_application = self.check_topup_application()
+        unpledge_link = ""
+        sell_link = ""
+        topup_link = ""
+
+        frappe.log_error(
+            message="unpledge_application  {unpledge_application}".format(
+                unpledge_application=str(unpledge_application)
+            )
+            + "sell_collateral_application  {sell_collateral_application}".format(
+                sell_collateral_application=str(sell_collateral_application)
+            )
+            + "\n top_up_application  {top_up_application}".format(
+                top_up_application=str(top_up_application)
+            ),
+            title=("Allowed Security"),
+        )
+        if unpledge_application:
+            for unpledge in unpledge_application:
+                unpledge_link += """<a target="_blank" rel="noreferrer noopener" href="/app/unpledge-application/{unpledge}">{unpledge}</a>""".format(
+                    unpledge=unpledge
+                )
+
+        if sell_collateral_application:
+            for sell in sell_collateral_application:
+                sell_link += """ <a target="_blank" rel="noreferrer noopener" href="/app/sell-collateral-application/{sell}">{sell}</a>""".format(
+                    sell=sell
+                )
+
+        if top_up_application:
+            for topup in top_up_application:
+                topup_link += """ <a target="_blank" rel="noreferrer noopener" href="/app/top-up-application/{topup}">{topup}</a>""".format(
+                    topup=topup
+                )
+
+        if unpledge_application and sell_collateral_application and top_up_application:
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Sell Collateral Application{}<br />\u2022 Top up Application{}""".format(
+                    unpledge_link, sell_link, topup_link
+                )
+            )
+
+        if (
+            unpledge_application
+            and sell_collateral_application
+            and not top_up_application
+        ):
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Sell Collateral Application{}<br />""".format(
+                    unpledge_link,
+                    sell_link,
+                )
+            )
+
+        if (
+            unpledge_application
+            and not sell_collateral_application
+            and top_up_application
+        ):
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Top up Application{}""".format(
+                    unpledge_link, topup_link
+                )
+            )
+
+        if (
+            sell_collateral_application
+            and top_up_application
+            and not unpledge_application
+        ):
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Sell Collateral Application{}<br />\u2022 Top up Application{}""".format(
+                    sell_link, topup_link
+                )
+            )
+
+        if unpledge_application:
+            frappe.throw(
+                "Please approve/reject Unpledge Application {}".format(unpledge_link)
+            )
+
+        if sell_collateral_application:
+            frappe.throw(
+                "Please approve/reject Sell Collateral Application {}".format(sell_link)
+            )
+
+        if top_up_application:
+            frappe.throw(
+                "Please approve/reject Top Up Application {}".format(topup_link)
+            )
 
     def before_insert(self):
         exists_security = frappe.db.exists(
@@ -133,6 +269,79 @@ class AllowedSecurity(Document):
                 + "\n\nAllowed Security Update Error for isin:\n"
                 + str(self.isin),
             )
+
+    def check_unpledge_application(self):
+        unpledege_application_list = frappe.get_all(
+            "Unpledge Application",
+            filters={
+                "status": ["IN", ["Pending"]],
+            },
+            fields=["name"],
+        )
+        pending_doc = []
+        for doc_name in unpledege_application_list:
+            try:
+                unpledege_application = frappe.get_doc(
+                    "Unpledge Application", doc_name.name
+                )
+                for i in unpledege_application.items:
+                    if i.isin in self.isin:
+                        pending_doc.append(doc_name.name)
+
+            except frappe.DoesNotExistError:
+                frappe.log_error(
+                    message=frappe.get_traceback(),
+                    title=("Allowed Security check_unpledge_application"),
+                )
+        return list(set(pending_doc))
+
+    def check_sell_collateral_application(self):
+        sell_collateral_application_list = frappe.get_all(
+            "Sell Collateral Application",
+            filters={"status": ["IN", ["Pending"]], "processed": 0},
+            fields=["name"],
+        )
+        pending_doc = []
+        for doc_name in sell_collateral_application_list:
+            try:
+                sell_collateral_application = frappe.get_doc(
+                    "Sell Collateral Application", doc_name.name
+                )
+                for i in sell_collateral_application.items:
+                    if i.isin in self.isin:
+                        pending_doc.append(doc_name.name)
+
+            except frappe.DoesNotExistError:
+                frappe.log_error(
+                    message=frappe.get_traceback(),
+                    title=("Allowed Security check_sell_collateral_application"),
+                )
+        return list(set(pending_doc))
+
+    def check_topup_application(self):
+        topup_application_list = frappe.get_all(
+            "Top up Application",
+            filters={
+                "status": ["IN", ["Pending", "Esign Done"]],
+            },
+            fields=["name"],
+        )
+        pending_doc = []
+        for doc_name in topup_application_list:
+            try:
+                topup_application = frappe.get_doc("Top up Application", doc_name.name)
+                loan_doc = frappe.get_doc("Loan", topup_application.loan)
+                for i in loan_doc.items:
+                    if self.isin == i.isin:
+                        pending_doc.append(doc_name.name)
+
+            except frappe.DoesNotExistError:
+                frappe.log_error(
+                    message=frappe.get_traceback(),
+                    title=("Allowed Security check_topup_application"),
+                )
+        print("pending_doc", pending_doc)
+        return list(set(pending_doc))
 
 
 @frappe.whitelist()

@@ -57,7 +57,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.14.0"
+__version__ = "5.14.1"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -401,7 +401,56 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
     return security_map
 
 
-def get_allowed_securities(securities, lender, instrument_type="Shares"):
+# def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
+#     group_by = ""
+#     select = "isin, security_name, eligible_percentage, {} as security_category, lender".format(
+#         "GROUP_CONCAT(category_name, '' order by lender)" if level else "category_name"
+#     )
+#     allowed = ""
+#     if instrument_type == "Mutual Fund":
+#         select += ", scheme_type, allowed"
+#         allowed = "and allowed = 1"
+
+#     if type(lender) == list:
+#         lender = convert_list_to_tuple_string(lender)
+#         filter = "in {}".format(lender)
+#     else:
+#         filter = "= '{}'".format(lender)
+
+#     if level:
+#         group_by = " group by isin"
+#         sub_query = "lender {lender_clause} and security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
+#             lender_clause=filter, lender=filter, level=level
+#         )
+#     else:
+#         sub_query = "lender {}".format(filter)
+
+#     query = """select
+#                 {select}
+#                 from `tabAllowed Security`
+#                 where
+#                 {sub_query}
+#                 {allowed} and
+#                 instrument_type = '{instrument_type}' and
+#                 isin in {isin}{group_by}""".format(
+#         select=select,
+#         sub_query=sub_query,
+#         allowed=allowed,
+#         instrument_type=instrument_type,
+#         isin=convert_list_to_tuple_string(securities),
+#         group_by=group_by,
+#     )
+
+#     results = frappe.db.sql(query, as_dict=1)
+#     security_map = {}
+
+#     for r in results:
+#         security_map[r.isin] = r
+
+#     return security_map
+
+
+def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
 
     select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
     allowed = ""
@@ -410,28 +459,35 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
         allowed = "and als.allowed = 1"
 
     if type(lender) == list:
-        filter = "in {}".format(convert_list_to_tuple_string(lender))
+        lender = convert_list_to_tuple_string(lender)
+        filter = "in {}".format(lender)
     else:
         filter = "= '{}'".format(lender)
+
+    if level:
+        sub_query = "als.lender {lender_clause} and als.security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
+            lender_clause=filter, lender=filter, level=level
+        )
+    else:
+        sub_query = "als.lender {}".format(filter)
 
     query = """select
 				{select}
 				from `tabAllowed Security` als
                 LEFT JOIN `tabSecurity Category` sc
 				ON als.security_category = sc.name where
-				als.lender {lender} 
+				{sub_query} 
                 {allowed} and
                 als.instrument_type = '{instrument_type}' and
                 als.isin in {isin}""".format(
         select=select,
-        lender=filter,
+        sub_query=sub_query,
         allowed=allowed,
         instrument_type=instrument_type,
         isin=convert_list_to_tuple_string(securities),
     )
 
-    results = frappe.db.sql(query, as_dict=1, debug=True)
-    create_log({"query": str(results)}, "allowed_security_log")
+    results = frappe.db.sql(query, as_dict=1)
 
     security_map = {}
 
@@ -1420,10 +1476,10 @@ def update_rzp_payment_transaction(data):
                     loan_margin_shortfall = frappe.get_doc(
                         "Loan Margin Shortfall", loan_transaction.loan_margin_shortfall
                     )
-                    if loan_margin_shortfall.status == "Pending":
-                        loan_margin_shortfall.status = "Request Pending"
-                        loan_margin_shortfall.save(ignore_permissions=True)
-                        frappe.db.commit()
+                    # if loan_margin_shortfall.status == "Pending":
+                    #     loan_margin_shortfall.status = "Request Pending"
+                    #     loan_margin_shortfall.save(ignore_permissions=True)
+                    #     frappe.db.commit()
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                     frappe.enqueue_doc(
                         "Notification",
@@ -2083,7 +2139,7 @@ def split_list_into_half(a_list):
 
 def get_linenumber():
     cf = currentframe()
-    return "line no" + str(cf.f_back.f_lineno)
+    return "Reached on line no " + str(cf.f_back.f_lineno)
 
 
 def ckyc_commit(res_json, customer, dob):
