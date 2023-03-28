@@ -870,9 +870,7 @@ def get_tnc(**kwargs):
                 diff = eligibile_loan
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 eligibile_loan = lms.round_down_amount_to_nearest_thousand(
-                    (cart.total_collateral_value + loan.total_collateral_value)
-                    * cart.allowable_ltv
-                    / 100
+                    (cart.eligible_loan + loan.drawing_power)
                 )
                 diff = eligibile_loan - loan.sanctioned_limit
         else:
