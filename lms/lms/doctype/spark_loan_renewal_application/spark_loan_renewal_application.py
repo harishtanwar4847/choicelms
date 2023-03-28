@@ -302,32 +302,16 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                     )
                     status_list = [i["status"] for i in renewal_list_expiring]
                     if status_list.count("Rejected") >= 2 and loan.name not in [
-                        "SL000136",
-                        "SL000139",
-                        "SL000124",
-                        "SL000212",
-                        "SL000144",
-                        "SL000092",
-                        "SL000211",
-                        "SL000158",
-                        "SL000091",
-                        "SL000201",
-                        "SL000194",
+                        "SL000226",
+                        "SL000224",
+                        "SL000225",
                     ]:
                         self.is_expired = 1
 
                     if status_list.count("Rejected") >= 2 and loan.name in [
-                        "SL000136",
-                        "SL000139",
-                        "SL000124",
-                        "SL000212",
-                        "SL000144",
-                        "SL000092",
-                        "SL000211",
-                        "SL000158",
-                        "SL000091",
-                        "SL000201",
-                        "SL000194",
+                        "SL000226",
+                        "SL000224",
+                        "SL000225",
                     ]:
                         if (
                             self.creation.date() + timedelta(days=7)
@@ -1231,17 +1215,9 @@ def renewal_penal_interest(loan_name):
                     and (
                         loan.name
                         not in [
-                            "SL000136",
-                            "SL000139",
-                            "SL000124",
-                            "SL000212",
-                            "SL000144",
-                            "SL000092",
-                            "SL000211",
-                            "SL000158",
-                            "SL000091",
-                            "SL000201",
-                            "SL000194",
+                            "SL000226",
+                            "SL000224",
+                            "SL000225",
                         ]
                     )
                 ):
@@ -1341,17 +1317,9 @@ def renewal_timer(loan_renewal_name=None):
                 and renewal_doc.status not in ["Approved", "Rejected"]
                 and loan.name
                 not in [
-                    "SL000136",
-                    "SL000139",
-                    "SL000124",
-                    "SL000212",
-                    "SL000144",
-                    "SL000092",
-                    "SL000211",
-                    "SL000158",
-                    "SL000091",
-                    "SL000201",
-                    "SL000194",
+                    "SL000226",
+                    "SL000224",
+                    "SL000225",
                 ]
             ):
                 seconds = abs(
@@ -1367,17 +1335,9 @@ def renewal_timer(loan_renewal_name=None):
                 and renewal_doc.status not in ["Approved", "Rejected"]
                 and loan.name
                 in [
-                    "SL000136",
-                    "SL000139",
-                    "SL000124",
-                    "SL000212",
-                    "SL000144",
-                    "SL000092",
-                    "SL000211",
-                    "SL000158",
-                    "SL000091",
-                    "SL000201",
-                    "SL000194",
+                    "SL000226",
+                    "SL000224",
+                    "SL000225",
                 ]
             ):
                 date_time = datetime.combine(renewal_doc.creation, time.min)
@@ -1726,17 +1686,9 @@ def loan_renewal_update_doc(loan_name):
                 and doc.is_expired == 0
                 and loan.name
                 not in [
-                    "SL000136",
-                    "SL000139",
-                    "SL000124",
-                    "SL000212",
-                    "SL000144",
-                    "SL000092",
-                    "SL000211",
-                    "SL000158",
-                    "SL000091",
-                    "SL000201",
-                    "SL000194",
+                    "SL000226",
+                    "SL000224",
+                    "SL000225",
                 ]
             ):
                 doc.is_expired = 1
@@ -1749,17 +1701,9 @@ def loan_renewal_update_doc(loan_name):
                 and doc.is_expired == 0
                 and loan.name
                 in [
-                    "SL000136",
-                    "SL000139",
-                    "SL000124",
-                    "SL000212",
-                    "SL000144",
-                    "SL000092",
-                    "SL000211",
-                    "SL000158",
-                    "SL000091",
-                    "SL000201",
-                    "SL000194",
+                    "SL000226",
+                    "SL000224",
+                    "SL000225",
                 ]
             ):
                 doc.is_expired = 1
@@ -2110,17 +2054,9 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 def renewal_doc_for_selected_customer():
     try:
         loan_name_list = [
-            "SL000136",
-            "SL000139",
-            "SL000124",
-            "SL000212",
-            "SL000144",
-            "SL000092",
-            "SL000211",
-            "SL000158",
-            "SL000091",
-            "SL000201",
-            "SL000194",
+            "SL000226",
+            "SL000224",
+            "SL000225",
         ]
         for i in loan_name_list:
             loan = frappe.get_doc("Loan", str(i))

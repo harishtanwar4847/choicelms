@@ -2035,7 +2035,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
 
         if msg:
-            lms.send_sms_notification(customer=str(self.get_customer().phone), msg=msg)
+            lms.send_sms(customer=str(self.get_customer().phone), msg=msg)
             # receiver_list = [str(self.get_customer().phone)]
             # if doc.mob_num:
             #     receiver_list.append(str(doc.mob_num))
