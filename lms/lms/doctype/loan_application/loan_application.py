@@ -1501,20 +1501,27 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         frappe.db.commit()
 
     def update_collateral_ledger(self, set_values={}, where=""):
-        set_values_str = ""
-        last_col = sorted(set_values.keys())[-1]
-        if len(set_values.keys()) == len(set_values.values()):
-            for col, val in set_values.items():
-                set_values_str += "{} = '{}'".format(col, val)
-                if len(set_values.keys()) > 0 and col != last_col:
-                    set_values_str += ", "
+        try:
+            set_values_str = ""
+            last_col = sorted(set_values.keys())[-1]
+            if len(set_values.keys()) == len(set_values.values()):
+                for col, val in set_values.items():
+                    set_values_str += "{} = '{}'".format(col, val)
+                    if len(set_values.keys()) > 0 and col != last_col:
+                        set_values_str += ", "
 
-        sql = """update `tabCollateral Ledger` set {} """.format(set_values_str)
+            sql = """update `tabCollateral Ledger` set {} """.format(set_values_str)
 
-        if len(where) > 0:
-            sql += " where {}".format(where)
+            if len(where) > 0:
+                sql += " where {}".format(where)
 
-        frappe.db.sql(sql)
+            frappe.db.sql(sql)
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nLoan Application : {}".format(self.name),
+                title=(_("Update Collateral Ledger failed in Loan application")),
+            )
 
     # hit pledge request as per batch items
     def pledge_request(self, security_list):
@@ -2350,7 +2357,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     previous_letter = sl.sanction_letter
                     sel.sanction_letter = sL_letter
                     sel.save(ignore_permissions=True)
-                    self.sl_entries = sl[0].name
                     frappe.db.commit()
 
             if self.status == "Approved":
