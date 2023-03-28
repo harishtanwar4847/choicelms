@@ -2115,6 +2115,8 @@ def renewal_doc_for_selected_customer():
                             drawing_power=loan.drawing_power,
                             customer=customer.name,
                             customer_name=customer.full_name,
+                            custom_base_interest=loan.custom_base_interest,
+                            custom_rebate_interest=loan.custom_base_interest,
                             remarks="",
                         )
                     ).insert(ignore_permissions=True)
