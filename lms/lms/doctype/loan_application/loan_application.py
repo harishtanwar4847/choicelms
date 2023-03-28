@@ -2035,16 +2035,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
 
         if msg:
-            lms.send_sms(customer=str(self.get_customer().phone), msg=msg)
-            # receiver_list = [str(self.get_customer().phone)]
-            # if doc.mob_num:
-            #     receiver_list.append(str(doc.mob_num))
-            # if doc.choice_mob_no:
-            #     receiver_list.append(str(doc.choice_mob_no))
+            # lms.send_sms(customer=str(self.get_customer().phone), msg=msg)
+            receiver_list = [str(self.get_customer().phone)]
+            if doc.mob_num:
+                receiver_list.append(str(doc.mob_num))
+            if doc.choice_mob_no:
+                receiver_list.append(str(doc.choice_mob_no))
 
-            # receiver_list = list(set(receiver_list))
+            receiver_list = list(set(receiver_list))
 
-            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         if fcm_notification:
             lms.send_spark_push_notification(
