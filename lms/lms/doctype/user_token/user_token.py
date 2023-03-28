@@ -114,7 +114,7 @@ class UserToken(Document):
                     token=self.token,
                     otp_hash=las_settings.app_identification_hash_string,
                 )
-            if self.toke_type == "Sell Collateral OTP":
+            if self.token_type == "Sell Collateral OTP":
                 mess = """<#> Dear customer, use OTP {token} to complete your sell securities request with confidence & ease.
 
 {otp_hash}
@@ -140,6 +140,15 @@ class UserToken(Document):
                 )
             if self.token_type == "Revoke OTP":
                 mess = """<#> Dear customer, use OTP {token} to place the revoke request for Mutual Fund holdings. Do not shar OTP for security reasons. Valid for 10 mins
+
+{otp_hash}
+- Spark Loans""".format(
+                    token=self.token,
+                    otp_hash=las_settings.app_identification_hash_string,
+                )
+
+            if self.token_type == "Loan Renewal OTP":
+                mess = """<#> Dear customer, Your loan renewal request OTP for Spark Loans is {token}. NEVER share your OTP with anyone. OTP Expires in 10 mins. Thank you!
 
 {otp_hash}
 - Spark Loans""".format(
