@@ -282,8 +282,7 @@
   {
    "fieldname": "wef_date",
    "fieldtype": "Date",
-   "label": "w.e.f date",
-   "reqd": 1
+   "label": "w.e.f date"
   },
   {
    "fieldname": "custom_base_interest",
@@ -340,7 +339,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-28 16:39:49.658272",
+ "modified": "2023-03-28 16:46:53.274327",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
