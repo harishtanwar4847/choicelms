@@ -523,9 +523,7 @@ def process(**kwargs):
         loan_application = {}
         cart.reload()
         if cart.instrument_type != "Mutual Fund":
-            print("akash")
             loan_application = cart.create_loan_application()
-            print("loan_application", loan_application)
             frappe.db.commit()
 
         return utils.respondWithSuccess(
