@@ -1580,20 +1580,27 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         frappe.db.commit()
 
     def update_collateral_ledger(self, set_values={}, where=""):
-        set_values_str = ""
-        last_col = sorted(set_values.keys())[-1]
-        if len(set_values.keys()) == len(set_values.values()):
-            for col, val in set_values.items():
-                set_values_str += "{} = '{}'".format(col, val)
-                if len(set_values.keys()) > 0 and col != last_col:
-                    set_values_str += ", "
+        try:
+            set_values_str = ""
+            last_col = sorted(set_values.keys())[-1]
+            if len(set_values.keys()) == len(set_values.values()):
+                for col, val in set_values.items():
+                    set_values_str += "{} = '{}'".format(col, val)
+                    if len(set_values.keys()) > 0 and col != last_col:
+                        set_values_str += ", "
 
-        sql = """update `tabCollateral Ledger` set {} """.format(set_values_str)
+            sql = """update `tabCollateral Ledger` set {} """.format(set_values_str)
 
-        if len(where) > 0:
-            sql += " where {}".format(where)
+            if len(where) > 0:
+                sql += " where {}".format(where)
 
-        frappe.db.sql(sql)
+            frappe.db.sql(sql)
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nLoan Application : {}".format(self.name),
+                title=(_("Update Collateral Ledger failed in Loan application")),
+            )
 
     # hit pledge request as per batch items
     def pledge_request(self, security_list):
@@ -2430,11 +2437,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         },
                         fields=["*"],
                     )
-                    sl = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
+                    sel = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
                     previous_letter = sl.sanction_letter
-                    sl.sanction_letter = sL_letter
-                    sl.save(ignore_permissions=True)
-                    self.sl_entries = sl[0].name
+                    sel.sanction_letter = sL_letter
+                    sel.save(ignore_permissions=True)
                     frappe.db.commit()
 
             if self.status == "Approved":
@@ -2728,9 +2734,15 @@ def process_pledge_old(loan_application_name=""):
 
 
 def only_pdf_upload(doc, method):
-    if doc.attached_to_doctype == "Loan Application":
-        if doc.file_name.split(".")[-1].lower() != "pdf":
-            frappe.throw("Kindly upload PDF files only.")
+    try:
+        if doc.attached_to_doctype == "Loan Application":
+            if doc.file_name.split(".")[-1].lower() != "pdf":
+                frappe.throw("Kindly upload PDF files only.")
+    except Exception:
+        frappe.log_error(
+            title="only_pdf_upload",
+            message=frappe.get_traceback() + "\n\nLoan name \n" + str(doc.name),
+        )
 
 
 @frappe.whitelist()

@@ -260,6 +260,14 @@ def generate_user_token(user_name):
 
 def create_user(first_name, last_name, mobile, email, tester):
     try:
+        log = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "mobile": mobile,
+            "email": email,
+            "tester": tester,
+        }
+        create_log(log, "before_user_creation")
         user = frappe.get_doc(
             {
                 "doctype": "User",
@@ -279,7 +287,8 @@ def create_user(first_name, last_name, mobile, email, tester):
                 else [{"doctype": "Has Role", "role": "Loan Customer"}],
             }
         ).insert(ignore_permissions=True)
-
+        log = {"user_doc": user.as_dict()}
+        create_log(log, "after_user_creation")
         return user
     except Exception as e:
         raise utils.exceptions.APIException(message=str(e))
