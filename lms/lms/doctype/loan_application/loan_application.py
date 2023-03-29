@@ -45,8 +45,11 @@ class LoanApplication(Document):
                 #     * self.allowable_ltv
                 #     / 100
                 # )
+                actual_dp = lms.round_down_amount_to_nearest_thousand(
+                    loan.actual_drawing_power
+                )
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    loan.drawing_power + self.drawing_power
+                    actual_dp + self.drawing_power
                 )
                 new_increased_sanctioned_limit = (
                     increased_sanctioned_limit
@@ -692,27 +695,37 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             pledge_securities = 1
                         self.workflow_state = "Pledge executed"
                         self.total_collateral_value = round(total_collateral_value, 2)
-                        if self.instrument_type == "Shares":
-                            self.drawing_power = round(
-                                lms.round_down_amount_to_nearest_thousand(
-                                    (self.allowable_ltv / 100)
-                                    * self.total_collateral_value
-                                ),
-                                2,
-                            )
-                        else:
-                            drawing_power = 0
-                            for i in self.items:
-                                i.amount = i.price * i.pledged_quantity
-                                dp = (i.eligible_percentage / 100) * i.amount
-                                drawing_power += dp
+                        # if self.instrument_type == "Shares":
+                        #     self.drawing_power = round(
+                        #         lms.round_down_amount_to_nearest_thousand(
+                        #             (self.allowable_ltv / 100)
+                        #             * self.total_collateral_value
+                        #         ),
+                        #         2,
+                        #     )
+                        # else:
+                        #     drawing_power = 0
+                        #     for i in self.items:
+                        #         i.amount = i.price * i.pledged_quantity
+                        #         dp = (i.eligible_percentage / 100) * i.amount
+                        #         drawing_power += dp
+                        drawing_power = 0
+                        for i in self.items:
+                            i.amount = i.price * i.pledged_quantity
+                            dp = (i.eligible_percentage / 100) * i.amount
+                            i.eligible_amount = dp
+                            # self.total_collateral_value += i.amount
+                            drawing_power += dp
 
-                            drawing_power = round(
-                                lms.round_down_amount_to_nearest_thousand(
-                                    drawing_power
-                                ),
-                                2,
-                            )
+                        drawing_power = round(
+                            lms.round_down_amount_to_nearest_thousand(drawing_power),
+                            2,
+                        )
+
+                        drawing_power = round(
+                            lms.round_down_amount_to_nearest_thousand(drawing_power),
+                            2,
+                        )
 
                         if not customer.pledge_securities:
                             customer.pledge_securities = pledge_securities
@@ -1387,13 +1400,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         # -> renewal on new sanctioned
         # new sanctioned limit = lms.round_down_amount_to_nearest_thousand((new total coll + old total coll) / 2)
         new_sanctioned_limit = self.increased_sanctioned_limit
-
         renewal_sanctioned_limit, processing_sanctioned_limit = (
             (loan.sanctioned_limit, (new_sanctioned_limit - loan.sanctioned_limit))
             if new_sanctioned_limit > loan.sanctioned_limit
             else (new_sanctioned_limit, 0)
         )
-
+        print("renewal_sanctioned_limit", renewal_sanctioned_limit)
         date = frappe.utils.now_datetime()
         days_in_year = 366 if calendar.isleap(date.year) else 365
         renewal_charges = lender.renewal_charges
@@ -1420,6 +1432,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "Account Renewal Charges", renewal_charges, approve=True
             )
 
+        print("renewal_charges", renewal_charges)
         # Processing fees
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
@@ -2021,8 +2034,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 #     * self.allowable_ltv
                 #     / 100
                 # )
+                actual_dp = lms.round_down_amount_to_nearest_thousand(
+                    loan.actual_drawing_power
+                )
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    loan.drawing_power + self.drawing_power
+                    actual_dp + self.drawing_power
                 )
                 self.increased_sanctioned_limit = increased_sanctioned_limit
                 new_increased_sanctioned_limit = (

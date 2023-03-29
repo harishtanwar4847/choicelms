@@ -255,8 +255,11 @@ class Cart(Document):
             #     * self.allowable_ltv
             #     / 100
             # )
+            actual_dp = lms.round_down_amount_to_nearest_thousand(
+                loan.actual_drawing_power
+            )
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                loan.drawing_power + self.eligible_loan
+                actual_dp + self.eligible_loan
             )
             self.increased_sanctioned_limit = (
                 increased_sanctioned_limit

@@ -869,8 +869,11 @@ def get_tnc(**kwargs):
                 eligibile_loan = cart.eligible_loan
                 diff = eligibile_loan
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
+                actual_dp = lms.round_down_amount_to_nearest_thousand(
+                    loan.actual_drawing_power
+                )
                 eligibile_loan = lms.round_down_amount_to_nearest_thousand(
-                    (cart.eligible_loan + loan.drawing_power)
+                    (cart.eligible_loan + actual_dp)
                 )
                 diff = eligibile_loan - loan.sanctioned_limit
         else:
