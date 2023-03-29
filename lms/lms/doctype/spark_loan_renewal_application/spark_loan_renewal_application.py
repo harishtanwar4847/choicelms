@@ -1215,7 +1215,7 @@ def renewal_penal_interest(loan_name):
                         and doc.status == "Pending"
                     )
                     and (
-                        loan.name
+                        doc.loan
                         not in [
                             "SL000226",
                             "SL000224",
@@ -1245,7 +1245,7 @@ def renewal_penal_interest(loan_name):
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback()
-            + "\nLoan Renewal Application Name : {}".format(doc.name),
+            + "\nLoan Renewal Application Name : {}".format(loan.name),
             title=_("Loan Renewal Penal Interest Error"),
         )
 
