@@ -1405,7 +1405,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             if new_sanctioned_limit > loan.sanctioned_limit
             else (new_sanctioned_limit, 0)
         )
-        print("renewal_sanctioned_limit", renewal_sanctioned_limit)
         date = frappe.utils.now_datetime()
         days_in_year = 366 if calendar.isleap(date.year) else 365
         renewal_charges = lender.renewal_charges
