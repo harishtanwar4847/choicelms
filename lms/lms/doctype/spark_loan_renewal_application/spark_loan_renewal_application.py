@@ -302,18 +302,16 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                     )
                     status_list = [i["status"] for i in renewal_list_expiring]
                     if status_list.count("Rejected") >= 2 and loan.name not in [
-                        "SL000224",
-                        "SL000228",
-                        "SL000230",
-                        "SL000232",
+                        "SL000306",
+                        "SL000299",
+                        "SL000313",
                     ]:
                         self.is_expired = 1
 
                     if status_list.count("Rejected") >= 2 and loan.name in [
-                        "SL000224",
-                        "SL000228",
-                        "SL000230",
-                        "SL000232",
+                        "SL000306",
+                        "SL000299",
+                        "SL000313",
                     ]:
                         if (
                             self.creation.date() + timedelta(days=7)
@@ -1216,10 +1214,7 @@ def renewal_penal_interest(loan_name):
                         > frappe.utils.now_datetime().date()
                         and doc.status == "Pending"
                     )
-                    and (
-                        loan.name
-                        not in ["SL000224", "SL000228", "SL000230", "SL000232"]
-                    )
+                    and (loan.name not in ["SL000306", "SL000299", "SL000313"])
                 ):
                     frappe.log_error(
                         message="\nLoan : {}".format(loan.name),
@@ -1320,7 +1315,7 @@ def renewal_timer(loan_renewal_name=None):
                 frappe.utils.now_datetime().date() > exp
                 and frappe.utils.now_datetime().date() <= (exp + timedelta(days=7))
                 and renewal_doc.status not in ["Approved", "Rejected"]
-                and loan.name not in ["SL000224", "SL000228", "SL000230", "SL000232"]
+                and loan.name not in ["SL000306", "SL000299", "SL000313"]
             ):
                 seconds = abs(
                     date_7after_expiry - frappe.utils.now_datetime()
@@ -1333,7 +1328,7 @@ def renewal_timer(loan_renewal_name=None):
                 and frappe.utils.now_datetime().date()
                 < (renewal_doc.creation.date() + timedelta(days=14))
                 and renewal_doc.status not in ["Approved", "Rejected"]
-                and loan.name in ["SL000224", "SL000228", "SL000230", "SL000232"]
+                and loan.name in ["SL000306", "SL000299", "SL000313"]
             ):
                 date_time = datetime.combine(renewal_doc.creation, time.min)
                 date_7after_expiry = date_time + timedelta(days=14)
@@ -1524,7 +1519,7 @@ def loan_renewal_update_doc(loan_name):
             if (
                 exp < frappe.utils.now_datetime().date()
                 and doc.is_expired == 0
-                and loan.name not in ["SL000224", "SL000228", "SL000230", "SL000232"]
+                and loan.name not in ["SL000306", "SL000299", "SL000313"]
             ):
                 doc.is_expired = 1
                 doc.save(ignore_permissions=True)
@@ -1534,7 +1529,7 @@ def loan_renewal_update_doc(loan_name):
                 doc.creation.date() + timedelta(days=7)
                 == frappe.utils.now_datetime().date()
                 and doc.is_expired == 0
-                and loan.name in ["SL000224", "SL000228", "SL000230", "SL000232"]
+                and loan.name in ["SL000306", "SL000299", "SL000313"]
             ):
                 doc.is_expired = 1
                 doc.save(ignore_permissions=True)
@@ -1550,18 +1545,20 @@ def loan_renewal_update_doc(loan_name):
             customer = frappe.get_doc("Loan Customer", loan.customer)
         except Exception as e:
             frappe.log_error(
-                message=frappe.get_traceback(),
+                message=frappe.get_traceback() + "\nLoan Name : {}".format(loan.name),
                 title=(_("Loan Customer {} not found".format(loan.customer))),
             )
-        user_kyc = frappe.get_all(
-            "User KYC",
-            filters={
-                "user": customer.user,
-                "updated_kyc": 1,
-                "kyc_status": ["in", ["Pending", "Approved"]],
-            },
-            fields=["name"],
-        )
+        user_kyc = ""
+        if customer:
+            user_kyc = frappe.get_all(
+                "User KYC",
+                filters={
+                    "user": customer.user,
+                    "updated_kyc": 1,
+                    "kyc_status": ["in", ["Pending", "Approved"]],
+                },
+                fields=["name"],
+            )
 
         expiry_date = frappe.utils.now_datetime().date() + timedelta(days=29)
         if type(loan.expiry_date) == str:
@@ -1883,7 +1880,7 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 
 def renewal_doc_for_selected_customer():
     try:
-        loan_name_list = ["SL000224", "SL000228", "SL000230", "SL000232"]
+        loan_name_list = ["SL000306", "SL000299", "SL000313"]
         for i in loan_name_list:
             loan = frappe.get_doc("Loan", str(i))
             las_settings = frappe.get_single("LAS Settings")
