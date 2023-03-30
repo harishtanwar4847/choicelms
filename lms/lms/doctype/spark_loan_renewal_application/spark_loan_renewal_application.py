@@ -1091,6 +1091,7 @@ def renewal_penal_interest(loan_name):
         try:
             customer = frappe.get_doc("Loan Customer", loan.customer)
         except Exception as e:
+            custome = ""
             frappe.log_error(
                 message=frappe.get_traceback(),
                 title=(_("Loan Customer {} not found".format(loan.customer))),
@@ -1876,7 +1877,7 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 
     except Exception as e:
         frappe.log_error(
-            message=frappe.get_traceback(),
+            message=frappe.get_traceback() + "Loan Name : {}".format(loan_name),
             title=_("Loan Renewal Application - Update Doc"),
         )
 
