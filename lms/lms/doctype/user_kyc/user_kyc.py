@@ -49,6 +49,7 @@ class UserKYC(Document):
             self.offline_customer_bank_verification()
 
     def kyc_update_and_notify_customer(self, check):
+        msg = ""
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         doc = self.as_dict()
@@ -59,6 +60,23 @@ class UserKYC(Document):
             and not loan_customer.offline_customer
         ):
             if self.kyc_status == "Approved":
+                if self.parent_kyc:
+                    parent_kyc = frappe.get_doc("User KYC", self.parent_kyc)
+                    parent_kyc.db_set("kyc_status", "Rejected")
+                    parent_kyc.db_set("notification_sent", 1)
+                    if parent_kyc.duplicate_kyc:
+                        for parent_dup_kyc in parent_kyc.duplicate_kyc:
+                            if self.name != parent_dup_kyc.user_kyc:
+                                parent_dup_kyc = frappe.get_doc(
+                                    "User KYC", parent_dup_kyc.user_kyc
+                                )
+                                parent_dup_kyc.db_set("kyc_status", "Rejected")
+                                parent_dup_kyc.db_set("notification_sent", 1)
+                if self.duplicate_kyc:
+                    for dup_kyc in self.duplicate_kyc:
+                        dup_kyc = frappe.get_doc("User KYC", dup_kyc.user_kyc)
+                        dup_kyc.db_set("kyc_status", "Rejected")
+                        dup_kyc.db_set("notification_sent", 1)
                 if not loan_customer.kyc_update and not loan_customer.choice_kyc:
                     loan_customer.kyc_update = 1
                     loan_customer.choice_kyc = self.name
@@ -74,30 +92,54 @@ class UserKYC(Document):
                     "Spark Push Notification", "Ckyc Approved", fields=["*"]
                 )
             else:
-                frappe.enqueue_doc(
-                    "Notification", "Ckyc Rejection", method="send", doc=doc
-                )
-                msg = "Your KYC Request has been rejected due to mismatch in details. Please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
-                    las_settings.app_login_dashboard
-                )
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification", "Ckyc Rejected", fields=["*"]
-                )
+                check = 1
+                duplicate_pending = []
+                if self.duplicate_kyc:
+                    duplicate_pending = frappe.get_all(
+                        "User KYC",
+                        filters={
+                            "name": [
+                                "in",
+                                [dup.user_kyc for dup in self.duplicate_kyc],
+                            ],
+                            "consent_given": 1,
+                        },
+                        pluck="kyc_status",
+                    )
 
-            receiver_list = [str(loan_customer.phone)]
-            if self.mob_num:
-                receiver_list.append(str(self.mob_num))
-            if self.choice_mob_no:
-                receiver_list.append(str(self.choice_mob_no))
-
-            receiver_list = list(set(receiver_list))
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-            lms.send_spark_push_notification(
-                fcm_notification=fcm_notification, customer=loan_customer
-            )
+                if (
+                    self.parent_kyc
+                    and frappe.db.get_value(
+                        "User KYC", {"name": self.parent_kyc}, "kyc_status"
+                    )
+                    == "Pending"
+                ) or "Pending" in duplicate_pending:
+                    check = 0
+                if check:
+                    frappe.enqueue_doc(
+                        "Notification", "Ckyc Rejection", method="send", doc=doc
+                    )
+                    msg = "Your KYC Request has been rejected due to mismatch in details. Please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                        las_settings.app_login_dashboard
+                    )
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification", "Ckyc Rejected", fields=["*"]
+                    )
             self.notification_sent = 1
             self.save(ignore_permissions=True)
             frappe.db.commit()
+            if msg:
+                receiver_list = [str(loan_customer.phone)]
+                if self.mob_num:
+                    receiver_list.append(str(self.mob_num))
+                if self.choice_mob_no:
+                    receiver_list.append(str(self.choice_mob_no))
+
+                receiver_list = list(set(receiver_list))
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification, customer=loan_customer
+                )
         elif loan_customer.offline_customer and self.kyc_status == "Approved":
             loan_customer.kyc_update = 1
             loan_customer.choice_kyc = self.name
