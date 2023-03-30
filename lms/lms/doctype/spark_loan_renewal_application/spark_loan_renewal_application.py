@@ -1544,6 +1544,7 @@ def loan_renewal_update_doc(loan_name):
         try:
             customer = frappe.get_doc("Loan Customer", loan.customer)
         except Exception as e:
+            customer = ""
             frappe.log_error(
                 message=frappe.get_traceback() + "\nLoan Name : {}".format(loan.name),
                 title=(_("Loan Customer {} not found".format(loan.customer))),
