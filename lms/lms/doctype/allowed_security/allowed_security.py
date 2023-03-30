@@ -340,7 +340,6 @@ class AllowedSecurity(Document):
                     message=frappe.get_traceback(),
                     title=("Allowed Security check_topup_application"),
                 )
-        print("pending_doc", pending_doc)
         return list(set(pending_doc))
 
 

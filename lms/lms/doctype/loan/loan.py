@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
-from isort import code
 from num2words import num2words
 
 import lms
@@ -621,7 +620,6 @@ class Loan(Document):
                 isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
                 curr = collateral_list_map.get(isin_folio_combo)
                 # curr = collateral_list_map.get(i.isin)
-                # print(check, i.price, curr.price, not check or i.price != curr.price)
                 if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                     check = True
                     self.update_collateral_ledger(curr.price, curr.isin)
@@ -646,7 +644,7 @@ class Loan(Document):
                 )
 
                 self.append("items", loan_item)
-
+            # update_ltv function merge with this
             return check
         except Exception:
             frappe.log_error(
@@ -664,7 +662,6 @@ class Loan(Document):
         # setting check flag
         for i in self.items:
             curr = collateral_list_map.get(i.isin)
-            # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                 check = True
                 self.update_collateral_ledger(curr.price, curr.isin)
@@ -734,20 +731,14 @@ class Loan(Document):
                             message=msg,
                         )
                 else:
-                    print("margin_shortfall_action")
                     old_shortfall_action = loan_margin_shortfall.margin_shortfall_action
-                    print("margin_shortfall_action", old_shortfall_action)
                     loan_margin_shortfall.fill_items()
-                    print("after fill item")
                     if old_shortfall_action:
-                        print(" if old_shortfall_action:")
                         loan_margin_shortfall.set_deadline(old_shortfall_action)
 
                     if loan_margin_shortfall.is_new():
-                        print("if loan_margin_shortfall.is_new():")
                         if loan_margin_shortfall.shortfall_percentage > 0:
                             loan_margin_shortfall.insert(ignore_permissions=True)
-                            print("loan_margin_shortfall.shortfall_percentage > 0")
                     else:
                         if loan_margin_shortfall.shortfall_percentage == 0:
                             loan_margin_shortfall.status = "Resolved"

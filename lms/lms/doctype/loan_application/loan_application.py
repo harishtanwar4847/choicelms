@@ -695,20 +695,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             pledge_securities = 1
                         self.workflow_state = "Pledge executed"
                         self.total_collateral_value = round(total_collateral_value, 2)
-                        # if self.instrument_type == "Shares":
-                        #     self.drawing_power = round(
-                        #         lms.round_down_amount_to_nearest_thousand(
-                        #             (self.allowable_ltv / 100)
-                        #             * self.total_collateral_value
-                        #         ),
-                        #         2,
-                        #     )
-                        # else:
-                        #     drawing_power = 0
-                        #     for i in self.items:
-                        #         i.amount = i.price * i.pledged_quantity
-                        #         dp = (i.eligible_percentage / 100) * i.amount
-                        #         drawing_power += dp
+
                         drawing_power = 0
                         for i in self.items:
                             i.amount = i.price * i.pledged_quantity
@@ -716,11 +703,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             i.eligible_amount = dp
                             # self.total_collateral_value += i.amount
                             drawing_power += dp
-
-                        drawing_power = round(
-                            lms.round_down_amount_to_nearest_thousand(drawing_power),
-                            2,
-                        )
 
                         drawing_power = round(
                             lms.round_down_amount_to_nearest_thousand(drawing_power),
@@ -1431,7 +1413,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "Account Renewal Charges", renewal_charges, approve=True
             )
 
-        print("renewal_charges", renewal_charges)
         # Processing fees
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
@@ -2289,7 +2270,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 sL_letter = frappe.utils.get_url(
                     "files/{}".format(sanctioned_letter_pdf_file)
                 )
-                # print("sL_letter", sL_letter)
             if not check:
                 if self.application_type == "New Loan" and not self.sl_entries:
                     sl = frappe.get_doc(
