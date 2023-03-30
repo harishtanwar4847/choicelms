@@ -4386,8 +4386,9 @@ def get_app_version_details():
 def get_demat_details():
     try:
         utils.validator.validate_http_method("GET")
-
         user = lms.__user()
+        log = {"start_time": str(frappe.utils.now_datetime()), "user": user.name}
+        lms.create_log(log, "get_demat_details_api_start_time")
         user_kyc = frappe.get_all(
             "User KYC",
             filters={"user": user.name, "kyc_status": ("!=", "Rejected")},
@@ -4404,11 +4405,18 @@ def get_demat_details():
             }
 
             try:
+                log = {
+                    "start_time": str(frappe.utils.now_datetime()),
+                    "user": user.name,
+                }
+                lms.create_log(log, "get_demat_details_request_start_time")
                 res = requests.post(
                     las_settings.choice_securities_list_api,
                     json=payload,
                     headers={"Accept": "application/json"},
                 )
+                log = {"end_time": str(frappe.utils.now_datetime()), "user": user.name}
+                lms.create_log(log, "get_demat_details_request_end_time")
                 if not res.ok:
                     raise utils.exceptions.APIException(res.text)
 
@@ -4474,6 +4482,8 @@ def get_demat_details():
             #     raise lms.exceptions.NotFoundException(_("No Record found"))
             for d in demat_details:
                 d["stock_at"] = d.get("dpid") + d.get("client_id")
+        log = {"end_time": str(frappe.utils.now_datetime()), "user": user.name}
+        lms.create_log(log, "get_demat_details_api_end_time")
         return utils.respondWithSuccess(data=demat_details)
     except utils.exceptions.APIException as e:
         lms.log_api_error()

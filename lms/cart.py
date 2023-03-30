@@ -936,7 +936,7 @@ def get_tnc(**kwargs):
                 tnc_ul.append(
                     "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
                         lms.validate_rupees(
-                            actual_dp
+                            increased_sanctioned_limit
                             if increased_sanctioned_limit
                             < lender.maximum_sanctioned_limit
                             else lender.maximum_sanctioned_limit
