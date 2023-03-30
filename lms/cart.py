@@ -931,7 +931,7 @@ def get_tnc(**kwargs):
                     loan.actual_drawing_power
                 )
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    loan.drawing_power + cart.eligible_loan
+                    actual_dp + cart.eligible_loan
                 )
                 tnc_ul.append(
                     "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
