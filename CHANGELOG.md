@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.15.0] - 2023-03-30
+
+## Added
+
+- [SPRK-128 - Ltv for Shares and Shares Eligibility](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/581)
+
 ## [v5.14.1] - 2023-03-23
 
 ## Added

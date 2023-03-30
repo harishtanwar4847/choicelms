@@ -19,7 +19,6 @@
   "customer",
   "customer_name",
   "available_topup_amt",
-  "allowable_ltv",
   "actual_drawing_power",
   "expiry_date",
   "loan_agreement",
@@ -70,15 +69,6 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Total Collateral Value",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "depends_on": "eval:doc.instrument_type == \"Shares\";",
-   "fieldname": "allowable_ltv",
-   "fieldtype": "Float",
-   "label": "Allowable LTV",
-   "mandatory_depends_on": "doc.instrument_type == \"Shares\"",
    "read_only": 1,
    "reqd": 1
   },
@@ -252,7 +242,6 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.instrument_type != \"Shares\";",
    "fieldname": "actual_drawing_power",
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
@@ -267,7 +256,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-19 12:33:29.922511",
+ "modified": "2023-03-30 17:49:17.844450",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

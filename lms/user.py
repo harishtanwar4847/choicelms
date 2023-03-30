@@ -388,723 +388,6 @@ def kyc(**kwargs):
 
 
 @frappe.whitelist()
-def securities(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "lender": "",
-            },
-        )
-
-        reg = lms.regex_special_characters(search=data.get("lender"))
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
-
-        if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        customer = lms.__customer()
-        user_kyc = lms.__user_kyc()
-
-        securities_list = frappe.db.sql(
-            """
-        SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
-        FROM `tabClient Holding` as ch
-        WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
-        AND ch.pan = '{}'
-        order by ch.`modified` DESC""".format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-            ),
-            as_dict=True,
-        )
-
-        if len(securities_list) == 0:
-            las_settings = frappe.get_single("LAS Settings")
-
-            # get securities list from choice
-            payload = {
-                "UserID": las_settings.choice_user_id,
-                "ClientID": user_kyc.pan_no,
-            }
-
-            try:
-                res = requests.post(
-                    las_settings.choice_securities_list_api,
-                    json=payload,
-                    headers={"Accept": "application/json"},
-                )
-                if not res.ok:
-                    raise utils.exceptions.APIException(res.text)
-
-                res_json = res.json()
-                log = {
-                    "url": las_settings.choice_securities_list_api,
-                    "headers": {"Accept": "application/json"},
-                    "request": payload,
-                    "response": res_json,
-                }
-
-                lms.create_log(log, "securities_log")
-                frappe.logger().info(res_json)
-                if res_json["Status"] != "Success":
-                    raise utils.exceptions.APIException(res.text)
-
-                # setting eligibility
-                securities_list = [
-                    i for i in res_json["Response"] if i.get("Price") > 0
-                ]
-
-                # bulk insert fields
-                fields = [
-                    "name",
-                    "pan",
-                    "isin",
-                    "branch",
-                    "client_code",
-                    "client_name",
-                    "scrip_name",
-                    "depository",
-                    "stock_at",
-                    "quantity",
-                    "price",
-                    "scrip_value",
-                    "holding_as_on",
-                    "creation",
-                    "modified",
-                    "owner",
-                    "modified_by",
-                ]
-
-                # bulk insert values
-                values = []
-                for i in securities_list:
-                    if i.get("Holding_As_On", None):
-                        Holding_As_On = datetime.strptime(
-                            i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
-                        )
-                    else:
-                        Holding_As_On = frappe.utils.now_datetime()
-
-                    values.append(
-                        [
-                            i["Stock_At"] + "-" + i["ISIN"],
-                            user_kyc.pan_no,
-                            i["ISIN"],
-                            i["Branch"] if i.get("Branch", None) else "",
-                            i["Client_Code"] if i.get("Client_Code", None) else "",
-                            i["Client_Name"] if i.get("Client_Name", None) else "",
-                            i["Scrip_Name"],
-                            i["Depository"] if i.get("Depository", None) else "",
-                            i["Stock_At"],
-                            i["Quantity"],
-                            i["Price"],
-                            i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
-                            Holding_As_On,
-                            frappe.utils.now(),
-                            frappe.utils.now(),
-                            frappe.session.user,
-                            frappe.session.user,
-                        ]
-                    )
-
-                # delete existng records
-                frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
-
-                # bulk insert
-                frappe.db.bulk_insert(
-                    "Client Holding",
-                    fields=fields,
-                    values=values,
-                    ignore_duplicates=True,
-                )
-
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
-
-        securities_list_ = [i["ISIN"] for i in securities_list]
-        securities_category_map = lms.get_allowed_securities(
-            securities_list_, data.get("lender")
-        )
-
-        pledge_waiting_securitites = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
-            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
-            ch.name
-            FROM `tabLoan Application` as la
-            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
-            where la.status='Waiting to be pledged'
-            AND ch.pan = '{}'
-            AND lai.isin in {}
-            AND la.customer = '{}'
-            group by ch.stock_at, lai.isin
-            order by la.pledgor_boid, lai.isin
-        """.format(
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-            debug=True,
-        )
-
-        if len(pledge_waiting_securitites) > 0:
-            for i in pledge_waiting_securitites:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_to_be_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_to_be_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][
-                        i["pledgor_boid"]
-                    ] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        waiting_for_lender_approval_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
-            AND cl.request_type = 'Pledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(waiting_for_lender_approval_securities) > 0:
-            for i in waiting_for_lender_approval_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_for_approval_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_for_approval_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]][
-                        "waiting_for_approval_pledged_qty"
-                    ][i["pledgor_boid"]] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        unpledge_approved_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE cl.lender_approval_status='Approved'
-            AND cl.request_type = 'Unpledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(unpledge_approved_securities) > 0:
-            for i in unpledge_approved_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "unpledged_quantity", None
-                    ):
-                        securities_category_map[i["isin"]]["unpledged_quantity"] = {}
-                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                    #     "unpledged_quantity"
-                    # ]
-
-                    securities_category_map[i["isin"]]["unpledged_quantity"][
-                        i["pledgor_boid"]
-                    ] = i["unpledged_quantity"]
-                except KeyError:
-                    continue
-
-        for i in securities_list:
-            # process actual qty
-            if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
-                i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
-
-            try:
-                i["Category"] = securities_category_map[i["ISIN"]].get(
-                    "security_category"
-                )
-                i["Is_Eligible"] = True
-                i["Total_Qty"] = i["Quantity"]
-
-                if not i.get("waiting_to_be_pledged_qty", None):
-                    i["waiting_to_be_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_to_be_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_to_be_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_to_be_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_to_be_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("waiting_for_approval_pledged_qty", None):
-                    i["waiting_for_approval_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_for_approval_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_for_approval_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_for_approval_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_for_approval_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("unpledged_quantity", None):
-                    i["unpledged_quantity"] = 0
-
-                if securities_category_map[i["ISIN"]].get("unpledged_quantity", None):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "unpledged_quantity"
-                        ].keys()
-                    ):
-                        i["unpledged_quantity"] += float(
-                            securities_category_map[i["ISIN"]]["unpledged_quantity"][
-                                i["Stock_At"]
-                            ]
-                        )
-
-                available_quantity = (i["Quantity"] + i["unpledged_quantity"]) - (
-                    i["waiting_to_be_pledged_qty"]
-                    + i["waiting_for_approval_pledged_qty"]
-                )
-                i["Quantity"] = (
-                    available_quantity if available_quantity > 0 else float(0)
-                )
-
-            except KeyError:
-                i["Is_Eligible"] = False
-                i["Category"] = None
-
-        return utils.respondWithSuccess(data=securities_list)
-
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        return e.respond()
-
-
-"""Changes as per Concentration rule BRE security selection screen"""
-
-
-@frappe.whitelist()
-def securities_new(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {"lender": "", "level": "", "demat_account": ""},
-        )
-
-        if data.get("demat_account"):
-            demat_ = [i["pledgor_boid"] for i in data.get("demat_account", {})["list"]]
-            demat = lms.convert_list_to_tuple_string(demat_)
-
-        reg = lms.regex_special_characters(search=data.get("lender"))
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
-
-        if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        customer = lms.__customer()
-        user_kyc = lms.__user_kyc()
-
-        securities_list = frappe.db.sql(
-            """
-        SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
-        FROM `tabClient Holding` as ch
-        WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
-        AND ch.pan = '{}' {}
-        order by ch.`modified` DESC""".format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                "AND ch.stock_at in {}".format(demat)
-                if data.get("demat_account")
-                else "",
-            ),
-            as_dict=True,
-        )
-
-        if len(securities_list) == 0:
-
-            try:
-                las_settings = frappe.get_single("LAS Settings")
-
-                # get securities list from choice
-                payload = {
-                    "UserID": las_settings.choice_user_id,
-                    "ClientID": user_kyc.pan_no,
-                }
-                res = requests.post(
-                    url=las_settings.choice_securities_list_api,
-                    json=payload,
-                    headers={"Accept": "application/json"},
-                )
-                res_json = res.json()
-                log = {
-                    "url": las_settings.choice_securities_list_api,
-                    "headers": {"Accept": "application/json"},
-                    "request": payload,
-                    "response": res_json,
-                }
-
-                lms.create_log(log, "securities_new_log")
-
-                if not res.ok:
-                    raise utils.exceptions.APIException(res.text)
-                frappe.logger().info(res_json)
-
-                if res_json["Status"] != "Success":
-                    raise utils.exceptions.APIException(res.text)
-
-                # setting eligibility
-                securities_list = [
-                    i for i in res_json["Response"] if i.get("Price") > 0
-                ]
-
-                # bulk insert fields
-                fields = [
-                    "name",
-                    "pan",
-                    "isin",
-                    "branch",
-                    "client_code",
-                    "client_name",
-                    "scrip_name",
-                    "depository",
-                    "stock_at",
-                    "quantity",
-                    "price",
-                    "scrip_value",
-                    "holding_as_on",
-                    "creation",
-                    "modified",
-                    "owner",
-                    "modified_by",
-                ]
-
-                # bulk insert values
-                values = []
-                for i in securities_list:
-                    if i.get("Holding_As_On", None):
-                        Holding_As_On = datetime.strptime(
-                            i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
-                        )
-                    else:
-                        Holding_As_On = frappe.utils.now_datetime()
-
-                    values.append(
-                        [
-                            i["Stock_At"] + "-" + i["ISIN"],
-                            user_kyc.pan_no,
-                            i["ISIN"],
-                            i["Branch"] if i.get("Branch", None) else "",
-                            i["Client_Code"] if i.get("Client_Code", None) else "",
-                            i["Client_Name"] if i.get("Client_Name", None) else "",
-                            i["Scrip_Name"],
-                            i["Depository"] if i.get("Depository", None) else "",
-                            i["Stock_At"],
-                            i["Quantity"],
-                            i["Price"],
-                            i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
-                            Holding_As_On,
-                            frappe.utils.now(),
-                            frappe.utils.now(),
-                            frappe.session.user,
-                            frappe.session.user,
-                        ]
-                    )
-
-                # delete existng records
-                frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
-
-                # bulk insert
-                frappe.db.bulk_insert(
-                    "Client Holding",
-                    fields=fields,
-                    values=values,
-                    ignore_duplicates=True,
-                )
-
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
-
-        securities_list_ = [i["ISIN"] for i in securities_list]
-        securities_category_map = lms.get_allowed_securities(
-            securities_list_, data.get("lender")
-        )
-
-        pledge_waiting_securitites = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
-            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
-            ch.name
-            FROM `tabLoan Application` as la
-            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
-            where la.status='Waiting to be pledged'
-            AND ch.pan = '{}'
-            AND lai.isin in {}
-            AND la.customer = '{}'
-            group by ch.stock_at, lai.isin
-            order by la.pledgor_boid, lai.isin
-        """.format(
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-            # debug=True,
-        )
-
-        if len(pledge_waiting_securitites) > 0:
-            for i in pledge_waiting_securitites:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_to_be_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_to_be_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][
-                        i["pledgor_boid"]
-                    ] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        waiting_for_lender_approval_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
-            AND cl.request_type = 'Pledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(waiting_for_lender_approval_securities) > 0:
-            for i in waiting_for_lender_approval_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_for_approval_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_for_approval_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]][
-                        "waiting_for_approval_pledged_qty"
-                    ][i["pledgor_boid"]] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        unpledge_approved_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE cl.lender_approval_status='Approved'
-            AND cl.request_type = 'Unpledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(unpledge_approved_securities) > 0:
-            for i in unpledge_approved_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "unpledged_quantity", None
-                    ):
-                        securities_category_map[i["isin"]]["unpledged_quantity"] = {}
-                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                    #     "unpledged_quantity"
-                    # ]
-
-                    securities_category_map[i["isin"]]["unpledged_quantity"][
-                        i["pledgor_boid"]
-                    ] = i["unpledged_quantity"]
-                except KeyError:
-                    continue
-
-        for i in securities_list:
-            # process actual qty
-            if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
-                i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
-
-            try:
-                i["Category"] = securities_category_map[i["ISIN"]].get(
-                    "security_category"
-                )
-                i["Is_Eligible"] = True
-                i["Total_Qty"] = i["Quantity"]
-
-                if not i.get("waiting_to_be_pledged_qty", None):
-                    i["waiting_to_be_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_to_be_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_to_be_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_to_be_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_to_be_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("waiting_for_approval_pledged_qty", None):
-                    i["waiting_for_approval_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_for_approval_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_for_approval_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_for_approval_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_for_approval_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("unpledged_quantity", None):
-                    i["unpledged_quantity"] = 0
-
-                if securities_category_map[i["ISIN"]].get("unpledged_quantity", None):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "unpledged_quantity"
-                        ].keys()
-                    ):
-                        i["unpledged_quantity"] += float(
-                            securities_category_map[i["ISIN"]]["unpledged_quantity"][
-                                i["Stock_At"]
-                            ]
-                        )
-
-                available_quantity = (i["Quantity"] + i["unpledged_quantity"]) - (
-                    i["waiting_to_be_pledged_qty"]
-                    + i["waiting_for_approval_pledged_qty"]
-                )
-                i["Quantity"] = (
-                    available_quantity if available_quantity > 0 else float(0)
-                )
-
-            except KeyError:
-                i["Is_Eligible"] = False
-                i["Category"] = None
-
-        return utils.respondWithSuccess(data=securities_list)
-
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        return e.respond()
-
-
-@frappe.whitelist()
 def schemes(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
@@ -1158,7 +441,7 @@ def schemes(**kwargs):
         lender = ""
         sub_query = ""
         lender_clause = lms.convert_list_to_tuple_string(lender_list)
-        lender = " and als.lender IN {}".format(lender_clause)
+        lender = " and als.lender in {}".format(lender_clause)
 
         if data.get("scheme_type"):
             scheme = " and als.scheme_type = '{}'".format(data.get("scheme_type"))
@@ -1180,6 +463,7 @@ def schemes(**kwargs):
                 scheme, lender, sub_query
             ),
             as_dict=True,
+            debug=True,
         )
         # if not schemes_list:
         #     return utils.respondWithSuccess(message=frappe._("No record found."))
@@ -1215,7 +499,7 @@ def isin_details(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         isin_details = frappe.db.sql(
-            """select als.isin, als.eligible_percentage as ltv, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
+            """select als.isin, als.eligible_percentage as ltv, als.category_name as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}' Order by l.name""".format(
                 data.get("isin")
             ),
             as_dict=True,
@@ -1368,7 +652,7 @@ def approved_securities(**kwargs):
         if data.get("is_download"):
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, alsc.category_name as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
                     instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
                     filters=filters,
@@ -1458,7 +742,7 @@ def approved_securities(**kwargs):
 
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, alsc.category_name as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
                     instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
                     filters=filters,
@@ -1549,6 +833,7 @@ def my_pledge_securities(**kwargs):
                     "price": i.get("price"),
                     "amount": i.get("amount"),
                     "folio": i.get("folio"),
+                    "eligible_percentage": i.get("eligible_percentage"),
                 }
             )
         all_pledged_securities.sort(key=lambda item: item["security_name"])
@@ -1591,12 +876,33 @@ def my_pledge_securities(**kwargs):
                 "customer": loan.customer,
                 "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
             },
-            fields=["count(name) as in_process"],
+            fields=["count(name) as in_process", "name"],
         )
 
         res["increase_loan"] = None
+        res["increase_loan_name"] = ""
         if existing_loan_application[0]["in_process"] == 0:
             res["increase_loan"] = 1
+        else:
+            res["increase_loan_name"] = existing_loan_application[0].name
+
+        # for topup application
+        existing_topup_application = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": loan.name,
+                "customer": loan.customer,
+                "status": ["not IN", ["Approved", "Rejected"]],
+            },
+            fields=["count(name) as in_process", "name"],
+        )
+
+        res["topup_application"] = None
+        res["topup_application_name"] = ""
+        if existing_topup_application[0]["in_process"] == 0:
+            res["topup_application"] = 1
+        else:
+            res["topup_application_name"] = existing_topup_application[0].name
 
         # check if any pending unpledge application exist
         unpledge_application_exist = frappe.get_all(
@@ -1619,7 +925,7 @@ def my_pledge_securities(**kwargs):
                 )
                 if loan_margin_shortfall
                 else None,
-                unpledge=loan.max_unpledge_amount(),
+                # unpledge=loan.max_unpledge_amount(),
             )
 
         return utils.respondWithSuccess(data=res)
@@ -1844,18 +1150,21 @@ def dashboard(**kwargs):
                     and not loan_application_doc.application_type == "Pledge More"
                 ):
                     loan = frappe.get_doc("Loan", loan_application_doc.loan)
-
                     increase_loan_mess = dict(
                         existing_limit=loan.sanctioned_limit,
                         existing_collateral_value=loan.total_collateral_value,
+                        new_dp=loan.drawing_power + loan_application_doc.drawing_power,
                         new_limit=lms.round_down_amount_to_nearest_thousand(
-                            (
-                                loan_application_doc.total_collateral_value
-                                + loan.total_collateral_value
-                            )
-                            * loan_application_doc.allowable_ltv
-                            / 100
+                            loan.drawing_power + loan_application_doc.drawing_power
                         ),
+                        # new_limit=lms.round_down_amount_to_nearest_thousand(
+                        #     (
+                        #         loan_application_doc.total_collateral_value
+                        #         + loan.total_collateral_value
+                        #     )
+                        #     * loan_application_doc.allowable_ltv
+                        #     / 100
+                        # ),
                         new_collateral_value=loan_application_doc.total_collateral_value
                         + loan.total_collateral_value,
                     )
@@ -2134,6 +1443,12 @@ def get_profile_set_alerts(**kwargs):
             and not data.get("percentage")
             and not data.get("amount")
         ):
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please select Amount or Percentage for setting Alerts"
+            #     ),
+            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please select Amount or Percentage for setting Alerts.")
             )
@@ -2141,6 +1456,12 @@ def get_profile_set_alerts(**kwargs):
         elif (
             data.get("is_for_alerts") and data.get("percentage") and data.get("amount")
         ):
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please choose one between Amount or Percentage for setting Alerts"
+            #     ),
+            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please choose one between Amount or Percentage for setting Alerts.")
             )
@@ -2159,8 +1480,35 @@ def get_profile_set_alerts(**kwargs):
             customer.save(ignore_permissions=True)
             frappe.db.commit()
 
+        loan_application = frappe.get_all(
+            "Loan Application",
+            filters={"customer": customer.name, "application_type": "New Loan"},
+            fields=["*"],
+        )
+        loan = frappe.get_all(
+            "Loan",
+            filters={"customer": customer.name},
+            fields=["*"],
+        )
+        loan_name = ""
+        if loan_application:
+            status = loan_application[0].status
+            instrument_type = loan_application[0].instrument_type
+            pledgor_boid = loan_application[0].pledgor_boid
+            if status == "Approved" and loan:
+                loan_name = loan[0].name
+            else:
+                status = "Pending"
+        else:
+            status = ""
+            instrument_type = ""
+            pledgor_boid = ""
         res = {
             "customer_details": customer,
+            "loan_application_status": status,
+            "loan_name": loan_name,
+            "instrument_type": instrument_type,
+            "pledgor_boid": pledgor_boid,
             "user_kyc": user_kyc,
             "last_login": last_login_time,
             "profile_picture_file_url": profile_picture_file_url,
@@ -2313,7 +1661,7 @@ def check_eligible_limit(**kwargs):
         eligible_limit_list = frappe.db.sql(
             """
 			SELECT
-			als.security_name as Scrip_Name, als.eligible_percentage, als.lender, als.security_category as Category, s.price as Price
+			als.security_name as Scrip_Name, als.eligible_percentage, als.lender, als.category_name as Category, s.price as Price
 			FROM `tabAllowed Security` als
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
@@ -2344,7 +1692,9 @@ def all_lenders_list(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
+        all_levels = []
         all_lenders = []
+        # lenders = frappe.get_all("Lender", pluck="name", order_by="name asc")
         lenders = frappe.get_all("Lender", order_by="creation asc")
         for lender in lenders:
             query = [
@@ -2356,8 +1706,11 @@ def all_lenders_list(**kwargs):
                     as_dict=True,
                 )
             ]
+            # all_levels.append(query)
             all_lenders.append({"name": lender.name, "levels": query})
-
+        # all_levels.sort()
+        # lenders.append(all_levels[-1])
+        # data={"lenders": lenders, "levels": all_levels[-1]}
         return utils.respondWithSuccess(data=all_lenders)
 
     except utils.exceptions.APIException as e:
@@ -2710,7 +2063,11 @@ def loan_summary_dashboard(**kwargs):
                         else None,
                         "unpledge": None
                         if unpledge_application_exist or loan_margin_shortfall
-                        else loan.max_unpledge_amount(),
+                        # else loan.max_unpledge_amount(),
+                        else None
+                        # "sell_collateral_available": None,
+                        # "top_up_amount": 0.0,
+                        # "existing_topup_application": None
                     }
                 )
 
@@ -3136,47 +2493,81 @@ def spark_demat_account(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {
-                "depository": ["required"],
-                "dpid": ["required"],
-                "client_id": ["required"],
-            },
+            {"demat": ""},
         )
 
         customer = lms.__customer()
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
             raise lms.exceptions.NotFoundException(_("Customer not found"))
+        if not data.get("demat") or (
+            type(data.get("demat")) is not dict
+            or "list" not in data.get("demat").keys()
+        ):
+            raise utils.exceptions.ValidationException(
+                {"demat": {"required": frappe._("Demat required.")}}
+            )
+        if type(data.get("demat").get("list")) is not list:
+            raise utils.exceptions.ValidationException(
+                {"demat": {"required": frappe._("list should be in list format.")}}
+            )
+        frappe.delete_doc(
+            "Spark Demat Account",
+            frappe.get_all(
+                "Spark Demat Account",
+                {"customer": customer.name},
+                pluck="name",
+            ),
+            ignore_permissions=True,
+        )
+        demat = data.get("demat").get("list")
+        demat_list = True
+        for i in demat:
+            if type(i) is not dict:
+                demat_list = False
+                message = frappe._("Items should be in dictionary format")
+                break
+
+            keys = i.keys()
+            if (
+                "depository" not in keys
+                or "dpid" not in keys
+                or "client_id" not in keys
+            ):
+                demat_list = False
+                message = frappe._("depository or dpid or client_id not present")
+                break
+
+        if not demat_list:
+            raise utils.exceptions.ValidationException({"dlist": {"required": message}})
 
         # field alphanumeric validation
-        reg = lms.regex_special_characters(
-            search=data.get("dpid") + data.get("client_id")
+        for i in demat:
+            keys = i.values()
+            for i in keys:
+                i = str(i)
+                reg = lms.regex_special_characters(search=i)
+                if reg:
+                    raise lms.exceptions.FailureException(
+                        _("Special Charaters not allowed.")
+                    )
+        for i in demat:
+            frappe.get_doc(
+                {
+                    "doctype": "Spark Demat Account",
+                    "customer": customer.name,
+                    "depository": i["depository"],
+                    "dpid": i["dpid"],
+                    "is_choice": i["is_choice"],
+                    "client_id": i["client_id"],
+                }
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+        return utils.respondWithSuccess(
+            message="Your details have been successfully saved"
         )
-
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
-
-        spark_demat_account = frappe.get_doc(
-            {
-                "doctype": "Spark Demat Account",
-                "customer": customer.name,
-                "depository": data.get("depository"),
-                "dpid": data.get("dpid"),
-                "client_id": data.get("client_id"),
-            }
-        ).insert(ignore_permissions=True)
-        frappe.db.commit()
-        return utils.respondWithSuccess(data=spark_demat_account)
     except utils.exceptions.APIException as e:
         lms.log_api_error()
-        frappe.log_error(
-            message=frappe.get_traceback() + json.dumps(data=spark_demat_account),
-            title=_("Demat Account Creation Error"),
-        )
+        return e.respond()
 
 
 @frappe.whitelist()
@@ -4981,16 +4372,659 @@ def get_app_version_details():
             "Spark App Version",
             filters={"is_live": 1},
             fields=["*"],
-            order_by="release_date desc",
             page_length=1,
         )
         if not version_details:
-            raise lms.exceptions.NotFoundException(_("No Record found"))
+            return utils.respondNotFound(message=_("No Record found"))
         return utils.respondWithSuccess(data=version_details[0])
     except utils.exceptions.APIException as e:
-        frappe.log_error(
-            title="Get App Version Details API", message=frappe.get_traceback()
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_demat_details():
+    try:
+        utils.validator.validate_http_method("GET")
+        user = lms.__user()
+        log = {"start_time": str(frappe.utils.now_datetime()), "user": user.name}
+        lms.create_log(log, "get_demat_details_api_start_time")
+        user_kyc = frappe.get_all(
+            "User KYC",
+            filters={"user": user.name, "kyc_status": ("!=", "Rejected")},
+            fields=["*"],
         )
+        customer = lms.__customer(user.name)
+
+        # get demat details from choice
+        las_settings = frappe.get_single("LAS Settings")
+        if user_kyc:
+            payload = {
+                "UserID": las_settings.choice_user_id,
+                "ClientID": user_kyc[0].pan_no,
+            }
+
+            try:
+                log_1 = {
+                    "start_time": str(frappe.utils.now_datetime()),
+                    "user": user.name,
+                }
+                res = requests.post(
+                    las_settings.choice_securities_list_api,
+                    json=payload,
+                    headers={"Accept": "application/json"},
+                )
+                log_1["end_time"]: str(frappe.utils.now_datetime())
+                lms.create_log(log_1, "get_demat_details_request_time")
+                if not res.ok:
+                    raise utils.exceptions.APIException(res.text)
+
+                res_json = res.json()
+                if res_json["Status"] != "Success":
+                    frappe.delete_doc(
+                        "Spark Demat Account",
+                        frappe.get_all(
+                            "Spark Demat Account",
+                            {"customer": customer.name, "is_choice": 1},
+                            pluck="name",
+                        ),
+                        ignore_permissions=True,
+                    )
+
+                if res_json.get("Response"):
+                    distinct_demats = list(
+                        {
+                            frozenset(item.items()): item
+                            for item in [
+                                {
+                                    "depository": i.get("Depository"),
+                                    "stock_at": i.get("Stock_At"),
+                                }
+                                for i in res_json["Response"]
+                            ]
+                        }.values()
+                    )
+
+                    frappe.delete_doc(
+                        "Spark Demat Account",
+                        frappe.get_all(
+                            "Spark Demat Account",
+                            {"customer": customer.name, "is_choice": 1},
+                            pluck="name",
+                        ),
+                        ignore_permissions=True,
+                    )
+
+                    for demat in distinct_demats:
+                        frappe.get_doc(
+                            {
+                                "doctype": "Spark Demat Account",
+                                "customer": customer.name,
+                                "depository": demat["depository"],
+                                "dpid": demat["stock_at"][:8],
+                                "client_id": demat["stock_at"][8:],
+                                "is_choice": 1,
+                            }
+                        ).insert(ignore_permissions=True)
+                        frappe.db.commit()
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+
+        demat_details = frappe.get_all(
+            "Spark Demat Account",
+            filters={"customer": customer.name},
+            fields=["customer", "depository", "dpid", "client_id", "is_choice"],
+        )
+        if demat_details:
+            # if not demat_details:
+            #     raise lms.exceptions.NotFoundException(_("No Record found"))
+            for d in demat_details:
+                d["stock_at"] = d.get("dpid") + d.get("client_id")
+        log["end_time"] = str(frappe.utils.now_datetime())
+        lms.create_log(log, "get_demat_details_time_log")
+        return utils.respondWithSuccess(data=demat_details)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def shares_eligibility(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+        user = lms.__user()
+        log_1 = {"start_time": str(frappe.utils.now_datetime()), "user": user.name}
+        lms.create_log(log_1, "shares_eligibility_api_start_time")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"lender": "", "level": "", "demat": ""},
+        )
+        # reg = lms.regex_special_characters(search=data.get("lender"))
+        # if reg:
+        #     # return utils.respondWithFailure(
+        #     #     status=422,
+        #     #     message=frappe._("Special Characters not allowed."),
+        #     # )
+        #     raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+        reg = lms.regex_special_characters(
+            search=data.get("lender")
+            if data.get("lender")
+            else "" + data.get("level")
+            if data.get("level")
+            else ""
+        )
+        if reg:
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        if not data.get("lender", None):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one lender required"),
+            )
+        else:
+            lender_list = data.get("lender").split(",")
+
+        if not data.get("level"):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one level required"),
+            )
+
+        if isinstance(data.get("level"), str):
+            data["level"] = data.get("level").split(",")
+
+        customer = lms.__customer()
+        user_kyc = lms.__user_kyc()
+        levels = lms.convert_list_to_tuple_string(data.get("level"))
+        if data.get("demat"):
+            demat_acc_no = data.get("demat")
+            dpid = data.get("demat")[:8]
+            client_id = data.get("demat")[8:]
+            spark_demat_acc = frappe.get_all(
+                "Spark Demat Account",
+                filters={
+                    "customer": customer.name,
+                    "dpid": dpid,
+                    "client_id": client_id,
+                },
+                fields=["customer", "depository", "dpid", "client_id", "is_choice"],
+            )
+            if not spark_demat_acc:
+                raise lms.exceptions.NotFoundException(_("Demat account not found"))
+
+            securities_list = []
+            is_choice = spark_demat_acc[0].is_choice
+            if spark_demat_acc[0].is_choice == 1:
+                las_settings = frappe.get_single("LAS Settings")
+                # get securities list from choice
+                payload = {
+                    "UserID": las_settings.choice_user_id,
+                    "ClientID": user_kyc.pan_no,
+                }
+
+                try:
+                    log_2 = {
+                        "start_time": str(frappe.utils.now_datetime()),
+                        "user": user.name,
+                    }
+                    res = requests.post(
+                        las_settings.choice_securities_list_api,
+                        json=payload,
+                        headers={"Accept": "application/json"},
+                    )
+                    log_2["end_time"] = str(frappe.utils.now_datetime())
+                    lms.create_log(
+                        log_2, "shares_eligibility_demat_details_time_logging"
+                    )
+                    if not res.ok:
+                        raise utils.exceptions.APIException(res.text)
+
+                    res_json = res.json()
+                    log = {
+                        "url": las_settings.choice_securities_list_api,
+                        "headers": {"Accept": "application/json"},
+                        "request": payload,
+                        "response": res_json,
+                    }
+                    lms.create_log(log, "securities_log")
+                    frappe.logger().info(res_json)
+                    if res_json["Status"] != "Success":
+                        raise lms.exceptions.NotFoundException()
+
+                    # setting eligibility
+                    securities_list = [
+                        i
+                        for i in res_json["Response"]
+                        if i.get("Price") > 0 and i.get("Quantity") > 0
+                    ]
+                    security_stock_at_list = [i["Stock_At"] for i in securities_list]
+
+                    if res_json["Response"]:
+                        # bulk insert fields
+                        fields = [
+                            "name",
+                            "pan",
+                            "isin",
+                            "branch",
+                            "client_code",
+                            "client_name",
+                            "scrip_name",
+                            "depository",
+                            "stock_at",
+                            "quantity",
+                            "price",
+                            "scrip_value",
+                            "holding_as_on",
+                            "creation",
+                            "modified",
+                            "owner",
+                            "modified_by",
+                        ]
+
+                        # print("res_json",res_json["Response"])
+                        # bulk insert values
+                        values = []
+                        for i in securities_list:
+                            if i.get("Holding_As_On", None):
+                                Holding_As_On = datetime.strptime(
+                                    i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
+                                )
+                            else:
+                                Holding_As_On = frappe.utils.now_datetime()
+
+                            values.append(
+                                [
+                                    i["Stock_At"] + "-" + i["ISIN"],
+                                    user_kyc.pan_no,
+                                    i["ISIN"],
+                                    i["Branch"] if i.get("Branch", None) else "",
+                                    i["Client_Code"]
+                                    if i.get("Client_Code", None)
+                                    else "",
+                                    i["Client_Name"]
+                                    if i.get("Client_Name", None)
+                                    else "",
+                                    i["Scrip_Name"],
+                                    i["Depository"]
+                                    if i.get("Depository", None)
+                                    else "",
+                                    i["Stock_At"],
+                                    i["Quantity"],
+                                    i["Price"],
+                                    i["Scrip_Value"]
+                                    if i.get("Scrip_Value", None)
+                                    else "",
+                                    Holding_As_On,
+                                    frappe.utils.now(),
+                                    frappe.utils.now(),
+                                    frappe.session.user,
+                                    frappe.session.user,
+                                ]
+                            )
+
+                        # delete existng records
+                        frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
+
+                        # bulk insert
+                        frappe.db.bulk_insert(
+                            "Client Holding",
+                            fields=fields,
+                            values=values,
+                            ignore_duplicates=True,
+                        )
+                        # return utils.respondWithSuccess(data=securities_list)
+
+                except requests.RequestException as e:
+                    raise utils.exceptions.APIException(str(e))
+
+                if res_json["Response"] and securities_list:
+                    securities_list_ = [i["ISIN"] for i in securities_list]
+                    instrument_type = "Shares"
+                    securities_category_map = lms.get_allowed_securities(
+                        securities_list_, lender_list, instrument_type, levels
+                    )
+                    securities_category_map_list = []
+                    for i in securities_category_map:
+                        securities_category_map_list.append(i)
+                    final_securities_list = []
+                    if securities_category_map_list:
+                        pledge_waiting_securitites = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
+                            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
+                            ch.name
+                            FROM `tabLoan Application` as la
+                            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
+                            where la.status='Waiting to be pledged'
+                            AND ch.pan = '{}'
+                            AND lai.isin in {}
+                            AND la.customer = '{}'
+                            group by ch.stock_at, lai.isin
+                            order by la.pledgor_boid, lai.isin
+                        """.format(
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                            # debug=True,
+                        )
+                        if len(pledge_waiting_securitites) > 0:
+                            for i in pledge_waiting_securitites:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "waiting_to_be_pledged_qty", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "waiting_to_be_pledged_qty"
+                                        ] = {}
+                                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
+                                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+
+                                    securities_category_map[i["isin"]][
+                                        "waiting_to_be_pledged_qty"
+                                    ][i["pledgor_boid"]] = i["pledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        waiting_for_lender_approval_securities = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
+                            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
+                            ch.name
+                            FROM `tabCollateral Ledger` as cl
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+                            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
+                            AND cl.request_type = 'Pledge'
+                            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+                            AND ch.pan = '{}'
+                            AND cl.isin in {}
+                            AND cl.customer = '{}'
+                            group by ch.stock_at, cl.isin
+                            order by cl.pledgor_boid, cl.isin;
+                        """.format(
+                                datetime.strftime(
+                                    frappe.utils.now_datetime(), "%Y-%m-%d"
+                                ),
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                        )
+                        if len(waiting_for_lender_approval_securities) > 0:
+                            for i in waiting_for_lender_approval_securities:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "waiting_for_approval_pledged_qty", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "waiting_for_approval_pledged_qty"
+                                        ] = {}
+                                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
+                                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+
+                                    securities_category_map[i["isin"]][
+                                        "waiting_for_approval_pledged_qty"
+                                    ][i["pledgor_boid"]] = i["pledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        unpledge_approved_securities = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(cl.loan) as loan,
+                            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
+                            ch.name
+                            FROM `tabCollateral Ledger` as cl
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+                            WHERE cl.lender_approval_status='Approved'
+                            AND cl.request_type = 'Unpledge'
+                            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+                            AND ch.pan = '{}'
+                            AND cl.isin in {}
+                            AND cl.customer = '{}'
+                            group by ch.stock_at, cl.isin
+                            order by cl.pledgor_boid, cl.isin;
+                        """.format(
+                                datetime.strftime(
+                                    frappe.utils.now_datetime(), "%Y-%m-%d"
+                                ),
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                        )
+                        if len(unpledge_approved_securities) > 0:
+                            for i in unpledge_approved_securities:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "unpledged_quantity", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "unpledged_quantity"
+                                        ] = {}
+                                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                                    #     "unpledged_quantity"
+                                    # ]
+
+                                    securities_category_map[i["isin"]][
+                                        "unpledged_quantity"
+                                    ][i["pledgor_boid"]] = i["unpledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        for i in securities_list:
+                            # process actual qty
+                            if i.get("Holding_As_On", None) and not isinstance(
+                                i["Holding_As_On"], str
+                            ):
+                                i["Holding_As_On"] = i["Holding_As_On"].strftime(
+                                    "%Y-%m-%dT%H:%M:%S"
+                                )
+
+                            try:
+                                i["Category"] = securities_category_map[i["ISIN"]].get(
+                                    "security_category"
+                                )
+
+                                i["Is_Eligible"] = True
+                                i["Total_Qty"] = i["Quantity"]
+
+                                if not i.get("waiting_to_be_pledged_qty", None):
+                                    i["waiting_to_be_pledged_qty"] = 0
+
+                                if securities_category_map[i["ISIN"]].get(
+                                    "waiting_to_be_pledged_qty", None
+                                ):
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "waiting_to_be_pledged_qty"
+                                        ].keys()
+                                    ):
+                                        i["waiting_to_be_pledged_qty"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "waiting_to_be_pledged_qty"
+                                            ][i["Stock_At"]]
+                                        )
+
+                                if not i.get("waiting_for_approval_pledged_qty", None):
+                                    i["waiting_for_approval_pledged_qty"] = 0
+
+                                if securities_category_map[i["ISIN"]].get(
+                                    "waiting_for_approval_pledged_qty", None
+                                ):
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "waiting_for_approval_pledged_qty"
+                                        ].keys()
+                                    ):
+                                        i["waiting_for_approval_pledged_qty"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "waiting_for_approval_pledged_qty"
+                                            ][i["Stock_At"]]
+                                        )
+
+                                if not i.get("unpledged_quantity", None):
+                                    i["unpledged_quantity"] = 0
+
+                                if securities_category_map[i["ISIN"]].get(
+                                    "unpledged_quantity", None
+                                ):
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "unpledged_quantity"
+                                        ].keys()
+                                    ):
+                                        i["unpledged_quantity"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "unpledged_quantity"
+                                            ][i["Stock_At"]]
+                                        )
+
+                                available_quantity = (
+                                    i["Quantity"] + i["unpledged_quantity"]
+                                ) - (
+                                    i["waiting_to_be_pledged_qty"]
+                                    + i["waiting_for_approval_pledged_qty"]
+                                )
+                                i["Quantity"] = (
+                                    available_quantity
+                                    if available_quantity > 0
+                                    else float(0)
+                                )
+
+                            except KeyError:
+                                i["Is_Eligible"] = False
+                                i["Category"] = None
+
+                            i.update(is_choice=is_choice)
+                            if i["Category"] != None and i["Stock_At"] == data.get(
+                                "demat"
+                            ):
+                                final_securities_list.append(i)
+                                image = frappe.get_all(
+                                    "Allowed Security",
+                                    filters={"isin": i["ISIN"]},
+                                    fields=["amc_image", "eligible_percentage"],
+                                )
+                                if image[0].amc_image:
+                                    image[0].amc_image = frappe.utils.get_url(
+                                        image[0].amc_image
+                                    )
+                                i.update(
+                                    amc_image=image[0].amc_image,
+                                    eligible_percentage=image[0].eligible_percentage,
+                                )
+
+                    lender = lms.convert_list_to_tuple_string(lender_list)
+                    lender_info = frappe.db.sql(
+                        """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
+                            lender
+                        ),
+                        as_dict=True,
+                    )
+                    data = {
+                        "Securities": final_securities_list,
+                        "lender_info": lender_info,
+                    }
+                    if (
+                        not data.get("Securities")
+                        and not demat_acc_no in security_stock_at_list
+                    ):
+                        raise lms.exceptions.NotFoundException()
+                    log_3 = {
+                        "start_time": str(frappe.utils.now_datetime()),
+                        "user": user.name,
+                    }
+                    lms.create_log(log_3, "shares_eligibility_end_time")
+                    if res_json["Response"] and not data.get("Securities"):
+                        return utils.respondWithSuccess(data=data)
+                    return utils.respondWithSuccess(data=data)
+                else:
+                    raise lms.exceptions.NotFoundException()
+            else:
+                get_distinct_securities(lender_list, levels)
+        else:
+            get_distinct_securities(lender_list, levels)
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+def get_distinct_securities(lender_list, levels):
+    try:
+        lender = lms.convert_list_to_tuple_string(lender_list)
+        lender_query = " and als.lender in {}".format(lender)
+        sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
+            lender, levels
+        )
+        securities_list = frappe.db.sql(
+            """select als.isin as ISIN, sc.category_name as Category, als.eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
+                als.amc_image
+                from `tabAllowed Security` als 
+                LEFT JOIN `tabSecurity` s on s.isin = als.isin
+                LEFT JOIN `tabSecurity Category` sc ON als.security_category = sc.name 
+                where als.instrument_type='Shares' and
+                s.price > 0{}{}
+                group by als.isin
+                order by als.creation desc;""".format(
+                lender_query, sub_query
+            ),
+            as_dict=True,
+        )
+        lender_info = frappe.db.sql(
+            """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
+                lender
+            ),
+            as_dict=True,
+        )
+        dummy_keys = {
+            "Branch": None,
+            "Client_Code": None,
+            "Client_Name": None,
+            "Depository": None,
+            "Stock_At": None,
+            "Quantity": None,
+            "Scrip_Value": None,
+            "Holding_As_On": None,
+            "Is_Eligible": None,
+            "Total_Qty": None,
+            "waiting_to_be_pledged_qty": None,
+            "waiting_for_approval_pledged_qty": None,
+            "unpledged_quantity": None,
+            "is_choice": 0,
+        }
+        for i in securities_list:
+            i.update(dummy_keys)
+
+        for scheme in securities_list:
+            if scheme.amc_image:
+                scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
+
+        data = {"Securities": securities_list, "lender_info": lender_info}
+        # if not data.get("Securities") and :
+        #     raise lms.exceptions.NotFoundException()
+        log = {"start_time": str(frappe.utils.now_datetime())}
+        lms.create_log(log, "shares_eligibility_end_time")
+        if not securities_list and not data.get("Securities"):
+            return utils.respondWithSuccess(data=data)
+        return utils.respondWithSuccess(data=data)
+    except Exception as e:
+        lms.log_api_error()
         return e.respond()
 
 

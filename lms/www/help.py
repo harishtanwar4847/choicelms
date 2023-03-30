@@ -27,7 +27,7 @@ def approved_securities(instrument_type):
     # )
     approved_security_list = frappe.db.sql(
         """
-        select alsc.isin,alsc.security_name,(select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category,alsc.eligible_percentage,alsc.lender  from `tabAllowed Security` alsc  where instrument_type = "{}" order by security_name asc
+        select alsc.isin,alsc.security_name,alsc.category_name as security_category,alsc.eligible_percentage,alsc.lender  from `tabAllowed Security` alsc  where instrument_type = "{}" order by security_name asc
         """.format(
             instrument_type
         ),
