@@ -4405,18 +4405,17 @@ def get_demat_details():
             }
 
             try:
-                log = {
+                log_1 = {
                     "start_time": str(frappe.utils.now_datetime()),
                     "user": user.name,
                 }
-                lms.create_log(log, "get_demat_details_request_start_time")
                 res = requests.post(
                     las_settings.choice_securities_list_api,
                     json=payload,
                     headers={"Accept": "application/json"},
                 )
-                log = {"end_time": str(frappe.utils.now_datetime()), "user": user.name}
-                lms.create_log(log, "get_demat_details_request_end_time")
+                log_1["end_time"]: str(frappe.utils.now_datetime())
+                lms.create_log(log_1, "get_demat_details_request_time")
                 if not res.ok:
                     raise utils.exceptions.APIException(res.text)
 
@@ -4482,8 +4481,8 @@ def get_demat_details():
             #     raise lms.exceptions.NotFoundException(_("No Record found"))
             for d in demat_details:
                 d["stock_at"] = d.get("dpid") + d.get("client_id")
-        log = {"end_time": str(frappe.utils.now_datetime()), "user": user.name}
-        lms.create_log(log, "get_demat_details_api_end_time")
+        log["end_time"] = str(frappe.utils.now_datetime())
+        lms.create_log(log, "get_demat_details_time_log")
         return utils.respondWithSuccess(data=demat_details)
     except utils.exceptions.APIException as e:
         lms.log_api_error()
@@ -4494,12 +4493,14 @@ def get_demat_details():
 def shares_eligibility(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
+        user = lms.__user()
+        log_1 = {"start_time": str(frappe.utils.now_datetime()), "user": user.name}
+        lms.create_log(log_1, "shares_eligibility_api_start_time")
 
         data = utils.validator.validate(
             kwargs,
             {"lender": "", "level": "", "demat": ""},
         )
-
         # reg = lms.regex_special_characters(search=data.get("lender"))
         # if reg:
         #     # return utils.respondWithFailure(
@@ -4564,10 +4565,18 @@ def shares_eligibility(**kwargs):
                 }
 
                 try:
+                    log_2 = {
+                        "start_time": str(frappe.utils.now_datetime()),
+                        "user": user.name,
+                    }
                     res = requests.post(
                         las_settings.choice_securities_list_api,
                         json=payload,
                         headers={"Accept": "application/json"},
+                    )
+                    log_2["end_time"] = str(frappe.utils.now_datetime())
+                    lms.create_log(
+                        log_2, "shares_eligibility_demat_details_time_logging"
                     )
                     if not res.ok:
                         raise utils.exceptions.APIException(res.text)
@@ -4936,6 +4945,11 @@ def shares_eligibility(**kwargs):
                         and not demat_acc_no in security_stock_at_list
                     ):
                         raise lms.exceptions.NotFoundException()
+                    log_3 = {
+                        "start_time": str(frappe.utils.now_datetime()),
+                        "user": user.name,
+                    }
+                    lms.create_log(log_3, "shares_eligibility_end_time")
                     if res_json["Response"] and not data.get("Securities"):
                         return utils.respondWithSuccess(data=data)
                     return utils.respondWithSuccess(data=data)
@@ -5004,6 +5018,8 @@ def get_distinct_securities(lender_list, levels):
         data = {"Securities": securities_list, "lender_info": lender_info}
         # if not data.get("Securities") and :
         #     raise lms.exceptions.NotFoundException()
+        log = {"start_time": str(frappe.utils.now_datetime())}
+        lms.create_log(log, "shares_eligibility_end_time")
         if not securities_list and not data.get("Securities"):
             return utils.respondWithSuccess(data=data)
         return utils.respondWithSuccess(data=data)
