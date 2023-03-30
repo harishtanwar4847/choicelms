@@ -54,7 +54,6 @@
   "lien_initiate_charge_type",
   "invoke_initiate_charge_type",
   "revoke_initiate_charge_type",
-  "loan_renewal_charge_type",
   "column_break_2",
   "lender_processing_fees",
   "stamp_duty",
@@ -67,7 +66,6 @@
   "lien_initiate_charges",
   "invoke_initiate_charges",
   "revoke_initiate_charges",
-  "loan_renewal_charges",
   "column_break_39",
   "lender_processing_minimum_amount",
   "lender_stamp_duty_minimum_amount",
@@ -80,7 +78,6 @@
   "lien_initiate_charge_minimum_amount",
   "invoke_initiate_charges_minimum_amount",
   "revoke_initiate_charges_minimum_amount",
-  "loan_renewal_charge_minimum_amount",
   "column_break_54",
   "lender_processing_maximum_amount",
   "lender_stamp_duty_maximum_amount",
@@ -93,7 +90,6 @@
   "lien_initiate_charge_maximum_amount",
   "invoke_initiate_charges_maximum_amount",
   "revoke_initiate_charges_maximum_amount",
-  "loan_renewal_charge_maximum_amount",
   "taxes_details_section",
   "cgst_on_processing_fees",
   "cgst_on_stamp_duty",
@@ -130,8 +126,6 @@
   "igst_on_lien_charges",
   "igst_on_invocation_charges",
   "igst_on_revocation_charges",
-  "loan_renewal_penal_interest_section",
-  "renewal_penal_interest",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -147,14 +141,8 @@
   "loan_account_statement_template",
   "column_break_78",
   "pledged_security_statement_template",
+  "sanction_letter",
   "interest_letter",
-  "letterhead_section_section",
-  "lender_logo",
-  "lender_address",
-  "or_column",
-  "is_html",
-  "lender_header",
-  "lender_footer",
   "image_section_section",
   "logo_file_1",
   "website_section_section",
@@ -941,85 +929,21 @@
   {
    "fieldname": "sanction_letter",
    "fieldtype": "Attach",
+   "label": "Sanction Letter"
+  },
+  {
+   "fieldname": "sanction_letter",
+   "fieldtype": "Attach",
+   "label": "Sanction Letter"
+  },
+  {
+   "fieldname": "interest_letter",
+   "fieldtype": "Attach",
    "label": "Interest Letter"
-  },
-  {
-   "fieldname": "letterhead_section_section",
-   "fieldtype": "Section Break",
-   "label": "Letterhead Section"
-  },
-  {
-   "fieldname": "lender_logo",
-   "fieldtype": "Attach Image",
-   "label": "Lender Logo"
-  },
-  {
-   "fieldname": "lender_address",
-   "fieldtype": "Attach Image",
-   "label": "Lender Address"
-  },
-  {
-   "fieldname": "or_column",
-   "fieldtype": "Column Break",
-   "label": "Or"
-  },
-  {
-   "depends_on": "eval:doc.is_html == 1;",
-   "fieldname": "lender_header",
-   "fieldtype": "HTML Editor",
-   "label": "Lender header"
-  },
-  {
-   "depends_on": "eval:doc.is_html == 1;",
-   "fieldname": "lender_footer",
-   "fieldtype": "HTML Editor",
-   "label": "Lender footer"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_html",
-   "fieldtype": "Check",
-   "label": "Is html"
-  },
-  {
-   "fieldname": "loan_renewal_penal_interest_section",
-   "fieldtype": "Section Break",
-   "label": "Loan Renewal Penal Interest Section"
-  },
-  {
-   "fieldname": "renewal_penal_interest",
-   "fieldtype": "Float",
-   "label": "Renewal Penal Interest"
-  },
-  {
-   "fieldname": "loan_renewal_charges",
-   "fieldtype": "Float",
-   "label": "Loan Renewal Charges"
-  },
-  {
-   "fieldname": "loan_renewal_charge_type",
-   "fieldtype": "Select",
-   "label": "Loan Renewal Charge Type",
-   "options": "Fix\nPercentage"
-  },
-  {
-   "fieldname": "loan_renewal_charge_minimum_amount",
-   "fieldtype": "Float",
-   "label": "Minimum Amount"
-  },
-  {
-   "fieldname": "loan_renewal_charge_maximum_amount",
-   "fieldtype": "Float",
-   "label": "Maximum Amount"
-  },
-  {
-  "fieldname": "sanction_letter",
-  "fieldtype": "Attach",
-  "label": "Sanction Letter"
- }
+  }
  ],
  "links": [],
- "modified": "2023-02-07 18:46:42.999372",
+ "modified": "2023-03-30 17:25:40.562993",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

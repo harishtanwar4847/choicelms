@@ -77,19 +77,18 @@ class UserKYC(Document):
                         frappe.enqueue_doc(
                             "Notification", "CKYC Approved", method="send", doc=doc
                         )
-                        msg = frappe.get_doc(
-                            "Spark SMS Notification", "Ckyc Approved"
-                        ).message
-                        lms.send_sms_notification(
-                            customer=loan_customer.phone,
-                            msg=msg.format(link=las_settings.app_login_dashboard),
-                        )
-                        # msg = "Your KYC Request has been approved, please visit spark.loans to continue the further journey."
+                        # msg = frappe.get_doc(
+                        #     "Spark SMS Notification", "Ckyc Approved"
+                        # ).message
+                        # lms.send_sms_notification(
+                        #     customer=loan_customer.phone,
+                        #     msg=msg.format(link=las_settings.app_login_dashboard),
+                        # )
+                        msg = "Your KYC Request has been approved, please visit spark.loans to continue the further journey."
                         fcm_notification = frappe.get_doc(
                             "Spark Push Notification", "Ckyc Approved", fields=["*"]
                         )
                     else:
-                        print("Inside elseuuej")
                         if self.consent_given == 1:
                             kyc_status = self.kyc_status
                         else:
@@ -100,28 +99,28 @@ class UserKYC(Document):
                         frappe.enqueue_doc(
                             "Notification", "Ckyc Rejection", method="send", doc=doc
                         )
-                        msg = frappe.get_doc(
-                            "Spark SMS Notification", "Ckyc Rejected"
-                        ).message
-                        lms.send_sms_notification(
-                            customer=loan_customer.phone,
-                            msg=msg.format(link=las_settings.app_login_dashboard),
-                        )
-                        # msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
+                        # msg = frappe.get_doc(
+                        #     "Spark SMS Notification", "Ckyc Rejected"
+                        # ).message
+                        # lms.send_sms_notification(
+                        #     customer=loan_customer.phone,
+                        #     msg=msg.format(link=las_settings.app_login_dashboard),
+                        # )
+                        msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
                         fcm_notification = frappe.get_doc(
                             "Spark Push Notification", "Ckyc Rejected", fields=["*"]
                         )
 
-                    # receiver_list = [str(loan_customer.phone)]
-                    # if self.mob_num:
-                    #     receiver_list.append(str(self.mob_num))
-                    # if self.choice_mob_no:
-                    #     receiver_list.append(str(self.choice_mob_no))
+                    receiver_list = [str(loan_customer.phone)]
+                    if self.mob_num:
+                        receiver_list.append(str(self.mob_num))
+                    if self.choice_mob_no:
+                        receiver_list.append(str(self.choice_mob_no))
 
-                    # receiver_list = list(set(receiver_list))
-                    # frappe.enqueue(
-                    #     method=send_sms, receiver_list=receiver_list, msg=msg
-                    # )
+                    receiver_list = list(set(receiver_list))
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
                     lms.send_spark_push_notification(
                         fcm_notification=fcm_notification, customer=loan_customer
                     )
