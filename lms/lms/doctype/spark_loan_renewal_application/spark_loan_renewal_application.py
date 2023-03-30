@@ -1645,7 +1645,7 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                     customer=customer.name,
                     customer_name=customer.full_name,
                     custom_base_interest=loan.custom_base_interest,
-                    custom_rebate_interest=loan.custom_base_interest,
+                    custom_rebate_interest=loan.custom_rebate_interest,
                     remarks="",
                 )
             ).insert(ignore_permissions=True)
@@ -1942,7 +1942,7 @@ def renewal_doc_for_selected_customer():
                             customer=customer.name,
                             customer_name=customer.full_name,
                             custom_base_interest=loan.custom_base_interest,
-                            custom_rebate_interest=loan.custom_base_interest,
+                            custom_rebate_interest=loan.custom_rebate_interest,
                             remarks="",
                         )
                     ).insert(ignore_permissions=True)
