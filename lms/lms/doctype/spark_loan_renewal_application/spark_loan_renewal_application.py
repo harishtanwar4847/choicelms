@@ -1644,6 +1644,8 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                     drawing_power=loan.drawing_power,
                     customer=customer.name,
                     customer_name=customer.full_name,
+                    custom_base_interest=loan.custom_base_interest,
+                    custom_rebate_interest=loan.custom_base_interest,
                     remarks="",
                 )
             ).insert(ignore_permissions=True)
