@@ -504,15 +504,7 @@ class Loan(Document):
         try:
             self.total_collateral_value = 0
             drawing_power = 0
-            # if self.instrument_type == "Shares":
-            #     for i in self.items:
-            #         i.amount = i.price * i.pledged_quantity
-            #         self.total_collateral_value += i.amount
 
-            #     drawing_power = round(
-            #         (self.total_collateral_value * (self.allowable_ltv / 100)), 2
-            #     )
-            # else:  # for Drawing power Calculation
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
                 i.eligible_amount = (i.eligible_percentage / 100) * i.amount
@@ -1812,7 +1804,7 @@ class Loan(Document):
                     fields=["amc_image"],
                 )
 
-            if image[0].amc_image:
+            if image and image[0].amc_image:
                 amc_image = frappe.utils.get_url(image[0].amc_image)
                 items.amc_image = amc_image
             if code:
