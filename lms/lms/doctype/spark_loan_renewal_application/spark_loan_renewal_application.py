@@ -1196,6 +1196,16 @@ def renewal_penal_interest(loan_name):
                                 "log": frappe.local.form_dict,
                                 "line": lms.get_linenumber(),
                                 "loan": loan_name,
+                                "interest": {
+                                    "doctype": "Loan Transaction",
+                                    "loan": loan.name,
+                                    "lender": loan.lender,
+                                    "transaction_type": "Penal Interest",
+                                    "record_type": "DR",
+                                    "amount": round(amount, 2),
+                                    "unpaid_interest": round(amount, 2),
+                                    "time": current_date,
+                                },
                             },
                             "renewal_penal_interest_log",
                         )
