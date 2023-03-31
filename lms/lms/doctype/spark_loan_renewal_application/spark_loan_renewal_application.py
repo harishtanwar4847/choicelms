@@ -1076,7 +1076,7 @@ def renewal_penal_interest(loan_name):
     try:
         loan = frappe.get_doc("Loan", loan_name)
         lms.create_log(
-            {"log": frappe.local.form_dict, "line": lms.get_linenumber()},
+            {"line": lms.get_linenumber(), "loan": loan_name},
             "renewal_penal_interest_log",
         )
         existing_renewal_doc_list = frappe.get_all(
@@ -1133,7 +1133,7 @@ def renewal_penal_interest(loan_name):
                 pending_renewal_doc_list and not user_kyc and not user_kyc_approved
             ) or (user_kyc_approved and pending_renewal_doc_list):
                 lms.create_log(
-                    {"log": frappe.local.form_dict, "line": lms.get_linenumber()},
+                    {"line": lms.get_linenumber(), "loan": loan_name},
                     "renewal_penal_interest_log",
                 )
                 top_up_application = frappe.get_all(
@@ -1157,7 +1157,7 @@ def renewal_penal_interest(loan_name):
                     applications.append(i)
                 if not top_up_application:
                     lms.create_log(
-                        {"log": frappe.local.form_dict, "line": lms.get_linenumber()},
+                        {"line": lms.get_linenumber(), "loan": loan_name},
                         "renewal_penal_interest_log",
                     )
                     if not loan_application:
@@ -1165,6 +1165,7 @@ def renewal_penal_interest(loan_name):
                             {
                                 "log": frappe.local.form_dict,
                                 "line": lms.get_linenumber(),
+                                "loan": loan_name,
                             },
                             "renewal_penal_interest_log",
                         )
@@ -1189,6 +1190,7 @@ def renewal_penal_interest(loan_name):
                             {
                                 "log": frappe.local.form_dict,
                                 "line": lms.get_linenumber(),
+                                "loan": loan_name,
                             },
                             "renewal_penal_interest_log",
                         )
@@ -1217,6 +1219,7 @@ def renewal_penal_interest(loan_name):
                             {
                                 "log": frappe.local.form_dict,
                                 "line": lms.get_linenumber(),
+                                "loan": loan_name,
                             },
                             "renewal_penal_interest_log",
                         )
@@ -1265,7 +1268,7 @@ def renewal_penal_interest(loan_name):
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
         lms.create_log(
-            {"log": frappe.local.form_dict, "line": lms.get_linenumber()},
+            {"line": lms.get_linenumber(), "loan": loan_name},
             "renewal_penal_interest_log",
         )
 
