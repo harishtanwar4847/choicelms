@@ -1127,8 +1127,10 @@ def renewal_penal_interest(loan_name):
         greater_than_7 = exp + timedelta(days=7)
         more_than_7 = greater_than_7 + timedelta(days=7)
         if (
-            greater_than_7 > current_date or more_than_7 > current_date
-        ) and exp < current_date:
+            (greater_than_7 > current_date or more_than_7 > current_date)
+            and exp < current_date
+            and loan.balance > 0
+        ):
             if (
                 pending_renewal_doc_list and not user_kyc and not user_kyc_approved
             ) or (user_kyc_approved and pending_renewal_doc_list):
