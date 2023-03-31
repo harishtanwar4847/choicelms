@@ -507,7 +507,7 @@ class Loan(Document):
 
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
-                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
                 self.total_collateral_value += i.amount
                 drawing_power += i.eligible_amount
 
@@ -1848,7 +1848,7 @@ class Loan(Document):
             # ) - self.sanctioned_limit
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
-                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
                 total_collateral_value += i.amount
                 actual_drawing_power += i.eligible_amount
 
