@@ -1150,6 +1150,7 @@ def renewal_penal_interest(loan_name):
                     "Loan Application",
                     filters={
                         "loan": loan.name,
+                        "status": ["not IN", ["Rejected", "Approved"]],
                     },
                     fields=["name"],
                 )
