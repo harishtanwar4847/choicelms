@@ -1157,7 +1157,11 @@ def renewal_penal_interest(loan_name):
                     applications.append(i)
                 if not top_up_application:
                     lms.create_log(
-                        {"line": lms.get_linenumber(), "loan": loan_name},
+                        {
+                            "line": lms.get_linenumber(),
+                            "loan": loan_name,
+                            "loan_application": str(loan_application),
+                        },
                         "renewal_penal_interest_log",
                     )
                     if not loan_application:
