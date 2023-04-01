@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [v5.15.0] - 2023-03-30
+
+## Added
+
+- [SPRK-128 - Ltv for Shares and Shares Eligibility](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/581)
+
+## [v5.14.1] - 2023-03-23
+
+## Added
+
+- [SPRK-122 - Read Only fields updated in loan application, pan no and dob in user kyc doctype mark read only only on prod](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/578)
+
 ## [v5.14.0] - 2023-03-13
 
 ## Added

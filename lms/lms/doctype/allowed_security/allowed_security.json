@@ -12,9 +12,11 @@
   "instrument_type",
   "amc_code",
   "amc_name",
+  "amc_image",
   "column_break_5",
   "security_name",
   "security_category",
+  "category_name",
   "scheme_type",
   "allowed",
   "res_status",
@@ -110,11 +112,23 @@
    "fieldtype": "Check",
    "label": "Status",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Shares\"",
+   "fieldname": "amc_image",
+   "fieldtype": "Attach Image",
+   "label": "AMC Image"
+  },
+  {
+   "fetch_from": "security_category.category_name",
+   "fieldname": "category_name",
+   "fieldtype": "Read Only",
+   "label": "Category Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-08 17:58:39.524667",
+ "modified": "2023-03-30 19:06:02.874145",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",

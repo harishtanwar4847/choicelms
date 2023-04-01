@@ -114,7 +114,7 @@ class Cart(Document):
                     "drawing_power": self.eligible_loan,
                     "lender": self.lender,
                     "expiry_date": expiry,
-                    "allowable_ltv": self.allowable_ltv,
+                    # "allowable_ltv": self.allowable_ltv,
                     "customer": self.customer,
                     "customer_name": self.customer_name,
                     "pledgor_boid": self.pledgor_boid,
@@ -250,10 +250,16 @@ class Cart(Document):
         diff = self.eligible_loan
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
+            # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            #     (self.total_collateral_value + loan.total_collateral_value)
+            #     * self.allowable_ltv
+            #     / 100
+            # )
+            actual_dp = lms.round_down_amount_to_nearest_thousand(
+                loan.actual_drawing_power
+            )
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
+                actual_dp + self.eligible_loan
             )
             self.increased_sanctioned_limit = (
                 increased_sanctioned_limit
@@ -558,9 +564,10 @@ class Cart(Document):
             isin = [i.isin for i in self.items]
             price_map = lms.get_security_prices(isin)
             allowed_securities = lms.get_allowed_securities(
-                isin, self.lender, self.instrument_type
+                isin,
+                self.lender,
+                self.instrument_type,
             )
-
             for i in self.items:
                 security = allowed_securities.get(i.isin)
                 i.security_category = security.security_category
@@ -569,34 +576,28 @@ class Cart(Document):
 
                 i.price = price_map.get(i.isin, 0)
                 # i.amount = i.pledged_quantity * i.price
-                amount = i.pledged_quantity * i.price
-                i.amount = amount
-                if i.type != "Shares":
-                    i.amount = round(i.pledged_quantity, 3) * i.price
-                    i.eligible_amount = (
-                        round(i.pledged_quantity, 3)
-                        * i.price
-                        * security.eligible_percentage
-                    ) / 100
+                # amount = i.pledged_quantity * i.price
+                # i.amount = amount
+                # if i.type != "Shares":
+                i.amount = round(i.pledged_quantity, 3) * i.price
+                i.eligible_amount = (
+                    round(i.pledged_quantity, 3)
+                    * i.price
+                    * security.eligible_percentage
+                ) / 100
 
     def process_cart(self):
         if not self.is_processed:
             lender = self.get_lender()
             self.total_collateral_value = 0
-            allowable_ltv = 0
             eligible_loan = 0
             for item in self.items:
                 self.total_collateral_value += item.amount
-                allowable_ltv += item.eligible_percentage
 
             self.total_collateral_value = round(self.total_collateral_value, 2)
-            if self.instrument_type == "Shares":
-                self.allowable_ltv = float(allowable_ltv) / len(self.items)
-                eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
 
-            else:
-                for i in self.items:
-                    eligible_loan += i.eligible_amount
+            for i in self.items:
+                eligible_loan += i.eligible_amount
 
             eligible_loan = round(
                 lms.round_down_amount_to_nearest_thousand(eligible_loan),

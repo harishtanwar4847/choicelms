@@ -21,7 +21,11 @@ from lms.lms.doctype.user_token.user_token import send_sms
 class UserKYC(Document):
     def before_save(self):
         if self.consent_given == 1:
-            if self.kyc_status == "Approved":
+            cust_name = frappe.db.get_value(
+                "Loan Customer", {"user": self.user}, "name"
+            )
+            loan_customer = frappe.get_doc("Loan Customer", cust_name)
+            if self.kyc_status == "Approved" and loan_customer.offline_customer:
                 if self.address_details:
                     cust_add = frappe.get_doc(
                         "Customer Address Details", self.address_details

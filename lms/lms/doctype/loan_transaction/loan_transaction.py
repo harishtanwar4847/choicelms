@@ -698,6 +698,11 @@ class LoanTransaction(Document):
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
 
+        if self.transaction_type == "Amount Write Off" and self.amount > (
+            loan.balance * -1
+        ):
+            frappe.throw("Amount input cannot be Greater than credit loan balance")
+
     def gst_on_charges(self, loan, lender):
         lender = lender.as_dict()
         customer = frappe.get_doc("Loan Customer", loan.customer)
