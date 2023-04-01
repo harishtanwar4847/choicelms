@@ -4219,14 +4219,6 @@ def ckyc_consent_details(**kwargs):
         # add parent kyc to all multiple kyc
         multiple_kyc = data.get("user_kyc_name").split(",")[1:]
         data["user_kyc_name"] = data.get("user_kyc_name").split(",")[0]
-        try:
-            user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
-        except UserKYCNotFoundException:
-            user_kyc = None
-        try:
-            consent_details = frappe.get_doc("Consent", "Ckyc")
-        except frappe.DoesNotExistError:
-            raise lms.exceptions.NotFoundException(message=_("Consent not found"))
 
         if data.get("address_details") and not data.get("accept_terms"):
             raise lms.exceptions.UnauthorizedException(
@@ -4568,7 +4560,7 @@ def ckyc_consent_details(**kwargs):
                     image_=data.get("address_details")
                     .get("permanent_address")
                     .get("address_proof_image"),
-                    img_format="jpeg",
+                    img_format="png",
                     img_folder="user_ckyc_address",
                     compress=1,
                 )
@@ -4578,110 +4570,110 @@ def ckyc_consent_details(**kwargs):
                     image_=data.get("address_details")
                     .get("corresponding_address")
                     .get("address_proof_image"),
-                    img_format="jpeg",
+                    img_format="png",
                     img_folder="user_ckyc_address",
                     compress=1,
                 )
 
-            ckyc_address_doc = frappe.get_doc(
-                {
-                    "doctype": "Customer Address Details",
-                    "perm_line1": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line1"),
-                    "perm_line2": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line2"),
-                    "perm_line3": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line3"),
-                    "perm_city": data.get("address_details")
-                    .get("permanent_address")
-                    .get("city"),
-                    "perm_dist": data.get("address_details")
-                    .get("permanent_address")
-                    .get("district"),
-                    "perm_state": data.get("address_details")
-                    .get("permanent_address")
-                    .get("state"),
-                    "perm_country": data.get("address_details")
-                    .get("permanent_address")
-                    .get("country"),
-                    "perm_pin": data.get("address_details")
-                    .get("permanent_address")
-                    .get("pin_code"),
-                    "perm_poa": data.get("address_details")
-                    .get("permanent_address")
-                    .get("poa_type"),
-                    "perm_image": perm_add_photos,
-                    "corres_poa_image": corres_add_photos,
-                    "perm_corres_flag": data.get("address_details").get(
-                        "perm_corres_flag"
-                    ),
-                    "corres_line1": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line1"),
-                    "corres_line2": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line2"),
-                    "corres_line3": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line3"),
-                    "corres_city": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("city"),
-                    "corres_dist": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("district"),
-                    "corres_state": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("state"),
-                    "corres_country": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("country"),
-                    "corres_pin": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("pin_code"),
-                    "corres_poa": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("poa_type"),
-                }
-            ).insert(ignore_permissions=True)
-            user_kyc_doc.address_details = ckyc_address_doc.name
-            user_kyc_doc.consent_given = 1
-            if False in address:
-                user_kyc_doc.is_edited = 1
-                ckyc_address_doc.is_edited = 1
-                ckyc_address_doc.save(ignore_permissions=True)
-            if multiple_kyc:
-                for kyc in multiple_kyc:
-                    kyc_doc = frappe.get_doc("User KYC", kyc)
-                    kyc_doc.consent_given = 1
-                    kyc_doc.address_details = ckyc_address_doc.name
-                    if False in address:
-                        kyc_doc.is_edited = 1
-                    kyc_doc.save(ignore_permissions=True)
-            user_kyc_doc.save(ignore_permissions=True)
-            if user_kyc_doc.updated_kyc == 0:
-                kyc_consent_doc = frappe.get_doc(
+                ckyc_address_doc = frappe.get_doc(
                     {
-                        "doctype": "User Consent",
-                        "mobile": lms.__user().phone,
-                        "consent": "Ckyc",
+                        "doctype": "Customer Address Details",
+                        "perm_line1": data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line1"),
+                        "perm_line2": data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line2"),
+                        "perm_line3": data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line3"),
+                        "perm_city": data.get("address_details")
+                        .get("permanent_address")
+                        .get("city"),
+                        "perm_dist": data.get("address_details")
+                        .get("permanent_address")
+                        .get("district"),
+                        "perm_state": data.get("address_details")
+                        .get("permanent_address")
+                        .get("state"),
+                        "perm_country": data.get("address_details")
+                        .get("permanent_address")
+                        .get("country"),
+                        "perm_pin": data.get("address_details")
+                        .get("permanent_address")
+                        .get("pin_code"),
+                        "perm_poa": data.get("address_details")
+                        .get("permanent_address")
+                        .get("poa_type"),
+                        "perm_image": perm_add_photos,
+                        "corres_poa_image": corres_add_photos,
+                        "perm_corres_flag": data.get("address_details").get(
+                            "perm_corres_flag"
+                        ),
+                        "corres_line1": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line1"),
+                        "corres_line2": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line2"),
+                        "corres_line3": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line3"),
+                        "corres_city": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("city"),
+                        "corres_dist": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("district"),
+                        "corres_state": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("state"),
+                        "corres_country": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("country"),
+                        "corres_pin": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("pin_code"),
+                        "corres_poa": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("poa_type"),
                     }
-                )
-            else:
-                kyc_consent_doc = frappe.get_doc(
-                    {
-                        "doctype": "User Consent",
-                        "mobile": lms.__user().phone,
-                        "consent": "Re-Ckyc",
-                    }
-                )
-            kyc_consent_doc.insert(ignore_permissions=True)
+                ).insert(ignore_permissions=True)
+                user_kyc_doc.address_details = ckyc_address_doc.name
+                user_kyc_doc.consent_given = 1
+                if False in address:
+                    user_kyc_doc.is_edited = 1
+                    ckyc_address_doc.is_edited = 1
+                    ckyc_address_doc.save(ignore_permissions=True)
+                if multiple_kyc:
+                    for kyc in multiple_kyc:
+                        kyc_doc = frappe.get_doc("User KYC", kyc)
+                        kyc_doc.consent_given = 1
+                        kyc_doc.address_details = ckyc_address_doc.name
+                        if False in address:
+                            kyc_doc.is_edited = 1
+                        kyc_doc.save(ignore_permissions=True)
+                user_kyc_doc.save(ignore_permissions=True)
+                if user_kyc_doc.updated_kyc == 0:
+                    kyc_consent_doc = frappe.get_doc(
+                        {
+                            "doctype": "User Consent",
+                            "mobile": lms.__user().phone,
+                            "consent": "Ckyc",
+                        }
+                    )
+                else:
+                    kyc_consent_doc = frappe.get_doc(
+                        {
+                            "doctype": "User Consent",
+                            "mobile": lms.__user().phone,
+                            "consent": "Re-Ckyc",
+                        }
+                    )
+                kyc_consent_doc.insert(ignore_permissions=True)
 
-            frappe.db.commit()
-            message = "Your KYC verification is in process, it will be executed in next 24 hours"
+                frappe.db.commit()
+                message = "Your KYC verification is in process, it will be executed in next 24 hours"
 
             # response all these for user kyc get request
             return utils.respondWithSuccess(message=message, data=data_res)
