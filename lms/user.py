@@ -4654,6 +4654,7 @@ def ckyc_consent_details(**kwargs):
                             kyc_doc.is_edited = 1
                         kyc_doc.save(ignore_permissions=True)
                 user_kyc_doc.save(ignore_permissions=True)
+                frappe.db.commit()
                 if user_kyc_doc.updated_kyc == 0:
                     kyc_consent_doc = frappe.get_doc(
                         {
