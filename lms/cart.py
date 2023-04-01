@@ -694,6 +694,7 @@ def get_tnc(**kwargs):
             {
                 "cart_name": "",
                 "loan_name": "",
+                "loan_renewal_name": "",
                 "topup_amount": [lambda x: type(x) == float],
             },
             # {"cart_name": ""},
@@ -714,17 +715,31 @@ def get_tnc(**kwargs):
         user_kyc = lms.__user_kyc()
         user = lms.__user()
 
-        if data.get("cart_name") and data.get("loan_name"):
+        if (
+            data.get("cart_name")
+            and data.get("loan_name")
+            and data.get("loan_renewal_name")
+            or data.get("cart_name")
+            and data.get("loan_name")
+            or data.get("loan_name")
+            and data.get("loan_renewal_name")
+            or data.get("cart_name")
+            and data.get("loan_renewal_name")
+        ):
             # return utils.respondForbidden(
             #     message=frappe._(
             #         "Can not use both application at once, please use one."
             #     )
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Can not use both application at once, please use one.")
+                _("Can not use multiple application at once, please use one.")
             )
 
-        elif not data.get("cart_name") and not data.get("loan_name"):
+        elif (
+            not data.get("cart_name")
+            and not data.get("loan_name")
+            and not data.get("loan_renewal_name")
+        ):
             # if not data.get("cart_name"):
             # return utils.respondForbidden(
             #     message=frappe._(
@@ -733,7 +748,9 @@ def get_tnc(**kwargs):
             #     )
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Cart and Loan not found. Please use atleast one.")
+                _(
+                    "Cart, Loan and Loan Renewal Application not found. Please use atleast one."
+                )
             )
 
         if data.get("cart_name"):
@@ -757,6 +774,34 @@ def get_tnc(**kwargs):
             lender = frappe.get_doc("Lender", cart.lender)
             if cart.loan:
                 loan = frappe.get_doc("Loan", cart.loan)
+
+        elif data.get("loan_renewal_name"):
+            if data.get("topup_amount"):
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Do not enter topup amount for Cart."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Do not enter topup amount for Loan Renewal.")
+                )
+            renewal = frappe.get_doc(
+                "Spark Loan Renewal Application", data.get("loan_renewal_name")
+            )
+            if not renewal:
+                # return utils.respondNotFound(message=frappe._("Cart not found."))
+                raise lms.exceptions.NotFoundException(
+                    _("Loan Renewal Application not found")
+                )
+            if renewal.customer != customer.name:
+                # return utils.respondForbidden(
+                #     message=frappe._("Please use your own cart.")
+                # )
+                raise lms.exceptions.ForbiddenException(
+                    _("Please use your own Loan Renewal Application")
+                )
+            lender = frappe.get_doc("Lender", renewal.lender)
+            if renewal.loan:
+                loan = frappe.get_doc("Loan", renewal.loan)
 
         else:
             if not data.get("topup_amount"):

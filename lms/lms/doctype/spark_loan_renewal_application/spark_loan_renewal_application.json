@@ -1,0 +1,334 @@
+{
+ "actions": [],
+ "creation": "2022-11-04 15:27:01.152291",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "loan_details_section",
+  "loan",
+  "lender",
+  "old_kyc_name",
+  "new_kyc_name",
+  "updated_kyc_status",
+  "kyc_approval_date",
+  "total_collateral_value",
+  "sanctioned_limit",
+  "loan_balance",
+  "sanction_letter_logs",
+  "expiry_date",
+  "column_break_8",
+  "tnc_complete",
+  "tnc_show",
+  "lr_accepted_by_lender",
+  "reminders",
+  "status",
+  "customer",
+  "customer_name",
+  "drawing_power",
+  "is_expired",
+  "base_interest",
+  "rebate_interest",
+  "section_break_15",
+  "customer_esigned_document",
+  "column_break_17",
+  "lender_esigned_document",
+  "section_break_19",
+  "time_remaining",
+  "action_status",
+  "interest_configuration_section",
+  "is_default",
+  "custom_base_interest",
+  "column_break_32",
+  "custom_rebate_interest",
+  "section_break_26",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "loan_details_section",
+   "fieldtype": "Section Break",
+   "label": "Loan Details"
+  },
+  {
+   "fieldname": "old_kyc_name",
+   "fieldtype": "Link",
+   "label": "Old KYC Name",
+   "options": "User KYC",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "new_kyc_name",
+   "fieldtype": "Link",
+   "label": "New KYC Name",
+   "options": "User KYC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "updated_kyc_status",
+   "fieldtype": "Select",
+   "label": "Updated KYC Status",
+   "options": "\nPending\nApproved\nRejected",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "loan.total_collateral_value",
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "label": "Total Collateral Value",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "loan.sanctioned_limit",
+   "fieldname": "sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "tnc_complete",
+   "fieldtype": "Check",
+   "label": "TNC Complete",
+   "read_only": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nLoan Renewal executed\nLoan Renewal accepted by Lender\nEsign Done\nApproved\nRejected",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.full_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "loan.drawing_power",
+   "fieldname": "drawing_power",
+   "fieldtype": "Currency",
+   "label": "Drawing Power",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Data",
+   "label": "Expiry Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_15",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "customer_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Customer Esigned document"
+  },
+  {
+   "fieldname": "lender_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Lender Esigned document"
+  },
+  {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "loan.customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Loan Customer"
+  },
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "label": "Loan Account No.",
+   "options": "Loan"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_19",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "loan.lender",
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender"
+  },
+  {
+   "default": "0",
+   "fieldname": "reminders",
+   "fieldtype": "Int",
+   "label": "Reminders",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_expired",
+   "fieldtype": "Check",
+   "label": "Is Expired",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "loan.balance",
+   "fieldname": "loan_balance",
+   "fieldtype": "Currency",
+   "label": "Loan Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "time_remaining",
+   "fieldtype": "Data",
+   "label": "Time Remaining",
+   "read_only": 1
+  },
+  {
+   "fieldname": "action_status",
+   "fieldtype": "Select",
+   "label": "Action Status",
+   "options": "\nPending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_26",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Spark Loan Renewal Application",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "kyc_approval_date",
+   "fieldtype": "Datetime",
+   "label": "KYC approval date",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "tnc_show",
+   "fieldtype": "Check",
+   "label": "TNC show",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "lr_accepted_by_lender",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "LR accepted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "interest_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Interest Configuration"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default",
+   "read_only_depends_on": "eval:doc.status!=\"Loan Renewal executed\""
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest"
+  },
+  {
+   "fieldname": "column_break_32",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest"
+  },
+  {
+   "fieldname": "custom_base_interest",
+   "fieldtype": "Float",
+   "label": "Custom Base Interest"
+  },
+  {
+   "fieldname": "custom_rebate_interest",
+   "fieldtype": "Float",
+   "label": "Custom Rebate Interest"},
+   {
+   "fieldname": "sanction_letter_logs",
+   "fieldtype": "Link",
+   "label": "Sanction Letter Logs",
+   "options": "Sanction Letter and CIAL Log"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-03-14 12:36:23.964891",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Spark Loan Renewal Application",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

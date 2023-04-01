@@ -23,6 +23,7 @@ class UserToken(Document):
             "Lien OTP",
             "Invoke OTP",
             "Revoke OTP",
+            "Loan Renewal OTP",
         ]:
             token_type = self.token_type.replace(" ", "")
             if self.token_type in [
@@ -146,6 +147,15 @@ class UserToken(Document):
                     token=self.token,
                     otp_hash=las_settings.app_identification_hash_string,
                 )
+
+            if self.token_type == "Loan Renewal OTP":
+                mess = """<#> Dear customer, Your loan renewal request OTP for Spark Loans is {token}. NEVER share your OTP with anyone. OTP Expires in 10 mins. Thank you!
+
+{otp_hash}
+- Spark Loans""".format(
+                    token=self.token,
+                    otp_hash=las_settings.app_identification_hash_string,
+                )
             if mess:
                 frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
@@ -205,7 +215,16 @@ class UserToken(Document):
                 token=self.token,
                 otp_hash=las_settings.app_identification_hash_string,
             )
+            # lms.send_sms_notification(customer=customer,msg=msg)
+            # msg = frappe._(
+            #     "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
+            # ).format(
+            #     token_type=self.token_type.replace(" ", ""),
+            #     token=self.token,
+            #     # expiry_in_minutes=expiry_in_minutes,
+            # )
             if msg:
+                # lms.send_sms_notification(customer=customer,msg=msg)
                 receiver_list = [str(customer.phone)]
                 if mob_num:
                     receiver_list.append(str(mob_num))

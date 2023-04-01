@@ -38,6 +38,15 @@
   "column_break_25",
   "maximum_sanctioned_limit",
   "increased_sanctioned_limit",
+  "interest_details_section",
+  "base_interest",
+  "column_break_34",
+  "rebate_interest",
+  "custom_interest_details_section",
+  "is_default",
+  "custom_base_interest",
+  "column_break_35",
+  "custom_rebate_interest",
   "is_offline_loan"
  ],
  "fields": [
@@ -244,6 +253,54 @@
   },
   {
    "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default",
+   "read_only_depends_on": "eval:doc.status!=\"Pledge executed\" || doc.application_type == \"Increase Loan\";"
+  },
+  {
+   "fieldname": "column_break_35",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "custom_interest_details_section",
+   "fieldtype": "Section Break",
+   "label": "Custom Interest Details"
+  },
+  {
+   "fieldname": "interest_details_section",
+   "fieldtype": "Section Break",
+   "label": "Interest Details"
+  },
+  {
+   "fieldname": "custom_base_interest",
+   "fieldtype": "Float",
+   "label": "Custom Base Interest (Per Month)",
+   "read_only_depends_on": "eval:doc.is_default == 1 || doc.status!=\"Pledge executed\" || doc.application_type == \"Increase Loan\";"
+  },
+  {
+   "fieldname": "custom_rebate_interest",
+   "fieldtype": "Float",
+   "label": "Custom Rebate Interest",
+   "read_only_depends_on": "eval:doc.is_default == 1 || doc.status!=\"Pledge executed\" || doc.application_type == \"Increase Loan\";"
+  },
+  {
+   "fieldname": "column_break_34",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "notification_sent",
    "fieldtype": "Check",
    "hidden": 1,

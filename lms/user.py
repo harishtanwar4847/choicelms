@@ -5,7 +5,7 @@ import os
 import re
 import time
 from ctypes import util
-from datetime import MINYEAR, date, datetime, timedelta
+from datetime import MINYEAR, date, datetime, time, timedelta
 from random import choice, randint
 
 import frappe
@@ -372,11 +372,13 @@ def kyc(**kwargs):
             # mess = frappe._(
             #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
-            mess = frappe._(
-                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
-                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
-            )
-            frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
+            # mess = frappe.get_doc("Spark SMS Notification","User Kyc").message
+            # lms.send_sms_notification(customer=[user.phone],msg=mess)
+            # mess = frappe._(
+            #     # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+            #     "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
+            # )
+            # frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
         data = {"user_kyc": user_kyc_doc}
 
@@ -694,7 +696,7 @@ def approved_securities(**kwargs):
             lender = frappe.get_doc("Lender", data["lender"])
             las_settings = frappe.get_single("LAS Settings")
             logo_file_path_1 = lender.get_lender_logo_file()
-            logo_file_path_2 = las_settings.get_spark_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             approved_securities_template = lender.get_approved_securities_template()
             doc = {
                 "column_name": df.columns,
@@ -708,6 +710,9 @@ def approved_securities(**kwargs):
                 else "",
                 "instrument_type": data.get("instrument_type"),
                 "scheme_type": data.get("loan_type"),
+                "is_html": lender.is_html,
+                "lender_header": lender.lender_header,
+                "lender_footer": lender.lender_footer,
             }
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}
@@ -941,8 +946,18 @@ def dashboard(**kwargs):
         utils.validator.validate_http_method("GET")
 
         user = lms.__user()
+        customer = lms.__customer()
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
         try:
-            user_kyc = lms.__user_kyc()
+            if customer.choice_kyc:
+                user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+            else:
+                user_kyc = lms.__user_kyc()
+            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            # for i in user_kyc.bank_account:
+            #     i.account_number = lms.user_details_hashing(i.account_number)
             user_kyc = lms.user_kyc_hashing(user_kyc)
         except UserKYCNotFoundException:
             user_kyc = None
@@ -1225,9 +1240,68 @@ def dashboard(**kwargs):
                     }
                 )
 
+        pending_loan_renewal_applications = frappe.get_all(
+            "Spark Loan Renewal Application",
+            filters={
+                "customer": customer.name,
+                "status": "Loan Renewal accepted by Lender",
+            },
+            fields=["*"],
+        )
+        lra_pending_esigns = []
+        if pending_loan_renewal_applications:
+            for loan_renewal_application in pending_loan_renewal_applications:
+                loan_renewal_application_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", loan_renewal_application.name
+                ).as_dict()
+
+                loan_renewal_application_doc.top_up_amount = lms.amount_formatter(
+                    loan_renewal_application_doc.top_up_amount
+                )
+                loan_doc = frappe.get_doc("Loan", loan_renewal_application.loan)
+                items = frappe.get_all(
+                    "Loan Item",
+                    {"parent": loan_doc.name, "pledged_quantity": [">", 0]},
+                    "*",
+                )
+                for i in items:
+                    i["lender_approval_status"] = (
+                        "Pledged" if i.type == "Shares" else "Lien"
+                    )
+                lra_pending_esigns.append(
+                    {
+                        "loan_renewal_application_doc": loan_renewal_application_doc,
+                        "mess": "Congratulations! Your loan renewal application is being considered favourably by our lending partner. Please e-sign the loan agreement to avail the increased sanctioned limit now.",
+                        "loan_items": items,
+                    }
+                )
+
+        loans = frappe.get_all(
+            "Loan",
+            filters={"customer": customer.name},
+            fields=["*"],
+        )
+
+        loan_esigns = []
+        if loans:
+            for loan in loans:
+                loan_doc = frappe.get_doc("Loan", loan.name).as_dict()
+                for i in loan_doc["items"]:
+                    i["lender_approval_status"] = (
+                        "Pledged" if i["type"] == "Shares" else "Lien"
+                    )
+
+                loan_esigns.append(
+                    {
+                        "loan_doc": loan_doc,
+                        "mess": "Your ROI is updated by our lending partner. Please e-sign the loan agreement to avail the new ROI now.",
+                    }
+                )
+
         pending_esigns_list = dict(
             la_pending_esigns=la_pending_esigns,
             topup_pending_esigns=topup_pending_esigns,
+            loan_renewal_esigns=lra_pending_esigns,
         )
 
         number_of_user_login = frappe.get_all(
@@ -1914,6 +1988,16 @@ def loan_summary_dashboard(**kwargs):
             order_by="creation desc",
         )
 
+        under_process_lr = frappe.get_all(
+            "Spark Loan Renewal Application",
+            filters={
+                "customer": customer.name,
+                "status": ["not IN", ["Approved", "Rejected", "Pending"]],
+            },
+            fields=["name", "status", "creation"],
+            order_by="creation desc",
+        )
+
         ## Active loans ##
         active_loans = frappe.get_all(
             "Loan",
@@ -2153,16 +2237,124 @@ def loan_summary_dashboard(**kwargs):
         elif all_loans:
             instrument_type = frappe.get_doc("Loan", all_loans[0].name).instrument_type
 
+        loan_renewal_doc_list = []
+        sl_letter = ""
+        for loan in all_loans:
+            loan_renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": loan.name, "status": ["!=", "Rejected"]},
+                fields=["name"],
+            )
+            top_up_application = frappe.get_all(
+                "Top up Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                fields=["name"],
+            )
+
+            loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": loan.name,
+                    "application_type": [
+                        "IN",
+                        ["Increase Loan", "Pledge More", "Margin Shortfall"],
+                    ],
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+            user_kyc_pending = frappe.get_all(
+                "User KYC",
+                filters={
+                    "user": customer.user,
+                    "updated_kyc": 1,
+                    "kyc_status": "Pending",
+                },
+                fields=["*"],
+            )
+            if top_up_application or loan_application:
+                action_status = "Pending"
+            else:
+                action_status = ""
+            if loan_renewal_list:
+                loan_renewal_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", loan_renewal_list[0]
+                )
+                user_kyc = frappe.get_all(
+                    "User KYC",
+                    filters={
+                        "user": customer.user,
+                        "updated_kyc": 1,
+                    },
+                    fields=["*"],
+                )
+                loan_expiry = datetime.combine(loan.expiry_date, time.min)
+                date_7after_expiry = loan_expiry + timedelta(days=8)
+                if (
+                    frappe.utils.now_datetime().date() > loan.expiry_date
+                    and frappe.utils.now_datetime().date()
+                    <= (loan.expiry_date + timedelta(days=7))
+                    and loan_renewal_doc.status != "Approved"
+                ):
+                    seconds = abs(
+                        date_7after_expiry - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+                    loan_renewal_doc.time_remaining = renewal_timer
+                    loan_renewal_doc.action_status = action_status
+
+                elif (
+                    frappe.utils.now_datetime().date()
+                    > (loan.expiry_date + timedelta(days=7))
+                    and frappe.utils.now_datetime().date()
+                    <= (loan.expiry_date + timedelta(days=14))
+                    and loan_renewal_doc.status != "Approved"
+                    and user_kyc_pending
+                ):
+                    seconds = abs(
+                        (date_7after_expiry + timedelta(days=7))
+                        - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+                    loan_renewal_doc.time_remaining = renewal_timer
+                    loan_renewal_doc.action_status = action_status
+
+                str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+                    "%d-%m-%Y"
+                )
+                str_exp = str_exp.replace("-", "/")
+                loan_renewal_doc.expiry_date = str_exp
+
+                loan_renewal_doc_list.append(loan_renewal_doc)
+            if loan.sl_cial_entries:
+                loan_sanctioned_letter_list = frappe.get_all(
+                    "Sanction Letter and CIAL Log",
+                    filters={"name": loan.sl_cial_entries},
+                    fields=["*"],
+                )
+                sanction_letter_list = frappe.get_doc(
+                    "Sanction Letter and CIAL Log", loan_sanctioned_letter_list[0].name
+                )
+                for i in sanction_letter_list.sl_table:
+                    sl_letter = frappe.utils.get_url(i.sanction_letter)
+
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
             "actionable_loan": actionable_loan,
             "under_process_la": under_process_la,
+            "under_process_loan_renewal_app": under_process_lr,
             "active_loans": active_loans,
             "sell_collateral_list": sell_collateral_list,
             "unpledge_list": unpledge_list,
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
             "instrument_type": instrument_type,
+            "loan_renewal_application": loan_renewal_doc_list,
+            "sanctioned_letter": sl_letter,
             "version_details": version_details[0],
         }
 
@@ -4018,6 +4210,7 @@ def ckyc_consent_details(**kwargs):
                 "user_kyc_name": "required",
                 "address_details": "",
                 "accept_terms": "",
+                "is_loan_renewal": "required",
             },
         )
         # user kyc name = first entry in kyc doctype
@@ -4040,197 +4233,355 @@ def ckyc_consent_details(**kwargs):
                 message=_("Please accept Terms and Conditions.")
             )
 
-        poa_type = frappe.get_list(
-            "Proof of Address Master", pluck="poa_name", ignore_permissions=True
-        )
+        if data.get("user_kyc_name") and data.get("is_loan_renewal") == 1:
+            customer = lms.__customer()
+            user_kyc_doc = frappe.get_doc("User KYC", customer.choice_kyc)
 
-        country = frappe.get_all(
-            "Country Master",
-            fields=["country"],
-            pluck="country",
-            order_by="country asc",
-        )
-
-        # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
-        # user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
-        # user_kyc.email = lms.user_details_hashing(user_kyc.email)
-        # user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
-        # user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
-        user_kyc = lms.user_kyc_hashing(user_kyc)
-
-        data_res = {
-            "user_kyc_doc": user_kyc,
-            "consent_details": consent_details,
-            "poa_type": poa_type,
-            "country": country,
-        }
-        message = "Success"
-
-        if data.get("address_details") and data.get("accept_terms"):
-            validate_address(
-                address=data.get("address_details", {}),
-            )
-            user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
-            address = []
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line1,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line1"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line2,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line2"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line3,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line3"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_city,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("city"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_dist,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("district"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_state_name,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("state"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_country_name,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("country"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_pin,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("pin_code"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line1,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line1"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line2,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line2"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line3,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line3"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_city,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("city"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_dist,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("district"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_state_name,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("state"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_country_name,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("country"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_pin,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("pin_code"),
-                )
+            res_json = lms.ckyc_dot_net(
+                cust=customer,
+                pan_no=user_kyc_doc.pan_no,
+                is_for_download=True,
+                dob=user_kyc_doc.dob,
+                ckyc_no=user_kyc_doc.ckyc_no,
             )
 
-            perm_add_photos = lms.upload_image_to_doctype(
-                customer=lms.__customer(user_kyc_doc.user),
-                seq_no="perm-add",
-                image_=data.get("address_details")
-                .get("permanent_address")
-                .get("address_proof_image"),
-                img_format="png",
-                img_folder="user_ckyc_address",
-                compress=1,
+            if res_json.get("status") == 200 and not res_json.get("error"):
+                try:
+                    new_user_kyc = lms.ckyc_commit(
+                        res_json=res_json, customer=customer, dob=user_kyc_doc.dob
+                    )
+                    new_user_kyc_doc = frappe.get_doc("User KYC", new_user_kyc.name)
+                    new_user_kyc_doc.updated_kyc = 1
+                    banks = []
+                    for i in user_kyc_doc.bank_account:
+                        bank = frappe.get_doc(
+                            {
+                                "parent": new_user_kyc_doc.name,
+                                "parenttype": "User KYC",
+                                "parentfield": "bank_account",
+                                "bank_status": i.get("bank_status"),
+                                "bank": i.get("bank"),
+                                "branch": i.get("branch"),
+                                "account_number": i.get("account_number"),
+                                "ifsc": i.get("ifsc"),
+                                "city": i.get("city"),
+                                "is_default": i.get("is_default"),
+                                "penny_request_id": i.get("penny_request_id"),
+                                "account_holder_name": i.get("account_holder_name"),
+                                "personalized_cheque": i.get("personalized_cheque"),
+                                "account_type": i.get("account_type"),
+                                "bank_transaction_status": i.get(
+                                    "bank_transaction_status"
+                                ),
+                                "notification_sent": i.get("notification_sent"),
+                                "doctype": "User Bank Account",
+                            }
+                        ).insert(ignore_permissions=True)
+                        banks.append(bank)
+                    new_user_kyc_doc.bank_account = banks
+                    new_user_kyc_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+
+                    ckyc_address_doc = frappe.get_doc(
+                        {
+                            "doctype": "Customer Address Details",
+                            "perm_line1": new_user_kyc_doc.perm_line1,
+                            "perm_line2": new_user_kyc_doc.perm_line2,
+                            "perm_line3": new_user_kyc_doc.perm_line3,
+                            "perm_city": new_user_kyc_doc.perm_city,
+                            "perm_dist": new_user_kyc_doc.perm_dist,
+                            "perm_state": new_user_kyc_doc.perm_state_name,
+                            "perm_country": new_user_kyc_doc.perm_country_name,
+                            "perm_pin": new_user_kyc_doc.perm_pin,
+                            "perm_poa": "",
+                            "perm_image": "",
+                            "corres_poa_image": "",
+                            "perm_corres_flag": new_user_kyc_doc.perm_corres_sameflag,
+                            "corres_line1": new_user_kyc_doc.corres_line1,
+                            "corres_line2": new_user_kyc_doc.corres_line2,
+                            "corres_line3": new_user_kyc_doc.corres_line3,
+                            "corres_city": new_user_kyc_doc.corres_city,
+                            "corres_dist": new_user_kyc_doc.corres_dist,
+                            "corres_state": new_user_kyc_doc.corres_state_name,
+                            "corres_country": new_user_kyc_doc.corres_country_name,
+                            "corres_pin": new_user_kyc_doc.corres_pin,
+                            "corres_poa": "",
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+
+                    try:
+                        if new_user_kyc_doc.updated_kyc == 1:
+                            consent_details = frappe.get_doc("Consent", "Re-Ckyc")
+                        else:
+                            consent_details = frappe.get_doc("Consent", "Ckyc")
+                    except frappe.DoesNotExistError:
+                        raise lms.exceptions.NotFoundException(
+                            message=_("Consent not found")
+                        )
+
+                    poa_type = frappe.get_list(
+                        "Proof of Address Master",
+                        pluck="poa_name",
+                        ignore_permissions=True,
+                    )
+
+                    country = frappe.get_all(
+                        "Country Master",
+                        fields=["country"],
+                        pluck="country",
+                        order_by="country asc",
+                    )
+
+                    user_kyc = lms.user_kyc_hashing(new_user_kyc_doc)
+                    if user_kyc.address_details:
+                        address = frappe.get_doc(
+                            "Customer Address Details", user_kyc.address_details
+                        )
+                    else:
+                        address = ""
+
+                    data_res = {
+                        "user_kyc_doc": user_kyc,
+                        "consent_details": consent_details,
+                        "poa_type": poa_type,
+                        "country": country,
+                        "address": address,
+                    }
+                    message = "Success"
+
+                    return utils.respondWithSuccess(message=message, data=data_res)
+
+                except Exception as e:
+                    lms.log_api_error(mess=str(res_json))
+                    return utils.respondWithFailure(
+                        status=res_json.get("status"),
+                        message="Something went wrong",
+                        data=str(e),
+                    )
+        else:
+            try:
+                user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
+            except UserKYCNotFoundException:
+                user_kyc = None
+            try:
+                if user_kyc.updated_kyc == 1:
+                    consent_details = frappe.get_doc("Consent", "Re-Ckyc")
+                else:
+                    consent_details = frappe.get_doc("Consent", "Ckyc")
+            except frappe.DoesNotExistError:
+                raise lms.exceptions.NotFoundException(message=_("Consent not found"))
+
+            if data.get("address_details") and not data.get("accept_terms"):
+                raise lms.exceptions.UnauthorizedException(
+                    message=_("Please accept Terms and Conditions.")
+                )
+
+            poa_type = frappe.get_list(
+                "Proof of Address Master", pluck="poa_name", ignore_permissions=True
             )
-            corres_add_photos = lms.upload_image_to_doctype(
-                customer=lms.__customer(user_kyc_doc.user),
-                seq_no="corres-add",
-                image_=data.get("address_details")
-                .get("corresponding_address")
-                .get("address_proof_image"),
-                img_format="png",
-                img_folder="user_ckyc_address",
-                compress=1,
+
+            country = frappe.get_all(
+                "Country Master",
+                fields=["country"],
+                pluck="country",
+                order_by="country asc",
             )
+
+            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            # user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
+            # user_kyc.email = lms.user_details_hashing(user_kyc.email)
+            # user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
+            # user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+            user_kyc = lms.user_kyc_hashing(user_kyc)
+            if user_kyc.address_details:
+                address = frappe.get_doc(
+                    "Customer Address Details", user_kyc.address_details
+                )
+
+            else:
+                address = ""
+
+            data_res = {
+                "user_kyc_doc": user_kyc,
+                "consent_details": consent_details,
+                "poa_type": poa_type,
+                "country": country,
+                "address": address,
+            }
+            message = "Success"
+
+            if data.get("address_details") and data.get("accept_terms"):
+                validate_address(
+                    address=data.get("address_details", {}),
+                )
+                user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
+                address = []
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_line1,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line1"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_line2,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line2"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_line3,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line3"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_city,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("city"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_dist,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("district"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_state_name,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("state"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_country_name,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("country"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_pin,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("pin_code"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_line1,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line1"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_line2,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line2"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_line3,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line3"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_city,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("city"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_dist,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("district"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_state_name,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("state"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_country_name,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("country"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_pin,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("pin_code"),
+                    )
+                )
+
+                perm_add_photos = lms.upload_image_to_doctype(
+                    customer=lms.__customer(user_kyc_doc.user),
+                    seq_no="perm-add",
+                    image_=data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_proof_image"),
+                    img_format="jpeg",
+                    img_folder="user_ckyc_address",
+                    compress=1,
+                )
+                corres_add_photos = lms.upload_image_to_doctype(
+                    customer=lms.__customer(user_kyc_doc.user),
+                    seq_no="corres-add",
+                    image_=data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_proof_image"),
+                    img_format="jpeg",
+                    img_folder="user_ckyc_address",
+                    compress=1,
+                )
 
             ckyc_address_doc = frappe.get_doc(
                 {
@@ -4311,20 +4662,29 @@ def ckyc_consent_details(**kwargs):
                         kyc_doc.is_edited = 1
                     kyc_doc.save(ignore_permissions=True)
             user_kyc_doc.save(ignore_permissions=True)
-            kyc_consent_doc = frappe.get_doc(
-                {
-                    "doctype": "User Consent",
-                    "mobile": lms.__user().phone,
-                    "consent": "Ckyc",
-                }
-            )
+            if user_kyc_doc.updated_kyc == 0:
+                kyc_consent_doc = frappe.get_doc(
+                    {
+                        "doctype": "User Consent",
+                        "mobile": lms.__user().phone,
+                        "consent": "Ckyc",
+                    }
+                )
+            else:
+                kyc_consent_doc = frappe.get_doc(
+                    {
+                        "doctype": "User Consent",
+                        "mobile": lms.__user().phone,
+                        "consent": "Re-Ckyc",
+                    }
+                )
             kyc_consent_doc.insert(ignore_permissions=True)
 
             frappe.db.commit()
             message = "Your KYC verification is in process, it will be executed in next 24 hours"
 
-        # responce all these for user kyc get request
-        return utils.respondWithSuccess(message=message, data=data_res)
+            # response all these for user kyc get request
+            return utils.respondWithSuccess(message=message, data=data_res)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         lms.log_api_error()
@@ -5232,6 +5592,7 @@ def au_penny_drop(**kwargs):
                             other_bank_.is_default = 0
                             other_bank_.save(ignore_permissions=True)
                             frappe.db.commit()
+                    lms.log_api_error(bank_acc[0])
                     frappe.get_doc(
                         {
                             "doctype": "User Bank Account",
@@ -5434,6 +5795,7 @@ def au_penny_drop(**kwargs):
 
                             else:
                                 # For non choice user
+                                lms.log_api_error(result_)
                                 frappe.get_doc(
                                     {
                                         "doctype": "User Bank Account",

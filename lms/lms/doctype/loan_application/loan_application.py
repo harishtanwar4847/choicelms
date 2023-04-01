@@ -787,6 +787,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.throw("Please add MyCAMS Email ID in Customer details.")
 
         elif self.status == "Pledge accepted by Lender":
+            self.sanction_letter()
+            if (
+                self.base_interest <= 0
+                and self.application_type == "New Loan"
+                or self.rebate_interest <= 0
+                and self.application_type == "New Loan"
+            ):
+                frappe.throw(
+                    "Base interest and Rebate Interest should be greater than 0"
+                )
             if self.pledge_status == "Failure":
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
 
@@ -943,6 +953,48 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         self.pledged_total_collateral_value_str = lms.amount_formatter(
             self.pledged_total_collateral_value
         )
+        if (
+            self.application_type
+            in ["Increase Loan", "Pledge More", "Margin Shortfall"]
+            and self.status == "Approved"
+        ):
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": self.loan, "status": ["Not IN", "Rejected"]},
+                fields=["name"],
+            )
+            if renewal_list:
+                renewal_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", renewal_list[0].name
+                )
+                renewal_doc.status = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
+                renewal_doc.remarks = (
+                    "Rejected due to Approval of Top-up/Increase Loan Application"
+                )
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
+        interest_configuration = frappe.db.get_value(
+            "Interest Configuration",
+            {
+                "lender": self.lender,
+                "from_amount": ["<=", self.drawing_power],
+                "to_amount": [">=", self.drawing_power],
+            },
+            ["name", "base_interest", "rebait_interest"],
+            as_dict=1,
+        )
+        if self.is_default == 1:
+            self.custom_base_interest = interest_configuration["base_interest"]
+            self.custom_rebate_interest = interest_configuration["rebait_interest"]
+
+        if (
+            self.custom_base_interest != self.base_interest
+            or self.custom_rebate_interest != self.custom_rebate_interest
+        ):
+            self.base_interest = self.custom_base_interest
+            self.rebate_interest = self.custom_rebate_interest
 
     def on_update(self):
         if self.status == "Approved":
@@ -1216,10 +1268,37 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "is_eligible_for_interest": 1,
                 "instrument_type": self.instrument_type,
                 "scheme_type": self.scheme_type,
+                "is_default": self.is_default,
+                "base_interest": self.base_interest,
+                "rebate_interest": self.rebate_interest,
+                "old_interest": self.base_interest,
+                "custom_base_interest": self.base_interest,
+                "custom_rebate_interest": self.rebate_interest,
+                "wef_date": frappe.utils.now_datetime().date(),
             }
         )
         loan.insert(ignore_permissions=True)
         loan.create_loan_charges()
+
+        sl_cial_doc = frappe.get_doc(
+            {"doctype": "Sanction Letter and CIAL Log", "loan": loan.name}
+        ).insert(ignore_permissions=True)
+
+        loan.sl_cial_entries = sl_cial_doc.name
+
+        cial_doc = frappe.get_doc(
+            {
+                "parent": loan.sl_cial_entries,
+                "parenttype": "Sanction Letter and CIAL Log",
+                "parentfield": "sl_table",
+                "sanction_letter": "",
+                "date_of_acceptance": frappe.utils.now_datetime().date(),
+                "base_interest": self.base_interest,
+                "rebate_interest": self.rebate_interest,
+                "doctype": "Sanction Letter Entries",
+            }
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
         # self.map_loan_agreement_file(loan)
 
         # File code here #S
@@ -1852,12 +1931,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         ):
             msg, fcm_title = (
                 (
-                    "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    frappe.get_doc(
+                        "Spark SMS Notification", "Increase loan application approved"
+                    ).message,
+                    # "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
                     "Increase loan application approved",
                 )
                 if self.loan and not self.loan_margin_shortfall
                 else (
-                    "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    frappe.get_doc("Spark SMS Notification", "Loan approved").message,
+                    # "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
                     "Loan approved",
                 )
             )
@@ -1945,6 +2028,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
 
         if msg:
+            # lms.send_sms(customer=str(self.get_customer().phone), msg=msg)
             receiver_list = [str(self.get_customer().phone)]
             if doc.mob_num:
                 receiver_list.append(str(doc.mob_num))
@@ -2447,6 +2531,20 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 + "\nLoan Application : {}".format(self.name),
                 title=(_("Create attachment failed in Loan application")),
             )
+
+
+@frappe.whitelist()
+def check_for_pledge_failure(la_name):
+    la = frappe.get_doc("Loan Application", la_name)
+    count_items = len(la.items)
+    count = 0
+    status = ""
+    for i in la.items:
+        if i.pledge_status == "Failure":
+            count += 1
+    if count_items == count:
+        status = "Pledge Failure"
+    return status
 
 
 def check_for_pledge(loan_application_doc):

@@ -366,7 +366,15 @@ class LoanMarginShortfall(Document):
                 )
 
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-
+            mess = frappe.get_doc(
+                "Spark SMS Notification", "Sale triggerred immediate"
+            ).message.format(
+                hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
+            )
+            # send_sms_notification(customer=customer,msg=mess)
+            # mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore {} has been triggered in your loan account {}.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+            #     hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
+            # )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sale triggerred immediate", fields=["*"]
             )
@@ -383,9 +391,15 @@ class LoanMarginShortfall(Document):
             #     max_threshold=hrs_sell_off[0].max_threshold
             # )
         elif margin_shortfall_action.sell_off_after_hours:
-            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else {} will be triggered. Spark Loans".format(
-                self.loan, margin_shortfall_action.sell_off_after_hours, msg_type[0]
+            mess = frappe.get_doc(
+                "Spark SMS Notification",
+                "Margin shortfall – Action required after hours",
+            ).message.format(
+                hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
             )
+            # mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else {} will be triggered. Spark Loans".format(
+            #     self.loan, margin_shortfall_action.sell_off_after_hours, msg_type[0]
+            # )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
                 "Margin shortfall – Action required after hours",
@@ -423,9 +437,15 @@ class LoanMarginShortfall(Document):
                     str(margin_shortfall_action.sell_off_deadline_eod), "%H"
                 ).strftime("%I:%M%P")
 
-            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else {} will be triggered. Spark Loans".format(
+            mess = frappe.get_doc(
+                "Spark SMS Notification", "Margin shortfall - Action required at eod"
+            ).message.format(
                 self.loan, eod_sell_off[0].max_threshold, eod_time, msg_type[0]
             )
+
+            # mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else {} will be triggered. Spark Loans".format(
+            #     self.loan, eod_sell_off[0].max_threshold, eod_time, msg_type[0]
+            # )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
                 "Margin shortfall – Action required at eod",
@@ -469,6 +489,7 @@ class LoanMarginShortfall(Document):
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if mess:
+            # lms.send_sms_notification(customer=self.get_customer(),msg=mess)
             frappe.enqueue(
                 method=send_sms,
                 receiver_list=[self.get_loan().get_customer().phone],
@@ -578,6 +599,7 @@ def send_notification_for_sell_triggered(single_shortfall):
         loan = single_shortfall.get_loan()
 
         las_settings = frappe.get_single("LAS Settings")
+        # mutual Fund sms change
         if loan.instrument_type == "Mutual Fund":
             mess = """Dear Customer,
 URGENT NOTICE. An invoke has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall. The lender will invoke required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details - {link} - Spark Loans""".format(

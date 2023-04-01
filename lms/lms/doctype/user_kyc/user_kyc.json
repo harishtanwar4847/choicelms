@@ -6,6 +6,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "updated_kyc",
   "basic_details_section_break",
   "user",
   "pan_no",
@@ -695,19 +696,27 @@
    "options": "Customer Address Details"
   },
   {
-   "depends_on": "eval:doc.consent_given == 1 && doc.duplicate_kyc;",
+   "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "duplicate_kyc",
    "fieldtype": "Table MultiSelect",
    "label": "Duplicate KYC",
    "length": 10,
+   "read_only": 1,
    "options": "Duplicate KYC"
   },
   {
-   "depends_on": "eval:doc.consent_given == 1 && doc.parent_kyc;",
+   "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "parent_kyc",
    "fieldtype": "Link",
    "label": "Parent KYC",
+   "read_only": 1,
    "options": "User KYC"
+  },
+  {
+   "default": "0",
+   "fieldname": "updated_kyc",
+   "fieldtype": "Check",
+   "label": "Updated KYC"
   }
  ],
  "links": [],

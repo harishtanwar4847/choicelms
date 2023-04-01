@@ -48,7 +48,8 @@
 
 ## Fixed
 
-- [Feat : Onboarding screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/572)
+- [Feat : Sanction letter and onboarding Screen](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/572)
+- [Feat : Onboarding screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/571)
 
 ## [v5.13.3] - 2023-02-13
 
