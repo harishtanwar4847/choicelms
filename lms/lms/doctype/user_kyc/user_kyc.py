@@ -175,9 +175,6 @@ class UserKYC(Document):
                         )
                 self.notification_sent = 1
                 self.save(ignore_permissions=True)
-                if check and not loan_customer.bank_update:
-                    loan_customer.bank_update = 1
-                    loan_customer.save(ignore_permissions=True)
                 frappe.db.commit()
 
         elif loan_customer.offline_customer and self.kyc_status == "Approved":
@@ -204,6 +201,10 @@ class UserKYC(Document):
                     )
                     i.notification_sent = 1
                     i.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    if check and not loan_customer.bank_update:
+                        loan_customer.bank_update = 1
+                        loan_customer.save(ignore_permissions=True)
                     frappe.db.commit()
 
                 elif i.bank_status == "Rejected":

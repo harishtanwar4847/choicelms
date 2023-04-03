@@ -962,10 +962,6 @@ def dashboard(**kwargs):
         except UserKYCNotFoundException:
             user_kyc = None
 
-        customer = lms.__customer()
-        if not customer:
-            raise lms.exceptions.NotFoundException(_("Customer not found"))
-
         mgloan = []
         deadline_for_all_mg_shortfall = {}
         total_int_amt_all_loans = 0
