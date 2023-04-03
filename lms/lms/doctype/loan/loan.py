@@ -1873,7 +1873,7 @@ class Loan(Document):
 
                 if (
                     self.custom_base_interest != self.base_interest
-                    or self.custom_rebate_interest != self.custom_rebate_interest
+                    or self.custom_rebate_interest != self.rebate_interest
                 ):
                     loan_app = frappe.get_all(
                         "Loan Application",
