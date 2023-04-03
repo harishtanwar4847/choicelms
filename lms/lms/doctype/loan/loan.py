@@ -2486,9 +2486,10 @@ class Loan(Document):
         )
 
         fcm_notification = frappe.get_doc(
-            "Spark Push Notification", "Change of Interest", fields=["*"]
+            "Spark Push Notification", "ROI Change", fields=["*"]
         )
         fcm_message = fcm_notification.message
+        fcm_message.replace("wef_date", (str(self.wef_date)))
 
         sanction_letter_doc = frappe.get_all(
             "Sanction Letter and CIAL Log",
