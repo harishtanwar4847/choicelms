@@ -70,6 +70,7 @@ class UserKYC(Document):
                         loan_renewal_doc.new_kyc_name = self.name
                         loan_renewal_doc.updated_kyc_status = self.kyc_status
                         loan_renewal_doc.kyc_approval_date = frappe.utils.now_datetime()
+                        # loan_renewal_doc.two_days_grace_period()
                         loan_renewal_doc.save(ignore_permissions=True)
                         loan_customer.choice_kyc = self.name
                         loan_customer.save(ignore_permissions=True)
