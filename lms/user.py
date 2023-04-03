@@ -4231,8 +4231,9 @@ def ckyc_consent_details(**kwargs):
                 dob=user_kyc_doc.dob,
                 ckyc_no=user_kyc_doc.ckyc_no,
             )
-
+            print("hi")
             if res_json.get("status") == 200 and not res_json.get("error"):
+                print("hi1")
                 try:
                     new_user_kyc = lms.ckyc_commit(
                         res_json=res_json, customer=customer, dob=user_kyc_doc.dob
@@ -4240,6 +4241,7 @@ def ckyc_consent_details(**kwargs):
                     new_user_kyc_doc = frappe.get_doc("User KYC", new_user_kyc.name)
                     new_user_kyc_doc.updated_kyc = 1
                     banks = []
+                    print("hi2")
                     for i in user_kyc_doc.bank_account:
                         bank = frappe.get_doc(
                             {
@@ -4268,6 +4270,7 @@ def ckyc_consent_details(**kwargs):
                     new_user_kyc_doc.bank_account = banks
                     new_user_kyc_doc.save(ignore_permissions=True)
                     frappe.db.commit()
+                    print("hi3")
 
                     ckyc_address_doc = frappe.get_doc(
                         {
@@ -4296,6 +4299,7 @@ def ckyc_consent_details(**kwargs):
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
+                    print("hi4")
 
                     try:
                         if new_user_kyc_doc.updated_kyc == 1:
@@ -4327,6 +4331,7 @@ def ckyc_consent_details(**kwargs):
                         )
                     else:
                         address = ""
+                    print("hi5")
 
                     data_res = {
                         "user_kyc_doc": user_kyc,
