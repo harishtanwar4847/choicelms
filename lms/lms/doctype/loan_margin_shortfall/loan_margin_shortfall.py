@@ -366,11 +366,11 @@ class LoanMarginShortfall(Document):
                 )
 
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            mess = frappe.get_doc(
-                "Spark SMS Notification", "Sale triggerred immediate"
-            ).message.format(
-                hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
-            )
+            # mess = frappe.get_doc(
+            #     "Spark SMS Notification", "Sale triggerred immediate"
+            # ).message.format(
+            #     hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
+            # )
             # send_sms_notification(customer=customer,msg=mess)
             # mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore {} has been triggered in your loan account {}.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
             #     hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]

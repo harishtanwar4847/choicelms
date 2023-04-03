@@ -524,10 +524,10 @@ class TopupApplication(Document):
             )
 
         if doc.get("top_up_application").get("status") == "Approved":
-            mess = frappe.get_doc(
-                "Spark SMS Notification", "Loan account topped up"
-            ).message
-            # mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
+            # mess = frappe.get_doc(
+            #     "Spark SMS Notification", "Loan account topped up"
+            # ).message
+            mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Loan account topped up", fields=["*"]
@@ -537,8 +537,8 @@ class TopupApplication(Document):
         if doc.get("top_up_application").get("status") == "Rejected":
             # mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
 
-            mess = frappe.get_doc("Spark SMS Notification", "Top Up rejected").message
-            # mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+            # mess = frappe.get_doc("Spark SMS Notification", "Top Up rejected").message
+            mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Top up rejected", fields=["*"]
