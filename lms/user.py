@@ -4043,10 +4043,9 @@ def ckyc_download(**kwargs):
         user_kyc_name = ",".join(
             dict(sorted(kyc_dict.items(), key=lambda item: item[1])).keys()
         )
-        if len(user_kyc_name) > 1:
-            duplicate_kyc_list = []
+        if len(user_kyc_name.split(",")) > 1:
             for dup_kyc in user_kyc_name.split(",")[1:]:
-                dup_kyc_doc = frappe.get_doc(
+                frappe.get_doc(
                     {
                         "doctype": "Duplicate KYC",
                         "user_kyc": dup_kyc,
