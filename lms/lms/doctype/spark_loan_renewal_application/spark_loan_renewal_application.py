@@ -1090,6 +1090,8 @@ def renewal_penal_interest(loan_name):
                 message=frappe.get_traceback(),
                 title=(_("Loan Customer {} not found".format(loan.customer))),
             )
+
+        user_kyc_approved = ""
         if customer:
             user_kyc = frappe.get_all(
                 "User KYC",
