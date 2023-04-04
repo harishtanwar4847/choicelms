@@ -4219,7 +4219,7 @@ def ckyc_consent_details(**kwargs):
                 "is_loan_renewal": "required",
             },
         )
-        lms.log_api_error()
+
         # user kyc name = first entry in kyc doctype
         # multiple kyc = remaining kyc entries
         # add multiple kyc names in parent kyc doctype
@@ -4358,7 +4358,12 @@ def ckyc_consent_details(**kwargs):
                         data=str(e),
                     )
             else:
-                raise Exception
+                lms.log_api_error(mess=str(res_json))
+                return utils.respondWithFailure(
+                    status=res_json.get("status"),
+                    message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
+                    data=res_json.get("error"),
+                )
         else:
             try:
                 user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
@@ -4684,7 +4689,6 @@ def ckyc_consent_details(**kwargs):
                 frappe.db.commit()
                 message = "Your KYC verification is in process, it will be executed in next 24 hours"
 
-            lms.log_api_error()
             # response all these for user kyc get request
             return utils.respondWithSuccess(message=message, data=data_res)
     except utils.exceptions.APIException as e:
