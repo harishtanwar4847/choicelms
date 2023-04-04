@@ -1254,6 +1254,14 @@ def dashboard(**kwargs):
                 loan_renewal_application_doc.top_up_amount = lms.amount_formatter(
                     loan_renewal_application_doc.top_up_amount
                 )
+                if loan_renewal_application_doc.sanction_letter_logs:
+                    lr_sanction_letter = frappe.db.sql(
+                        """select sanction_letter from `tabSanction Letter Entries` where parent = '{parent}' and renewal_application = '{name}'""".format(
+                            parent=loan_renewal_application_doc.sanction_letter_logs,
+                            name=loan_renewal_application_doc.name,
+                        ),
+                        as_dict=True,
+                    )
                 loan_doc = frappe.get_doc("Loan", loan_renewal_application.loan)
                 items = frappe.get_all(
                     "Loan Item",
@@ -1267,6 +1275,9 @@ def dashboard(**kwargs):
                 lra_pending_esigns.append(
                     {
                         "loan_renewal_application_doc": loan_renewal_application_doc,
+                        "sanction_letter": lr_sanction_letter[0]
+                        if lr_sanction_letter
+                        else None,
                         "mess": "Congratulations! Your loan renewal application is being considered favourably by our lending partner. Please e-sign the loan agreement to avail the increased sanctioned limit now.",
                         "loan_items": items,
                     }
