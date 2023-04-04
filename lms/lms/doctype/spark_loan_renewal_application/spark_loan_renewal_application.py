@@ -1035,17 +1035,15 @@ def all_loans_renewal_update_doc():
         # Renewal Doc creation and 1st reminder
         loans = frappe.get_all("Loan", fields=["name"])
         for loan_name in loans:
-            l_name = int(loan_name[2:])
-            queue = "default" if (l_name % 2) == 0 else "short"
             frappe.enqueue(
                 method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.loan_renewal_update_doc",
-                queue=queue,
+                queue="long",
                 loan_name=loan_name,
                 job_name="{}-Loan Renewal Update Doc".format(loan_name),
             )
             frappe.enqueue(
                 method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_penal_interest",
-                queue=queue,
+                queue="long",
                 loan_name=loan_name,
                 job_name="{}-Renewal Penal Interest".format(loan_name),
             )
