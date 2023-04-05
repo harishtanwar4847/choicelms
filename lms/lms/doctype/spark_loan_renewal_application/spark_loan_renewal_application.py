@@ -1123,19 +1123,20 @@ def renewal_penal_interest(loan_name):
         ) + timedelta(days=14)
 
         if (
+            (pending_renewal_doc_list and not user_kyc and not user_kyc_approved)
+            or (user_kyc_approved and pending_renewal_doc_list)
+        ) and (
             (
                 greater_than_7 > current_date
                 or more_than_7 > current_date
                 or (
                     user_kyc_approved
-                    and pending_renewal_doc_list.kyc_approval_date < is_expired_date
+                    and pending_renewal_doc_list
+                    and pending_renewal_doc_list[0].kyc_approval_date < is_expired_date
                 )
             )
             and exp < current_date
             and loan.balance > 0
-        ) and (
-            (pending_renewal_doc_list and not user_kyc and not user_kyc_approved)
-            or (user_kyc_approved and pending_renewal_doc_list)
         ):
 
             top_up_application = frappe.get_all(
