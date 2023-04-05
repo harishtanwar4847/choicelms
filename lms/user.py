@@ -2300,14 +2300,14 @@ def loan_summary_dashboard(**kwargs):
                 is_expired_date = datetime.strptime(
                     str(loan.expiry_date), "%Y-%m-%d"
                 ) + timedelta(days=14)
-                date_1 = (
-                    loan_renewal_doc.kyc_approval_date.date()
-                    if loan_renewal_doc.kyc_approval_date
-                    else 0
-                )
-                extended_two_days = loan_renewal_doc.kyc_approval_date + timedelta(
-                    days=2
-                )
+                date_1 = 0
+                extended_two_days = 0
+                if loan_renewal_doc.kyc_approval_date:
+                    date_1 = loan_renewal_doc.kyc_approval_date.date()
+
+                    extended_two_days = loan_renewal_doc.kyc_approval_date + timedelta(
+                        days=2
+                    )
                 if (
                     frappe.utils.now_datetime().date() > loan.expiry_date
                     and frappe.utils.now_datetime().date()
@@ -2340,6 +2340,7 @@ def loan_summary_dashboard(**kwargs):
                     )
                 elif (
                     date_1
+                    and extended_two_days
                     and date_1 > is_expired_date.date()
                     and frappe.utils.now_datetime() < extended_two_days
                 ):
