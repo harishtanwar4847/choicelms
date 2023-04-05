@@ -232,6 +232,9 @@ class LoanApplication(Document):
                 "rebate_interest": int_config.rebait_interest,
                 "default_interest": annual_default_interest,
                 "rebait_threshold": lender.rebait_threshold,
+                "penal_charges": lender.renewal_penal_interest
+                if lender.renewal_penal_interest
+                else "",
                 "documentation_charges_kfs": frappe.utils.fmt_money(
                     charges.get("documentation_charges")
                 ),
@@ -2226,6 +2229,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "rebate_interest": int_config.rebait_interest,
                     "default_interest": annual_default_interest,
                     "rebait_threshold": lender.rebait_threshold,
+                    "penal_charges": lender.renewal_penal_interest
+                    if lender.renewal_penal_interest
+                    else "",
                     "interest_charges_in_amount": frappe.utils.fmt_money(
                         interest_charges_in_amount
                     ),

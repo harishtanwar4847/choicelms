@@ -334,6 +334,9 @@ class TopupApplication(Document):
             "rate_of_interest": lender.rate_of_interest,
             "rebate_interest": int_config.rebait_interest,
             "default_interest": annual_default_interest,
+            "penal_charges": lender.renewal_penal_interest
+            if lender.renewal_penal_interest
+            else "",
             "rebait_threshold": lender.rebait_threshold,
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
@@ -761,6 +764,9 @@ class TopupApplication(Document):
                 "rate_of_interest": lender.rate_of_interest,
                 "rebate_interest": int_config.rebait_interest,
                 "default_interest": annual_default_interest,
+                "penal_charges": lender.renewal_penal_interest
+                if lender.renewal_penal_interest
+                else "",
                 "rebait_threshold": lender.rebait_threshold,
                 "interest_charges_in_amount": frappe.utils.fmt_money(
                     interest_charges_in_amount

@@ -1005,17 +1005,18 @@ def loan_details(**kwargs):
         customer = lms.__customer()
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
-            for i in loan.items:
-                psn_no = frappe.db.sql(
-                    """select psn from `tabCollateral Ledger` where isin = '{isin}' and loan = '{loan}' and 
-                      application_doctype = 'Loan Application' and request_type = 'Pledge'""".format(
-                        isin=i.isin,
-                        loan=loan.name,
-                    ),
-                    as_dict=True,
-                    # debug=True,
-                )
-                # i["psn"] = psn_no
+            # for i in loan.items:
+            #     psn_no = frappe.db.sql(
+            #         """select psn from `tabCollateral Ledger` where isin = '{isin}' and loan = '{loan}' and
+            #           application_doctype = 'Loan Application' and request_type = 'Pledge'""".format(
+            #             isin=i.isin,
+            #             loan=loan.name,
+            #         ),
+            #         as_dict=True,
+            #         # debug=True,
+            #     )
+            #     print("psn_no",psn_no)
+            # i["psn"] = psn_no
         except frappe.DoesNotExistError:
             # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))

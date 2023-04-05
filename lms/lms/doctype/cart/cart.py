@@ -421,6 +421,9 @@ class Cart(Document):
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
             "apr": apr,
+            "penal_charges": lender.renewal_penal_interest
+            if lender.renewal_penal_interest
+            else "",
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
             ),

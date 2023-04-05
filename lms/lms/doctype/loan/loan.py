@@ -2238,6 +2238,9 @@ class Loan(Document):
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": annual_default_interest,
+            "penal_charges": lender.renewal_penal_interest
+            if lender.renewal_penal_interest
+            else "",
             "rebait_threshold": lender.rebait_threshold,
             "interest_charges_in_amount": frappe.utils.fmt_money(interest_amount),
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
