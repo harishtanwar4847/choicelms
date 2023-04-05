@@ -1008,14 +1008,12 @@ def loan_details(**kwargs):
             for i in loan.items:
                 psn_no = frappe.db.sql(
                     """select psn from `tabCollateral Ledger` where isin = '{isin}' and loan = '{loan}' and 
-                      application_doctype = '{application_doctype}' and request_type = '{request_type}'""".format(
+                      application_doctype = 'Loan Application' and request_type = 'Pledge'""".format(
                         isin=i.isin,
                         loan=loan.name,
-                        application_doctype="Loan Application",
-                        request_type="Pledge",
                     ),
                     as_dict=True,
-                    debug=True,
+                    # debug=True,
                 )
                 # i["psn"] = psn_no
         except frappe.DoesNotExistError:
