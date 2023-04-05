@@ -996,7 +996,7 @@ class TopupApplication(Document):
             if self.status == "Approved":
                 import os
 
-                from PyPDF2 import PdfReader, PdfWriter
+                from PyPDF2 import PdfFileReader, PdfFileWriter
 
                 lender_esign_file = self.lender_esigned_document
                 lfile_name = lender_esign_file.split("files/", 1)
@@ -1005,7 +1005,7 @@ class TopupApplication(Document):
                     l_file,
                 )
                 file_base_name = pdf_file_path.replace(".pdf", "")
-                pdf = PdfReader(pdf_file_path)
+                pdf = PdfFileReader(pdf_file_path)
                 pages = [
                     30,
                     31,
@@ -1016,7 +1016,7 @@ class TopupApplication(Document):
                     36,
                     37,
                 ]  # page 1, 3, 5
-                pdfWriter = PdfWriter()
+                pdfWriter = PdfFileWriter()
                 for page_num in pages:
                     pdfWriter.addPage(pdf.getPage(page_num))
                 sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)

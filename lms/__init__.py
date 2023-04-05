@@ -37,7 +37,7 @@ from frappe.utils import scrub_urls
 # from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.csvutils import read_csv_content
 from PIL import Image
-from PyPDF2 import PdfReader, PdfWriter
+from PyPDF2 import PdfFileReader, PdfFileWriter
 from razorpay.errors import SignatureVerificationError
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
@@ -3739,10 +3739,10 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     )
     # read your existing PDF
     pdf_path = pdf_file_path  # for u its ur original pdf
-    existing_pdf = PdfReader(open(pdf_file_path, "rb"))
-    reader = PdfReader(pdf_path)
+    existing_pdf = PdfFileReader(open(pdf_file_path, "rb"))
+    reader = PdfFileReader(pdf_path)
     num_of_page = len(existing_pdf.pages)
-    output = PdfWriter()
+    output = PdfFileWriter()
     for i in range(30):
         page = reader.pages[i]
         output.add_page(page)
@@ -3756,7 +3756,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         can.drawString(89, 753, loan_name)
     can.save()
     packet.seek(0)
-    watermark = PdfReader(packet).pages[0]
+    watermark = PdfFileReader(packet).pages[0]
     page21 = reader.pages[30]
     page21.merge_page(watermark)
     output.add_page(page21)
@@ -3774,7 +3774,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         can.drawString(118, 767, current_time)
     can.save()
     packet.seek(0)
-    watermark = PdfReader(packet).pages[0]
+    watermark = PdfFileReader(packet).pages[0]
     page25 = reader.pages[36]
     page25.merge_page(watermark)
     output.add_page(page25)
@@ -3824,7 +3824,7 @@ def get_pdf(html, options=None, output=None):
 
         # https://pythonhosted.org/PyPDF2/PdfFileReader.html
         # create in-memory binary streams from filedata and create a PdfFileReader object
-        reader = PdfReader(io.BytesIO(filedata))
+        reader = PdfFileReader(io.BytesIO(filedata))
     except OSError as e:
         if any([error in str(e) for error in PDF_CONTENT_ERRORS]):
             if not filedata:
@@ -3847,7 +3847,7 @@ def get_pdf(html, options=None, output=None):
         output.append_pages_from_reader(reader)
         return output
 
-    writer = PdfWriter()
+    writer = PdfFileWriter()
     writer.append_pages_from_reader(reader)
 
     if "password" in options:

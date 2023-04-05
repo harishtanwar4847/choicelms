@@ -2357,7 +2357,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             if self.status == "Approved":
                 import os
 
-                from PyPDF2 import PdfReader, PdfWriter
+                from PyPDF2 import PdfFileReader, PdfFileWriter
 
                 lender_esign_file = self.lender_esigned_document
                 if self.lender_esigned_document:
@@ -2367,7 +2367,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         l_file,
                     )
                     file_base_name = pdf_file_path.replace(".pdf", "")
-                    reader = PdfReader(pdf_file_path)
+                    reader = PdfFileReader(pdf_file_path)
                     pages = [
                         30,
                         31,
@@ -2378,7 +2378,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         36,
                         37,
                     ]  # page 1, 3, 5
-                    pdfWriter = PdfWriter()
+                    pdfWriter = PdfFileWriter()
                     for page_num in pages:
                         pdfWriter.add_page(reader.pages[page_num])
                     sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
