@@ -1084,6 +1084,7 @@ def renewal_penal_interest(loan_name):
             )
 
         user_kyc_approved = ""
+        user_kyc = ""
         if customer:
             user_kyc = frappe.get_all(
                 "User KYC",
