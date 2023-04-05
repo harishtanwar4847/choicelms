@@ -923,6 +923,7 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
 
     def two_days_grace_period(self):
         try:
+            updated_kyc = ""
             if self.new_kyc_name:
                 updated_kyc = frappe.get_doc("User KYC", self.new_kyc_name)
             if updated_kyc and updated_kyc.kyc_status == "Approved":
