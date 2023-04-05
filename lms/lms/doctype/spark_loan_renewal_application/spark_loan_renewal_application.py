@@ -27,10 +27,10 @@ class SparkLoanRenewalApplication(Document):
             or (current_year % 100 != 0)
             and (current_year % 4 == 0)
         ):
-            no_of_days = 365
+            no_of_days = 366
         # Else it is not a leap year
         else:
-            no_of_days = 364
+            no_of_days = 365
 
         if (
             self.status == "Approved"
