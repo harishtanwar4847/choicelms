@@ -1131,24 +1131,6 @@ def renewal_penal_interest(loan_name):
             and (exp + timedelta(days=1)) < current_date
             and loan.balance > 0
         ):
-            lms.log_api_error(
-                """(
-                (pending_renewal_doc_list and not user_kyc and not user_kyc_approved)
-                or (user_kyc_approved and pending_renewal_doc_list)
-            ) and (
-                (
-                    greater_than_7 > current_date
-                    or more_than_7 > current_date
-                    or (
-                        user_kyc_approved
-                        and pending_renewal_doc_list
-                        and pending_renewal_doc_list[0].kyc_approval_date < is_expired_date
-                    )
-                )
-                and exp < current_date
-                and loan.balance > 0
-            )"""
-            )
             top_up_application = frappe.get_all(
                 "Top up Application",
                 filters={
@@ -1169,9 +1151,7 @@ def renewal_penal_interest(loan_name):
             )
             for i in loan_application:
                 applications.append(i)
-            lms.log_api_error(str(top_up_application, loan_application))
             if not top_up_application and not loan_application:
-                lms.log_api_error("if condition ke andar")
                 current_year = frappe.utils.now_datetime().strftime("%Y")
                 current_year = int(current_year)
                 if (
@@ -1209,7 +1189,6 @@ def renewal_penal_interest(loan_name):
                 penal_interest_transaction.docstatus = 1
                 penal_interest_transaction.save(ignore_permissions=True)
                 frappe.db.commit()
-                lms.log_api_error("penal done")
 
         pending_renewal_doc_list = frappe.get_all(
             "Spark Loan Renewal Application",
@@ -1220,23 +1199,7 @@ def renewal_penal_interest(loan_name):
         if pending_renewal_doc_list:
             for renewal_doc in pending_renewal_doc_list:
                 doc = frappe.get_doc("Spark Loan Renewal Application", renewal_doc.name)
-                loggi = (
-                    (
-                        not user_kyc
-                        and not user_kyc_approved
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                    )
-                    or (
-                        user_kyc_approved
-                        and not user_kyc
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                        and (is_expired_date + timedelta(days=7))
-                        > frappe.utils.now_datetime().date()
-                        and doc.status == "Pending"
-                    )
-                    and (loan.name not in ["SL000306", "SL000299", "SL000313"])
-                )
-                lms.log_api_error(str(loggi))
+
                 if (
                     (
                         not user_kyc
@@ -1253,24 +1216,6 @@ def renewal_penal_interest(loan_name):
                     )
                     and (loan.name not in ["SL000306", "SL000299", "SL000313"])
                 ):
-                    lms.log_api_error(
-                        """if (
-                    (
-                        not user_kyc
-                        and not user_kyc_approved
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                    )
-                    or (
-                        user_kyc_approved
-                        and not user_kyc
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                        and (is_expired_date + timedelta(days=7))
-                        > frappe.utils.now_datetime().date()
-                        and doc.status == "Pending"
-                    )
-                    and (loan.name not in ["SL000306", "SL000299", "SL000313"])
-                ):"""
-                    )
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
