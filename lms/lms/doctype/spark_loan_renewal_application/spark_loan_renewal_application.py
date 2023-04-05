@@ -1219,6 +1219,23 @@ def renewal_penal_interest(loan_name):
         if pending_renewal_doc_list:
             for renewal_doc in pending_renewal_doc_list:
                 doc = frappe.get_doc("Spark Loan Renewal Application", renewal_doc.name)
+                loggi = (
+                    (
+                        not user_kyc
+                        and not user_kyc_approved
+                        and is_expired_date < frappe.utils.now_datetime().date()
+                    )
+                    or (
+                        user_kyc_approved
+                        and not user_kyc
+                        and is_expired_date < frappe.utils.now_datetime().date()
+                        and (is_expired_date + timedelta(days=7))
+                        > frappe.utils.now_datetime().date()
+                        and doc.status == "Pending"
+                    )
+                    and (loan.name not in ["SL000306", "SL000299", "SL000313"])
+                )
+                lms.log_api_error(str(loggi))
                 if (
                     (
                         not user_kyc
@@ -1235,6 +1252,24 @@ def renewal_penal_interest(loan_name):
                     )
                     and (loan.name not in ["SL000306", "SL000299", "SL000313"])
                 ):
+                    lms.log_api_error(
+                        """if (
+                    (
+                        not user_kyc
+                        and not user_kyc_approved
+                        and is_expired_date < frappe.utils.now_datetime().date()
+                    )
+                    or (
+                        user_kyc_approved
+                        and not user_kyc
+                        and is_expired_date < frappe.utils.now_datetime().date()
+                        and (is_expired_date + timedelta(days=7))
+                        > frappe.utils.now_datetime().date()
+                        and doc.status == "Pending"
+                    )
+                    and (loan.name not in ["SL000306", "SL000299", "SL000313"])
+                ):"""
+                    )
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
