@@ -1127,7 +1127,7 @@ def renewal_penal_interest(loan_name):
                     and pending_renewal_doc_list[0].kyc_approval_date < is_expired_date
                 )
             )
-            and exp < current_date
+            and (exp + timedelta(days=1)) < current_date
             and loan.balance > 0
         ):
             lms.log_api_error(

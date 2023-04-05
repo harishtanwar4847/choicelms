@@ -2297,6 +2297,13 @@ def loan_summary_dashboard(**kwargs):
                 )
                 loan_expiry = datetime.combine(loan.expiry_date, time.min)
                 date_7after_expiry = loan_expiry + timedelta(days=8)
+                is_expired_date = datetime.strptime(
+                    str(loan.expiry_date), "%Y-%m-%d"
+                ) + timedelta(days=14)
+                date_1 = loan_renewal_doc.kyc_approval_date.date()
+                extended_two_days = loan_renewal_doc.kyc_approval_date + timedelta(
+                    days=2
+                )
                 if (
                     frappe.utils.now_datetime().date() > loan.expiry_date
                     and frappe.utils.now_datetime().date()
@@ -2309,8 +2316,8 @@ def loan_summary_dashboard(**kwargs):
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
                     )
-                    loan_renewal_doc.time_remaining = renewal_timer
-                    loan_renewal_doc.action_status = action_status
+                    # loan_renewal_doc.time_remaining = renewal_timer
+                    # loan_renewal_doc.action_status = action_status
 
                 elif (
                     frappe.utils.now_datetime().date()
@@ -2327,8 +2334,26 @@ def loan_summary_dashboard(**kwargs):
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
                     )
-                    loan_renewal_doc.time_remaining = renewal_timer
-                    loan_renewal_doc.action_status = action_status
+                elif (
+                    date_1 > is_expired_date.date()
+                    and frappe.utils.now_datetime() < extended_two_days
+                ):
+                    seconds = abs(
+                        extended_two_days - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    # seconds = abs(extended_two_days).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+
+                else:
+                    seconds = 0
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+
+                loan_renewal_doc.time_remaining = renewal_timer
+                loan_renewal_doc.action_status = action_status
 
                 str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
                     "%d-%m-%Y"
