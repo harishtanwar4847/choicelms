@@ -1223,7 +1223,12 @@ def renewal_penal_interest(loan_name):
                     and (loan.name not in ["SL000306", "SL000299", "SL000313"])
                 )
                 lms.create_log(
-                    {"alo": lms.get_linenumber(), "check": str(aala)}, "rejected_log"
+                    {
+                        "alo": lms.get_linenumber(),
+                        "check": str(aala),
+                        "loan": str(loan.name),
+                    },
+                    "rejected_log",
                 )
 
                 if (
@@ -1246,7 +1251,11 @@ def renewal_penal_interest(loan_name):
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
                     lms.create_log(
-                        {"alo": lms.get_linenumber(), "check": str(aala)},
+                        {
+                            "alo": lms.get_linenumber(),
+                            "check": str(aala),
+                            "loan": str(loan.name),
+                        },
                         "rejected_log",
                     )
                 if (
@@ -1258,14 +1267,23 @@ def renewal_penal_interest(loan_name):
                     < frappe.utils.now_datetime().date()
                 ):
                     lms.create_log(
-                        {"alo": lms.get_linenumber(), "check": str(aala)},
+                        {
+                            "alo": lms.get_linenumber(),
+                            "check": str(aala),
+                            "loan": str(loan.name),
+                        },
                         "rejected_log",
                     )
                     doc.tnc_show = 1
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
                 lms.create_log(
-                    {"alo": lms.get_linenumber(), "check": str(aala)}, "rejected_log"
+                    {
+                        "alo": lms.get_linenumber(),
+                        "check": str(aala),
+                        "loan": str(loan.name),
+                    },
+                    "rejected_log",
                 )
 
     except Exception:
