@@ -932,7 +932,13 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                 is_expired_date = datetime.strptime(
                     str(loan.expiry_date), "%Y-%m-%d"
                 ) + timedelta(days=14)
-                date_1 = datetime.strptime(self.kyc_approval_date, "%Y-%m-%d %H:%M:%S")
+                if type(loan.expiry_date) is str:
+                    date_1 = datetime.strptime(
+                        self.kyc_approval_date, "%Y-%m-%d %H:%M:%S"
+                    )
+                else:
+                    date_1 = self.kyc_approval_date
+
                 if date_1.date() > is_expired_date.date():
                     extended_two_days = date_1 + timedelta(days=2)
                     seconds = abs(
@@ -1200,6 +1206,25 @@ def renewal_penal_interest(loan_name):
         if pending_renewal_doc_list:
             for renewal_doc in pending_renewal_doc_list:
                 doc = frappe.get_doc("Spark Loan Renewal Application", renewal_doc.name)
+                aala = (
+                    (
+                        not user_kyc
+                        and not user_kyc_approved
+                        and is_expired_date < frappe.utils.now_datetime().date()
+                    )
+                    or (
+                        user_kyc_approved
+                        and not user_kyc
+                        and is_expired_date < frappe.utils.now_datetime().date()
+                        and (is_expired_date + timedelta(days=7))
+                        > frappe.utils.now_datetime().date()
+                        and doc.status == "Pending"
+                    )
+                    and (loan.name not in ["SL000306", "SL000299", "SL000313"])
+                )
+                lms.create_log(
+                    {"alo": lms.get_linenumber(), "check": str(aala)}, "rejected_log"
+                )
 
                 if (
                     (
@@ -1220,6 +1245,10 @@ def renewal_penal_interest(loan_name):
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
+                    lms.create_log(
+                        {"alo": lms.get_linenumber(), "check": str(aala)},
+                        "rejected_log",
+                    )
                 if (
                     doc.new_kyc_name
                     and doc.kyc_approval_date
@@ -1228,9 +1257,16 @@ def renewal_penal_interest(loan_name):
                     and (is_expired_date + timedelta(days=7))
                     < frappe.utils.now_datetime().date()
                 ):
+                    lms.create_log(
+                        {"alo": lms.get_linenumber(), "check": str(aala)},
+                        "rejected_log",
+                    )
                     doc.tnc_show = 1
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
+                lms.create_log(
+                    {"alo": lms.get_linenumber(), "check": str(aala)}, "rejected_log"
+                )
 
     except Exception:
         frappe.log_error(
