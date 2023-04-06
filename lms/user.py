@@ -2354,14 +2354,19 @@ def loan_summary_dashboard(**kwargs):
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
                     )
-                    if renewal_timer == "0D:00h:00m:00s":
-                        loan_renewal_doc.tnc_show = 1
 
                 else:
                     seconds = 0
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
                     )
+
+                if (
+                    extended_two_days
+                    and date_1
+                    and frappe.utils.now_datetime() < extended_two_days
+                ):
+                    loan_renewal_doc.tnc_show = 1
 
                 loan_renewal_doc.time_remaining = renewal_timer
                 loan_renewal_doc.action_status = action_status
