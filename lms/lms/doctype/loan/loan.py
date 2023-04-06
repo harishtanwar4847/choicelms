@@ -1923,7 +1923,6 @@ class Loan(Document):
                         )
                     else:
                         old_interest_rate = self.old_interest
-                        print("custom", self.old_interest)
                         self.old_interest = self.base_interest
                         self.base_interest = self.custom_base_interest
                         self.rebate_interest = self.custom_rebate_interest
@@ -2378,183 +2377,193 @@ class Loan(Document):
         )[0]["amount"]
 
     def notify_customer_roi(self):
-        # print("old_interest_rate",old_interest_rate)
-        print("self.custom_base_interest", self.custom_base_interest)
-        customer = self.get_customer()
-        user_kyc = customer.get_kyc()
-        lender = self.get_lender()
-        interest_letter_template = lender.get_interest_letter_template()
-        logo_file_path_1 = lender.get_lender_logo_file()
-        logo_file_path_2 = lender.get_lender_address_file()
-        if user_kyc.address_details:
-            address_details = frappe.get_doc(
-                "Customer Address Details", user_kyc.address_details
+        try:
+            customer = self.get_customer()
+            user_kyc = customer.get_kyc()
+            lender = self.get_lender()
+            interest_letter_template = lender.get_interest_letter_template()
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
+            if user_kyc.address_details:
+                address_details = frappe.get_doc(
+                    "Customer Address Details", user_kyc.address_details
+                )
+
+                line1 = str(address_details.perm_line1)
+                if line1:
+                    addline1 = "{},<br/>".format(line1)
+                else:
+                    addline1 = ""
+
+                line2 = str(address_details.perm_line2)
+                if line2:
+                    addline2 = "{},<br/>".format(line2)
+                else:
+                    addline2 = ""
+
+                line3 = str(address_details.perm_line3)
+                if line3:
+                    addline3 = "{},<br/>".format(line3)
+                else:
+                    addline3 = ""
+
+                perm_city = str(address_details.perm_city)
+                perm_dist = str(address_details.perm_dist)
+                perm_state = str(address_details.perm_state)
+                perm_pin = str(address_details.perm_pin)
+
+            doc = frappe.get_doc("Loan", self.name).as_dict()
+            doc["current_date"] = datetime.strptime(
+                str(frappe.utils.now_datetime().date()), "%Y-%m-%d"
+            ).strftime("%d/%m/%Y")
+            doc["sanctioned_amount"] = frappe.utils.fmt_money(
+                float(self.sanctioned_limit)
+            )
+            doc["fullname"] = user_kyc.fullname
+            doc["addline1"] = addline1
+            doc["addline2"] = addline2
+            doc["addline3"] = addline3
+            doc["city"] = perm_city
+            doc["district"] = perm_dist
+            doc["state"] = perm_state
+            doc["pincode"] = perm_pin
+            doc["wef_date"] = datetime.strptime(
+                str(self.wef_date), "%Y-%m-%d"
+            ).strftime("%d/%m/%Y")
+            doc["logo_file_path_1"] = (
+                logo_file_path_1.file_url if logo_file_path_1 else ""
+            )
+            doc["logo_file_path_2"] = (
+                logo_file_path_2.file_url if logo_file_path_2 else ""
             )
 
-            line1 = str(address_details.perm_line1)
-            if line1:
-                addline1 = "{},<br/>".format(line1)
-            else:
-                addline1 = ""
+            interest_letter_pdf_file = "{}-{}-interest_letter.pdf".format(
+                self.name, frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S")
+            ).replace(" ", "-")
 
-            line2 = str(address_details.perm_line2)
-            if line2:
-                addline2 = "{},<br/>".format(line2)
-            else:
-                addline2 = ""
-
-            line3 = str(address_details.perm_line3)
-            if line3:
-                addline3 = "{},<br/>".format(line3)
-            else:
-                addline3 = ""
-
-            perm_city = str(address_details.perm_city)
-            perm_dist = str(address_details.perm_dist)
-            perm_state = str(address_details.perm_state)
-            perm_pin = str(address_details.perm_pin)
-
-        doc = frappe.get_doc("Loan", self.name).as_dict()
-        doc["current_date"] = datetime.strptime(
-            str(frappe.utils.now_datetime().date()), "%Y-%m-%d"
-        ).strftime("%d/%m/%Y")
-        doc["sanctioned_amount"] = frappe.utils.fmt_money(float(self.sanctioned_limit))
-        doc["fullname"] = user_kyc.fullname
-        doc["addline1"] = addline1
-        doc["addline2"] = addline2
-        doc["addline3"] = addline3
-        doc["city"] = perm_city
-        doc["district"] = perm_dist
-        doc["state"] = perm_state
-        doc["pincode"] = perm_pin
-        doc["wef_date"] = datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime(
-            "%d/%m/%Y"
-        )
-        doc["logo_file_path_1"] = logo_file_path_1.file_url if logo_file_path_1 else ""
-        doc["logo_file_path_2"] = logo_file_path_2.file_url if logo_file_path_2 else ""
-
-        interest_letter_pdf_file = "{}-{}-interest_letter.pdf".format(
-            self.name, frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S")
-        ).replace(" ", "-")
-
-        interest_letter_pdf_file_path = frappe.utils.get_files_path(
-            interest_letter_pdf_file
-        )
-
-        agreement = frappe.render_template(
-            interest_letter_template.get_content(), {"doc": doc}
-        )
-
-        pdf_file = open(interest_letter_pdf_file_path, "wb")
-
-        # from frappe.utils.pdf import get_pdf
-
-        pdf = lms.get_pdf(
-            agreement,
-            options={
-                "margin-right": "1mm",
-                "margin-left": "1mm",
-                "page-size": "A4",
-            },
-        )
-        pdf_file.write(pdf)
-        pdf_file.close()
-
-        interest_letter_pdf = frappe.utils.get_url(
-            "files/{}".format(interest_letter_pdf_file)
-        )
-
-        attachments = [{"fname": interest_letter_pdf_file, "fcontent": pdf}]
-
-        interest_change_notification = frappe.db.sql(
-            "select message from `tabNotification` where name='Change Of Interest';"
-        )[0][0]
-        interest_change_notification = interest_change_notification.replace(
-            "full_name", user_kyc.fullname
-        )
-        interest_change_notification = interest_change_notification.replace(
-            "loan_name",
-            self.name,
-        )
-        interest_change_notification = interest_change_notification.replace(
-            "old_interest",
-            str(self.old_interest),
-        )
-        interest_change_notification = interest_change_notification.replace(
-            "new_interest",
-            str(self.custom_base_interest),
-        )
-        interest_change_notification = interest_change_notification.replace(
-            "wef_date",
-            datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime("%d/%m/%Y"),
-        )
-
-        fcm_notification = frappe.get_doc(
-            "Spark Push Notification", "ROI Change", fields=["*"]
-        )
-        fcm_message = fcm_notification.message
-        fcm_message.replace("wef_date", (str(self.wef_date)))
-
-        sanction_letter_doc = frappe.get_all(
-            "Sanction Letter and CIAL Log",
-            filters={"loan": self.name},
-            fields=["*"],
-        )
-        if sanction_letter_doc:
-            interest_letter = frappe.get_doc(
-                {
-                    "doctype": "Interest Letter",
-                    "parent": sanction_letter_doc[0].name,
-                    "parentfield": "interest_letter_table",
-                    "parenttype": "Sanction Letter and CIAL Log",
-                    "interest_letter": interest_letter_pdf,
-                    "date_of_acceptance": datetime.strptime(
-                        str(self.wef_date), "%Y-%m-%d"
-                    ).strftime("%d/%m/%Y"),
-                    "base_interest": self.custom_base_interest,
-                    "rebate_interest": self.custom_rebate_interest,
-                }
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
-
-        else:
-            sanction_letter_doc = frappe.get_doc(
-                {"doctype": "Sanction Letter and CIAL Log", "loan": self.name}
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
-
-            interest_letter = frappe.get_doc(
-                {
-                    "doctype": "Interest Letter",
-                    "parent": sanction_letter_doc.name,
-                    "parentfield": "interest_letter_table",
-                    "parenttype": "Sanction Letter and CIAL Log",
-                    "interest_letter": attachments,
-                    "date_of_acceptance": datetime.strptime(
-                        str(self.wef_date), "%Y-%m-%d"
-                    ).strftime("%d/%m/%Y"),
-                    "base_interest": self.custom_base_interest,
-                    "rebate_interest": self.custom_rebate_interest,
-                }
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
-
-        if fcm_notification:
-            lms.send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                message=fcm_message,
-                loan=self.name,
-                customer=self.get_customer(),
+            interest_letter_pdf_file_path = frappe.utils.get_files_path(
+                interest_letter_pdf_file
             )
 
-        frappe.enqueue(
-            method=frappe.sendmail,
-            recipients=[customer.user],
-            sender=None,
-            subject="Interest Letter for Loan Account No. {}".format(self.name),
-            message=interest_change_notification,
-            attachments=attachments,
-        )
+            agreement = frappe.render_template(
+                interest_letter_template.get_content(), {"doc": doc}
+            )
+
+            pdf_file = open(interest_letter_pdf_file_path, "wb")
+
+            # from frappe.utils.pdf import get_pdf
+
+            pdf = lms.get_pdf(
+                agreement,
+                options={
+                    "margin-right": "1mm",
+                    "margin-left": "1mm",
+                    "page-size": "A4",
+                },
+            )
+            pdf_file.write(pdf)
+            pdf_file.close()
+
+            interest_letter_pdf = frappe.utils.get_url(
+                "files/{}".format(interest_letter_pdf_file)
+            )
+
+            attachments = [{"fname": interest_letter_pdf_file, "fcontent": pdf}]
+
+            interest_change_notification = frappe.db.sql(
+                "select message from `tabNotification` where name='Change Of Interest';"
+            )[0][0]
+            interest_change_notification = interest_change_notification.replace(
+                "full_name", user_kyc.fullname
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "loan_name",
+                self.name,
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "old_interest",
+                str(self.old_interest),
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "new_interest",
+                str(self.custom_base_interest),
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "wef_date",
+                datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime("%d/%m/%Y"),
+            )
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "ROI Change", fields=["*"]
+            )
+            fcm_message = fcm_notification.message
+            fcm_message.replace("wef_date", (str(self.wef_date)))
+
+            sanction_letter_doc = frappe.get_all(
+                "Sanction Letter and CIAL Log",
+                filters={"loan": self.name},
+                fields=["*"],
+            )
+            if sanction_letter_doc:
+                interest_letter = frappe.get_doc(
+                    {
+                        "doctype": "Interest Letter",
+                        "parent": sanction_letter_doc[0].name,
+                        "parentfield": "interest_letter_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "interest_letter": interest_letter_pdf,
+                        "date_of_acceptance": datetime.strptime(
+                            str(self.wef_date), "%Y-%m-%d"
+                        ).strftime("%d/%m/%Y"),
+                        "base_interest": self.custom_base_interest,
+                        "rebate_interest": self.custom_rebate_interest,
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+
+            else:
+                sanction_letter_doc = frappe.get_doc(
+                    {"doctype": "Sanction Letter and CIAL Log", "loan": self.name}
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+
+                interest_letter = frappe.get_doc(
+                    {
+                        "doctype": "Interest Letter",
+                        "parent": sanction_letter_doc.name,
+                        "parentfield": "interest_letter_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "interest_letter": interest_letter_pdf,
+                        "date_of_acceptance": datetime.strptime(
+                            str(self.wef_date), "%Y-%m-%d"
+                        ).strftime("%d/%m/%Y"),
+                        "base_interest": self.custom_base_interest,
+                        "rebate_interest": self.custom_rebate_interest,
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+
+            if fcm_notification:
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=fcm_message,
+                    loan=self.name,
+                    customer=self.get_customer(),
+                )
+
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[customer.user],
+                sender=None,
+                subject="Interest Letter for Loan Account No. {}".format(self.name),
+                message=interest_change_notification,
+                attachments=attachments,
+            )
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback() + "\nLoan : {}".format(self.name),
+                title=(_("Notify Customer failed in Loan")),
+            )
 
     def update_ltv(self):
         for i in self.items:
