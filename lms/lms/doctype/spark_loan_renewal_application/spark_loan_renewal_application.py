@@ -1048,12 +1048,12 @@ def all_loans_renewal_update_doc():
                 loan_name=loan_name,
                 job_name="{}-Loan Renewal Update Doc".format(loan_name),
             )
-            # frappe.enqueue(
-            #     method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_penal_interest",
-            #     queue="long",
-            #     loan_name=loan_name,
-            #     job_name="{}-Renewal Penal Interest".format(loan_name),
-            # )
+            frappe.enqueue(
+                method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_penal_interest",
+                queue="long",
+                loan_name=loan_name,
+                job_name="{}-Renewal Penal Interest".format(loan_name),
+            )
         frappe.enqueue(
             method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_timer",
             queue="long",
