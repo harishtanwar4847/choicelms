@@ -46,7 +46,6 @@
   "custom_roi_section",
   "custom_base_interest",
   "wef_date",
-  "wef_change",
   "is_default",
   "column_break_40",
   "custom_rebate_interest",
@@ -329,12 +328,6 @@
    "fieldtype": "Float",
    "label": "Old Interest",
    "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "wef_change",
-   "fieldtype": "Check",
-   "label": "w.e.f Change"
   }
  ],
  "index_web_pages_for_search": 1,
