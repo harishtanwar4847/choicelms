@@ -932,6 +932,11 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                 is_expired_date = datetime.strptime(
                     str(loan.expiry_date), "%Y-%m-%d"
                 ) + timedelta(days=14)
+                if type(is_expired_date) is str:
+                    is_expired_date = datetime.strptime(
+                        str(loan.expiry_date), "%Y-%m-%d"
+                    )
+
                 if type(loan.expiry_date) is str:
                     date_1 = datetime.strptime(
                         self.kyc_approval_date, "%Y-%m-%d %H:%M:%S"
@@ -1487,7 +1492,13 @@ def renewal_timer(loan_renewal_name=None):
                 # )
                 top_up_application = frappe.get_all(
                     "Top up Application",
-                    filters={"loan": loan.name, "status": "Pending"},
+                    filters={
+                        "loan": loan.name,
+                        "status": [
+                            "IN",
+                            ["Pending", "Esign Done"],
+                        ],
+                    },
                     fields=["name"],
                 )
 

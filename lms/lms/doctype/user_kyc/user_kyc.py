@@ -254,6 +254,7 @@ class UserKYC(Document):
         if loan_name:
             loan = frappe.get_doc("Loan", loan_name)
             date_7after_expiry = loan.expiry_date + timedelta(days=7)
+            date_7after_7days = date_7after_expiry + timedelta(days=7)
             if type(self.creation) == str:
                 creation_date = datetime.strptime(
                     self.creation, "%Y-%m-%d %H:%M:%S.%f"
@@ -264,6 +265,7 @@ class UserKYC(Document):
                 self.updated_kyc == 1
                 and self.kyc_status == "Rejected"
                 and creation_date > date_7after_expiry
+                and creation_date <= date_7after_7days
             ):
                 renewal_list = frappe.get_all(
                     "Spark Loan Renewal Application",
