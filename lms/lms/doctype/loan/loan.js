@@ -3,6 +3,7 @@
 
 frappe.ui.form.on("Loan", {
   is_default: function (frm) {
+    console.log("akash");
     if (frm.doc.is_default == 0) {
       frm.set_value("custom_base_interest", 0);
       frm.set_value("custom_rebate_interest", 0);

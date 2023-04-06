@@ -2362,6 +2362,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 )
             if not check:
                 if self.application_type == "New Loan" and not self.sl_entries:
+                    frappe.log_error(message="NAcho", title=(_("inside 1st if 2369"))),
                     sl = frappe.get_doc(
                         dict(
                             doctype="Sanction Letter and CIAL Log",
@@ -2390,6 +2391,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
                 elif self.application_type != "New Loan" and not self.sl_entries:
+                    frappe.log_error(message="HEy", title=(_("inside 1st 2405"))),
                     sl = frappe.get_all(
                         "Sanction Letter and CIAL Log",
                         filters={"loan": self.loan},
@@ -2429,6 +2431,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
                 elif self.sl_entries and self.status != "Approved":
+                    frappe.log_error(message="HIIIIE", title=(_("inside 3rd if 2452"))),
                     sl = frappe.get_doc("Sanction Letter and CIAL Log", self.sl_entries)
                     ssl = frappe.get_all(
                         "Sanction Letter Entries",
@@ -2438,11 +2441,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         },
                         fields=["*"],
                     )
-                    sel = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
-                    previous_letter = sl.sanction_letter
-                    sel.sanction_letter = sL_letter
-                    sel.save(ignore_permissions=True)
-                    frappe.db.commit()
+                    if ssl:
+                        sel = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
+                        previous_letter = sl.sanction_letter
+                        sel.sanction_letter = sL_letter
+                        sel.save(ignore_permissions=True)
+                        frappe.db.commit()
 
             if self.status == "Approved":
                 import os
