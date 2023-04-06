@@ -281,7 +281,8 @@
   {
    "fieldname": "wef_date",
    "fieldtype": "Date",
-   "label": "w.e.f date"
+   "label": "w.e.f date",
+   "reqd": 1    
   },
   {
    "fieldname": "custom_base_interest",
