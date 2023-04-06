@@ -1122,6 +1122,39 @@ def renewal_penal_interest(loan_name):
             str(loan.expiry_date), "%Y-%m-%d"
         ) + timedelta(days=14)
 
+        print("pending_renewal_doc_list", pending_renewal_doc_list)
+        print("user_kyc", user_kyc)
+        print("user_kyc_approved", user_kyc_approved)
+        print("greater_than_7", greater_than_7)
+        print("more_than_7", more_than_7)
+        print("is_expired_date", is_expired_date)
+        print("(exp + timedelta(days=1))", (exp + timedelta(days=1)))
+        print("exp", exp)
+        print("loan.balance", loan.balance)
+        print(
+            "first if",
+            (
+                (pending_renewal_doc_list and not user_kyc and not user_kyc_approved)
+                or (user_kyc_approved and pending_renewal_doc_list)
+            ),
+        )
+        print(
+            "2nd and if",
+            (
+                greater_than_7 > current_date
+                or more_than_7 > current_date
+                or (
+                    user_kyc_approved
+                    and pending_renewal_doc_list
+                    and pending_renewal_doc_list[0].kyc_approval_date < is_expired_date
+                )
+            ),
+        )
+        print(
+            "3rd and 4th if",
+            (exp + timedelta(days=1)) < current_date and loan.balance > 0,
+        )
+
         if (
             (pending_renewal_doc_list and not user_kyc and not user_kyc_approved)
             or (user_kyc_approved and pending_renewal_doc_list)
