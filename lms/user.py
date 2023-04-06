@@ -2254,7 +2254,10 @@ def loan_summary_dashboard(**kwargs):
             )
             top_up_application = frappe.get_all(
                 "Top up Application",
-                filters={"loan": loan.name, "status": "Pending"},
+                filters={
+                    "loan": loan.name,
+                    "status": ["NOT IN", ["Approved", "Rejected"]],
+                },
                 fields=["name"],
             )
 
