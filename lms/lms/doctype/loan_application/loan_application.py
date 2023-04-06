@@ -790,7 +790,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.throw("Please add MyCAMS Email ID in Customer details.")
 
         elif self.status == "Pledge accepted by Lender":
-            self.sanction_letter()
             if (
                 self.base_interest <= 0
                 and self.application_type == "New Loan"
@@ -1289,19 +1288,19 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
         loan.sl_cial_entries = sl_cial_doc.name
 
-        cial_doc = frappe.get_doc(
-            {
-                "parent": loan.sl_cial_entries,
-                "parenttype": "Sanction Letter and CIAL Log",
-                "parentfield": "sl_table",
-                "sanction_letter": "",
-                "date_of_acceptance": frappe.utils.now_datetime().date(),
-                "base_interest": self.base_interest,
-                "rebate_interest": self.rebate_interest,
-                "doctype": "Sanction Letter Entries",
-            }
-        ).insert(ignore_permissions=True)
-        frappe.db.commit()
+        # cial_doc = frappe.get_doc(
+        #     {
+        #         "parent": loan.sl_cial_entries,
+        #         "parenttype": "Sanction Letter and CIAL Log",
+        #         "parentfield": "sl_table",
+        #         "sanction_letter": "",
+        #         "date_of_acceptance": frappe.utils.now_datetime().date(),
+        #         "base_interest": self.base_interest,
+        #         "rebate_interest": self.rebate_interest,
+        #         "doctype": "Sanction Letter Entries",
+        #     }
+        # ).insert(ignore_permissions=True)
+        # frappe.db.commit()
         # self.map_loan_agreement_file(loan)
 
         # File code here #S
@@ -2362,7 +2361,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 )
             if not check:
                 if self.application_type == "New Loan" and not self.sl_entries:
-                    frappe.log_error(message="NAcho", title=(_("inside 1st if 2369"))),
                     sl = frappe.get_doc(
                         dict(
                             doctype="Sanction Letter and CIAL Log",
@@ -2391,7 +2389,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
                 elif self.application_type != "New Loan" and not self.sl_entries:
-                    frappe.log_error(message="HEy", title=(_("inside 1st 2405"))),
                     sl = frappe.get_all(
                         "Sanction Letter and CIAL Log",
                         filters={"loan": self.loan},
@@ -2431,7 +2428,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
                 elif self.sl_entries and self.status != "Approved":
-                    frappe.log_error(message="HIIIIE", title=(_("inside 3rd if 2452"))),
                     sl = frappe.get_doc("Sanction Letter and CIAL Log", self.sl_entries)
                     ssl = frappe.get_all(
                         "Sanction Letter Entries",
