@@ -2,6 +2,17 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Loan Application", {
+  is_default: function (frm) {
+    console.log("akash");
+    if (frm.doc.is_default == 0) {
+      frm.set_value("custom_base_interest", 0);
+      frm.set_value("custom_rebate_interest", 0);
+    } else {
+      frm.set_df_property("custom_base_interest", "read_only", 1);
+      frm.set_df_property("custom_rebate_interest", "read_only", 1);
+    }
+  },
+
   on_load: function (frm) {
     frappe.call({
       method:
