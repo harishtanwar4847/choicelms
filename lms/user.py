@@ -2354,6 +2354,7 @@ def loan_summary_dashboard(**kwargs):
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
                     )
+                    loan_renewal_doc.tnc_show = 1
 
                 else:
                     seconds = 0
