@@ -2367,6 +2367,16 @@ def loan_summary_dashboard(**kwargs):
                     and frappe.utils.now_datetime() < extended_two_days
                 ):
                     loan_renewal_doc.tnc_show = 1
+                    frappe.log_error(
+                        message=frappe.get_traceback(),
+                        title=(
+                            _(
+                                "loan_renewal_doc.tnc_show".format(
+                                    loan_renewal_doc.tnc_show
+                                )
+                            )
+                        ),
+                    )
 
                 loan_renewal_doc.time_remaining = renewal_timer
                 loan_renewal_doc.action_status = action_status
