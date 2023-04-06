@@ -123,7 +123,10 @@ class LoanTransaction(Document):
                 "Loan Transaction",
                 {
                     "loan": self.loan,
-                    "transaction_type": "Interest",
+                    "transaction_type": [
+                        "in",
+                        ["Interest", "Penal Interest", "Additional Interest"],
+                    ],
                     "unpaid_interest": [">", 0],
                 },
                 "name",
