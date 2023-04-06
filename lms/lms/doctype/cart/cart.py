@@ -62,6 +62,8 @@ class Cart(Document):
             if self.is_processed:
                 return
 
+            if self.loan:
+                loan_doc = frappe.get_doc("Loan", self.loan)
             current = frappe.utils.now_datetime()
             # expiry = current.replace(year=current.year + 1)
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
