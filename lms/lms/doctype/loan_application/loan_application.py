@@ -145,8 +145,9 @@ class LoanApplication(Document):
                 },
                 order_by="to_amount asc",
             )
+
             int_config = frappe.get_doc("Interest Configuration", interest_config)
-            roi_ = round((int_config.base_interest * 12), 2)
+            roi_ = round((self.base_interest * 12), 2)
             charges = lms.charges_for_apr(
                 lender.name,
                 lms.validate_rupees(float(diff)),
@@ -228,8 +229,8 @@ class LoanApplication(Document):
                     + interest_charges_in_amount
                 ),
                 "loan_application_no": self.name,
-                "rate_of_interest": lender.rate_of_interest,
-                "rebate_interest": int_config.rebait_interest,
+                "rate_of_interest": self.base_interest,
+                "rebate_interest": self.rebate_interest,
                 "default_interest": annual_default_interest,
                 "rebait_threshold": lender.rebait_threshold,
                 "penal_charges": lender.renewal_penal_interest
@@ -2129,13 +2130,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 },
                 order_by="to_amount asc",
             )
+
             int_config = frappe.get_doc("Interest Configuration", interest_config)
             # sanctionlimit = (
             #     new_increased_sanctioned_limit
             #     if self.loan and not self.loan_margin_shortfall
             #     else self.drawing_power
             # )
-            roi_ = round((int_config.base_interest * 12), 2)
+            roi_ = round((self.base_interest * 12), 2)
             charges = lms.charges_for_apr(
                 lender.name,
                 lms.validate_rupees(float(diff)),
@@ -2224,8 +2226,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         + interest_charges_in_amount
                     ),
                     "loan_application_no": self.name,
-                    "rate_of_interest": lender.rate_of_interest,
-                    "rebate_interest": int_config.rebait_interest,
+                    "rate_of_interest": self.base_interest,
+                    "rebate_interest": self.rebate_interest,
                     "default_interest": annual_default_interest,
                     "rebait_threshold": lender.rebait_threshold,
                     "penal_charges": lender.renewal_penal_interest
@@ -2384,7 +2386,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                                 "sanction_letter": sL_letter,
                                 "loan_application_no": self.name,
                                 "date_of_acceptance": frappe.utils.now_datetime().date(),
-                                "rebate_interest": int_config.base_interest,
+                                "base_interest": self.base_interest,
+                                "rebate_interest": self.rebate_interest,
                             }
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
@@ -2423,7 +2426,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                                 "sanction_letter": sL_letter,
                                 "loan_application_no": self.name,
                                 "date_of_acceptance": frappe.utils.now_datetime().date(),
-                                "rebate_interest": int_config.base_interest,
+                                "base_interest": self.base_interest,
+                                "rebate_interest": self.rebate_interest,
                             }
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()

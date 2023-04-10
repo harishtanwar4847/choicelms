@@ -62,8 +62,6 @@ class Cart(Document):
             if self.is_processed:
                 return
 
-            if self.loan:
-                loan_doc = frappe.get_doc("Loan", self.loan)
             current = frappe.utils.now_datetime()
             # expiry = current.replace(year=current.year + 1)
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
@@ -75,12 +73,65 @@ class Cart(Document):
             )
 
             application_type = "New Loan"
+            base_interest = ""
+            rebate_interest = ""
+            is_default = ""
             if self.loan and not self.loan_margin_shortfall:
                 application_type = "Increase Loan"
+                loan = frappe.get_doc("Loan", self.loan)
+                if loan.is_default == 0:
+                    base_interest = loan.base_interest
+                    rebate_interest = loan.rebate_interest
+                    is_default = loan.is_default
+                else:
+                    interest_config = frappe.get_value(
+                        "Interest Configuration",
+                        {
+                            "to_amount": [
+                                ">=",
+                                lms.validate_rupees(self.increased_sanctioned_limit),
+                            ],
+                        },
+                        order_by="to_amount asc",
+                    )
+                    int_config = frappe.get_doc(
+                        "Interest Configuration", interest_config
+                    )
+                    base_interest = int_config.base_interest
+                    rebate_interest = int_config.rebait_interest
+                    is_default = loan.is_default
+
             elif self.loan and self.loan_margin_shortfall:
                 application_type = "Margin Shortfall"
+                loan = frappe.get_doc("Loan", self.loan)
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+                is_default = loan.is_default
+
             if not approved_tnc and self.loan and not self.loan_margin_shortfall:
                 application_type = "Pledge More"
+                loan = frappe.get_doc("Loan", self.loan)
+                if loan.is_default == 0:
+                    base_interest = loan.base_interest
+                    rebate_interest = loan.rebate_interest
+                    is_default = loan.is_default
+                else:
+                    interest_config = frappe.get_value(
+                        "Interest Configuration",
+                        {
+                            "to_amount": [
+                                ">=",
+                                lms.validate_rupees(self.increased_sanctioned_limit),
+                            ],
+                        },
+                        order_by="to_amount asc",
+                    )
+                    int_config = frappe.get_doc(
+                        "Interest Configuration", interest_config
+                    )
+                    base_interest = int_config.base_interest
+                    rebate_interest = int_config.rebait_interest
+                    is_default = loan.is_default
 
             items = []
             for item in self.items:
@@ -128,6 +179,11 @@ class Cart(Document):
                     "increased_sanctioned_limit": self.increased_sanctioned_limit,
                     "instrument_type": self.instrument_type,
                     "scheme_type": self.scheme_type,
+                    "base_interest": base_interest,
+                    "rebate_interest": rebate_interest,
+                    "is_default": is_default,
+                    "custom_base_interest": base_interest,
+                    "custom_rebate_interest": rebate_interest,
                 }
             ).insert(ignore_permissions=True)
 

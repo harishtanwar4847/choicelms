@@ -2172,8 +2172,13 @@ class Loan(Document):
             },
             order_by="to_amount asc",
         )
-        int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
+        if self.is_deafult == 0:
+            base_interest = self.base_interest
+            rebate_interest = self.rebate_interest
+        else:
+            base_interest = self.base_interest
+            rebate_interest = self.rebate_interest
+        roi_ = round((base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(topup_amount))
         )
@@ -2219,8 +2224,8 @@ class Loan(Document):
                 float(increased_sanction_limit) + charges.get("total") + interest_amount
             ),
             "loan_application_no": "",
-            "rate_of_interest": lender.rate_of_interest,
-            "rebate_interest": int_config.rebait_interest,
+            "rate_of_interest": base_interest,
+            "rebate_interest": rebate_interest,
             "sanctioned_amount": frappe.utils.fmt_money(
                 float(increased_sanction_limit)
             ),

@@ -932,8 +932,20 @@ def get_tnc(**kwargs):
             },
             order_by="to_amount asc",
         )
-        int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = int_config.base_interest * 12
+        if cart.loan:
+            loan = frappe.get_doc("Loan", cart.loan)
+            if loan.is_default == 0:
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+            else:
+                int_config = frappe.get_doc("Interest Configuration", interest_config)
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+        else:
+            int_config = frappe.get_doc("Interest Configuration", interest_config)
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
+        roi_ = base_interest * 12
         # diff = lms.diff_in_months(frappe.)
         charges = lms.charges_for_apr(lender.name, lms.validate_rupees(diff))
         apr = lms.calculate_apr(
@@ -1002,9 +1014,9 @@ def get_tnc(**kwargs):
         tnc_ul.append("<li><strong> Interest type </strong>: Fixed</li>")
         tnc_ul.append(
             "<li><strong> Rate of interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>{} days</strong> of due date. Otherwise rebate of <strong>{}%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on the Management discretion from time to time];".format(
-                int_config.base_interest,
+                base_interest,
                 lender.rebait_threshold,
-                int_config.rebait_interest,
+                rebate_interest,
             )
             + "</li>"
         )
