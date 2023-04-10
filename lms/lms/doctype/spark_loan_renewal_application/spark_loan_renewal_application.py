@@ -358,7 +358,7 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                     ):
                         self.is_expired = 1
             frappe.log_error(
-                message=self.name,
+                message=self.name + "\n MSG : {}".format(msg),
                 title=_("Loan Renewal Application - before msg"),
             )
             if msg:
@@ -377,7 +377,8 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         except Exception as e:
             frappe.log_error(
-                message=frappe.get_traceback(),
+                message=frappe.get_traceback()
+                + "\n Loan Renewal Application : {}".format(self.name),
                 title=_("Loan Renewal Application - Customer Notification "),
             )
 
