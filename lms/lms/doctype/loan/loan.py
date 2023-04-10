@@ -2172,7 +2172,7 @@ class Loan(Document):
             },
             order_by="to_amount asc",
         )
-        if self.is_deafult == 0:
+        if self.is_default == 0:
             base_interest = self.base_interest
             rebate_interest = self.rebate_interest
         else:
