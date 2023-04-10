@@ -699,7 +699,7 @@ class Loan(Document):
             check = self.update_items()
             if on_approval == False:
                 self.update_ltv()
-            if check:
+            if check or (not check and on_approval):
                 self.fill_items()
                 self.available_topup_amt = self.max_topup_amount()
                 self.save(ignore_permissions=True)
