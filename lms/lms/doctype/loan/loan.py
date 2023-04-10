@@ -2504,7 +2504,13 @@ class Loan(Document):
             )
             # fcm_message = fcm_notification.message
             # fcm_message.replace("wef_date", (str(self.wef_date)))
-            message = fcm_notification.message.format(wef_date=(str(self.wef_date)))
+            message = fcm_notification.message.format(
+                wef_date=(
+                    datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime(
+                        "%d/%m/%Y"
+                    )
+                )
+            )
 
             sanction_letter_doc = frappe.get_all(
                 "Sanction Letter and CIAL Log",
