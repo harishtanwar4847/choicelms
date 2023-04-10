@@ -1274,6 +1274,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "is_default": self.is_default,
                 "base_interest": self.base_interest,
                 "rebate_interest": self.rebate_interest,
+                "sl_cial_entries": self.sl_entries,
                 # "old_interest": self.base_interest,
                 "custom_base_interest": self.base_interest,
                 "custom_rebate_interest": self.rebate_interest,

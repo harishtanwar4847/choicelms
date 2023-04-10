@@ -2433,6 +2433,8 @@ class Loan(Document):
             doc["district"] = perm_dist
             doc["state"] = perm_state
             doc["pincode"] = perm_pin
+            doc["base_interest"] = self.custom_base_interest
+            doc["old_interest_1"] = self.old_interest
             doc["wef_date"] = datetime.strptime(
                 str(self.wef_date), "%Y-%m-%d"
             ).strftime("%d/%m/%Y")
@@ -2512,16 +2514,16 @@ class Loan(Document):
                 )
             )
 
-            sanction_letter_doc = frappe.get_all(
+            sanction_letter_doc = frappe.db.get_value(
                 "Sanction Letter and CIAL Log",
-                filters={"loan": self.name},
-                fields=["*"],
+                {"loan": self.name},
+                "name",
             )
-            if sanction_letter_doc:
+            if sanction_letter_doc and not self.sl_cial_entries:
                 interest_letter = frappe.get_doc(
                     {
                         "doctype": "Interest Letter",
-                        "parent": sanction_letter_doc[0].name,
+                        "parent": sanction_letter_doc,
                         "parentfield": "interest_letter_table",
                         "parenttype": "Sanction Letter and CIAL Log",
                         "interest_letter": interest_letter_pdf,
@@ -2533,16 +2535,30 @@ class Loan(Document):
                     }
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-                frappe.db.set_value(
-                    "Loan", self.name, "sl_cial_entries", sanction_letter_doc[0].name
-                )
+                self.db_set("sl_cial_entries", sanction_letter_doc)
+
+            elif self.sl_cial_entries:
+                interest_letter = frappe.get_doc(
+                    {
+                        "doctype": "Interest Letter",
+                        "parent": sanction_letter_doc,
+                        "parentfield": "interest_letter_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "interest_letter": interest_letter_pdf,
+                        "date_of_acceptance": datetime.strptime(
+                            str(self.wef_date), "%Y-%m-%d"
+                        ).strftime("%d/%m/%Y"),
+                        "base_interest": self.custom_base_interest,
+                        "rebate_interest": self.custom_rebate_interest,
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
 
             else:
                 sanction_letter_doc = frappe.get_doc(
                     {"doctype": "Sanction Letter and CIAL Log", "loan": self.name}
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-
                 interest_letter = frappe.get_doc(
                     {
                         "doctype": "Interest Letter",
@@ -2558,9 +2574,7 @@ class Loan(Document):
                     }
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-                frappe.db.set_value(
-                    "Loan", self.name, "sl_cial_entries", sanction_letter_doc.name
-                )
+                self.db_set("sl_cial_entries", sanction_letter_doc)
 
             if fcm_notification:
                 lms.send_spark_push_notification(
