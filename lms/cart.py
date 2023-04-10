@@ -932,7 +932,7 @@ def get_tnc(**kwargs):
             },
             order_by="to_amount asc",
         )
-        if cart.loan:
+        if data.get("cart_name") and cart.loan:
             loan = frappe.get_doc("Loan", cart.loan)
             if loan.is_default == 0:
                 base_interest = loan.base_interest
@@ -941,6 +941,28 @@ def get_tnc(**kwargs):
                 int_config = frappe.get_doc("Interest Configuration", interest_config)
                 base_interest = int_config.base_interest
                 rebate_interest = int_config.rebait_interest
+        elif data.get("loan_renewal_name"):
+            renewal = frappe.get_doc(
+                "Spark Loan Renewal Application", data.get("loan_renewal_name")
+            )
+            loan = frappe.get_doc("Loan", renewal.loan)
+            if loan.is_default == 0:
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+            else:
+                int_config = frappe.get_doc("Interest Configuration", interest_config)
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+        elif data.get("loan_name") and data.get("topup_amount"):
+            loan = frappe.get_doc("Loan", renewal.loan)
+            if loan.is_default == 0:
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+            else:
+                int_config = frappe.get_doc("Interest Configuration", interest_config)
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+
         else:
             int_config = frappe.get_doc("Interest Configuration", interest_config)
             base_interest = int_config.base_interest
