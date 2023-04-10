@@ -98,44 +98,44 @@ class SparkLoanRenewalApplication(Document):
                 frappe.enqueue_doc(
                     "Notification", "Loan Renewal Application", method="send", doc=doc
                 )
-            elif self.status == "Approved":
-                self.sanction_letter(check=loan.name)
-                loan_email_message = frappe.db.sql(
-                    "select message from `tabNotification` where name ='Loan Renewal Application Approved';"
-                )[0][0]
-                loan_email_message = loan_email_message.replace(
-                    "fullname", doc.fullname
-                )
-                loan_email_message = loan_email_message.replace(
-                    "fullname", doc.fullname
-                )
-                loan_email_message = loan_email_message.replace(
-                    "logo_file",
-                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
-                )
-                loan_email_message = loan_email_message.replace(
-                    "fb_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
-                )
-                # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
-                loan_email_message = loan_email_message.replace(
-                    "inst_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
-                )
-                loan_email_message = loan_email_message.replace(
-                    "lin_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
-                )
-                attachments = ""
-                attachments = self.create_attachment()
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[customer.user],
-                    sender=None,
-                    subject="Loan Renewal Application",
-                    message=loan_email_message,
-                    attachments=attachments,
-                )
+            # elif self.status == "Approved":
+            #     self.sanction_letter(check=loan.name)
+            #     loan_email_message = frappe.db.sql(
+            #         "select message from `tabNotification` where name ='Loan Renewal Application Approved';"
+            #     )[0][0]
+            #     loan_email_message = loan_email_message.replace(
+            #         "fullname", doc.fullname
+            #     )
+            #     loan_email_message = loan_email_message.replace(
+            #         "fullname", doc.fullname
+            #     )
+            #     loan_email_message = loan_email_message.replace(
+            #         "logo_file",
+            #         frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+            #     )
+            #     loan_email_message = loan_email_message.replace(
+            #         "fb_icon",
+            #         frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+            #     )
+            #     # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+            #     loan_email_message = loan_email_message.replace(
+            #         "inst_icon",
+            #         frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+            #     )
+            #     loan_email_message = loan_email_message.replace(
+            #         "lin_icon",
+            #         frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+            #     )
+            #     attachments = ""
+            #     attachments = self.create_attachment()
+            #     frappe.enqueue(
+            #         method=frappe.sendmail,
+            #         recipients=[customer.user],
+            #         sender=None,
+            #         subject="Loan Renewal Application",
+            #         message=loan_email_message,
+            #         attachments=attachments,
+            #     )
 
             if (
                 self.status == "Loan Renewal accepted by Lender"
