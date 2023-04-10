@@ -408,8 +408,20 @@ class Cart(Document):
             },
             order_by="to_amount asc",
         )
+        if self.loan:
+            if loan.is_default == 0:
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+            else:
+                int_config = frappe.get_doc("Interest Configuration", interest_config)
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+        else:
+            int_config = frappe.get_doc("Interest Configuration", interest_config)
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
         int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
+        roi_ = round((base_interest * 12), 2)
         interest_charges_in_amount = int(
             lms.validate_rupees(
                 float(
@@ -473,7 +485,7 @@ class Cart(Document):
             ).title(),
             "roi": roi_,
             "default_interest": annual_default_interest,
-            "rebate_interest": int_config.rebait_interest,
+            "rebate_interest": rebate_interest,
             "rebait_threshold": lender.rebait_threshold,
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
