@@ -20,6 +20,17 @@ class SparkLoanRenewalApplication(Document):
         self.two_days_grace_period()
         las_settings = frappe.get_single("LAS Settings")
         loan = frappe.get_doc("Loan", self.loan)
+        if self.lender_esigned_document and self.status == "Esign Done":
+            file_name = frappe.db.get_value(
+                "File", {"file_url": self.lender_esigned_document}
+            )
+            file_ = frappe.get_doc("File", file_name)
+            if file_.is_private:
+                file_.is_private = 0
+                file_.save(ignore_permissions=True)
+                frappe.db.commit()
+                file_.reload()
+            self.lender_esigned_document = file_.file_url
         msg = ""
         current_year = int(frappe.utils.now_datetime().strftime("%Y"))
         if (
