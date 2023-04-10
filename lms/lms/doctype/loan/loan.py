@@ -1838,9 +1838,10 @@ class Loan(Document):
             if code:
                 items.amc_code = code[0].amc_code
 
-        if self.custom_base_interest <= float(
-            0
-        ) or self.custom_rebate_interest <= float(0):
+        if (
+            self.custom_base_interest <= float(0)
+            or self.custom_rebate_interest <= float(0)
+        ) and self.is_default == 0:
             frappe.throw("Base interest and Rebate Interest should be greater than 0")
 
         if type(self.wef_date) == str:

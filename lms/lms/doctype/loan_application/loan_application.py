@@ -1274,7 +1274,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "is_default": self.is_default,
                 "base_interest": self.base_interest,
                 "rebate_interest": self.rebate_interest,
-                "old_interest": self.base_interest,
+                # "old_interest": self.base_interest,
                 "custom_base_interest": self.base_interest,
                 "custom_rebate_interest": self.rebate_interest,
                 "wef_date": frappe.utils.now_datetime().date(),
