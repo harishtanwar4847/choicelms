@@ -2523,6 +2523,9 @@ class Loan(Document):
                     }
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
+                frappe.db.set_value(
+                    "Loan", self.name, "sl_cial_entries", sanction_letter_doc[0].name
+                )
 
             else:
                 sanction_letter_doc = frappe.get_doc(
@@ -2545,6 +2548,9 @@ class Loan(Document):
                     }
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
+                frappe.db.set_value(
+                    "Loan", self.name, "sl_cial_entries", sanction_letter_doc.name
+                )
 
             if fcm_notification:
                 lms.send_spark_push_notification(
