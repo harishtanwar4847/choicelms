@@ -1,5 +1,5 @@
 "ID","Title","Screen to Open","Notification Type","Message"
-"ROI Change","ROI Change","Dashboard","Success","Rate of Interest for your loan account has been revised w.e.f wef_date."
+"ROI Change","ROI Change","Dashboard","Success","Rate of Interest for your loan account has been revised w.e.f {wef_date}."
 "Loan Renewal Extension","Loan Renewal Extension","Dashboard","Warning","You got an extension!
 A grace period of 7 days has been given to your loan account."
 "Bank Rejected","Bank Rejected","Dashboard","Success","The request for linking your Bank account has been rejected."
