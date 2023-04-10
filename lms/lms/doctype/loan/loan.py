@@ -2499,8 +2499,9 @@ class Loan(Document):
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "ROI Change", fields=["*"]
             )
-            fcm_message = fcm_notification.message
-            fcm_message.replace("wef_date", (str(self.wef_date)))
+            # fcm_message = fcm_notification.message
+            # fcm_message.replace("wef_date", (str(self.wef_date)))
+            message = fcm_notification.message.format(wef_date=(str(self.wef_date)))
 
             sanction_letter_doc = frappe.get_all(
                 "Sanction Letter and CIAL Log",
@@ -2555,7 +2556,7 @@ class Loan(Document):
             if fcm_notification:
                 lms.send_spark_push_notification(
                     fcm_notification=fcm_notification,
-                    message=fcm_message,
+                    message=message,
                     loan=self.name,
                     customer=self.get_customer(),
                 )
