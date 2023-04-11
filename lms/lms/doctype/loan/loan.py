@@ -1105,18 +1105,18 @@ class Loan(Document):
 
                     # calculate daily base interest
                     base_interest = (
-                        self.base_interest
+                        self.old_interest
                         if self.wef_date >= wef_current_date
-                        else self.old_interest
+                        else self.base_interest
                     )
                     base_interest_daily = base_interest / num_of_days_in_month
                     base_amount = self.balance * base_interest_daily / 100
 
                     # calculate daily rebate interest
                     rebate_interest = (
-                        self.rebate_interest
+                        self.old_rebate_interest
                         if self.wef_date >= wef_current_date
-                        else self.old_rebate_interest
+                        else self.rebate_interest
                     )
                     rebate_interest_daily = rebate_interest / num_of_days_in_month
                     rebate_amount = self.balance * rebate_interest_daily / 100
