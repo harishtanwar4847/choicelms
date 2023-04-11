@@ -1677,6 +1677,7 @@ def renewal_timer(loan_renewal_name=None):
                 frappe.utils.now_datetime().date() > (exp + timedelta(days=7))
                 and frappe.utils.now_datetime().date() <= (exp + timedelta(days=14))
                 and user_kyc_pending
+                and loan.name not in ["SL000212"]
             ):
                 seconds = abs(
                     (date_7after_expiry + timedelta(days=7))
@@ -1693,7 +1694,11 @@ def renewal_timer(loan_renewal_name=None):
 
             elif renewal_doc and renewal_doc.new_kyc_name:
                 updated_kyc = frappe.get_doc("User KYC", renewal_doc.new_kyc_name)
-                if updated_kyc and updated_kyc.kyc_status == "Approved":
+                if (
+                    updated_kyc
+                    and updated_kyc.kyc_status == "Approved"
+                    and loan.name not in ["SL000212"]
+                ):
                     loan = frappe.get_doc("Loan", renewal_doc.loan)
                     # exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
                     is_expired_date = datetime.strptime(
@@ -1734,14 +1739,17 @@ def renewal_timer(loan_renewal_name=None):
                         )
 
             else:
-                seconds = 0
-                renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
-                frappe.db.set_value(
-                    "Spark Loan Renewal Application",
-                    renewal_doc.name,
-                    {"time_remaining": renewal_timer, "tnc_show": 1},
-                    update_modified=False,
-                )
+                if loan.name not in ["SL000212"]:
+                    seconds = 0
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+                    frappe.db.set_value(
+                        "Spark Loan Renewal Application",
+                        renewal_doc.name,
+                        {"time_remaining": renewal_timer, "tnc_show": 1},
+                        update_modified=False,
+                    )
 
         else:
             loans = frappe.get_all("Loan", fields=["*"])
