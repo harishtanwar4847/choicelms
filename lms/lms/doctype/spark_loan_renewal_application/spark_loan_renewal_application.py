@@ -244,13 +244,26 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                         kyc_doc = frappe.get_doc("User KYC", self.new_kyc_name)
                         kyc_doc.updated_kyc = 0
                         kyc_doc.save(ignore_permissions=True)
+                    wef_date = loan.wef_date
+                    if type(wef_date) is str:
+                        wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+                    custom_base_interest = (
+                        loan.old_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else loan.custom_base_interest
+                    )
+                    custom_rebate_interest = (
+                        loan.old_rebate_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else loan.custom_rebate_interest
+                    )
                     frappe.get_doc(
                         dict(
                             doctype="Spark Loan Renewal Application",
                             loan=loan.name,
                             lender=loan.lender,
-                            custom_base_interest=loan.custom_base_interest,
-                            custom_rebate_interest=loan.custom_base_interest,
+                            custom_base_interest=custom_base_interest,
+                            custom_rebate_interest=custom_rebate_interest,
                             is_default=loan.is_default,
                             old_kyc_name=customer.choice_kyc,
                             total_collateral_value=loan.total_collateral_value,
@@ -2344,6 +2357,19 @@ def renewal_doc_for_selected_customer():
                 "Spark Loan Renewal Application", filters={"loan": i}
             )
             if not existing_renewal_doc and len(loan.items) > 0:
+                wef_date = loan.wef_date
+                if type(wef_date) is str:
+                    wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+                custom_base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_base_interest
+                )
+                custom_rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_rebate_interest
+                )
                 renewal_doc = frappe.get_doc(
                     dict(
                         doctype="Spark Loan Renewal Application",
@@ -2355,8 +2381,8 @@ def renewal_doc_for_selected_customer():
                         drawing_power=loan.drawing_power,
                         customer=customer.name,
                         customer_name=customer.full_name,
-                        custom_base_interest=loan.custom_base_interest,
-                        custom_rebate_interest=loan.custom_rebate_interest,
+                        custom_base_interest=custom_base_interest,
+                        custom_rebate_interest=custom_rebate_interest,
                         remarks="",
                     )
                 ).insert(ignore_permissions=True)

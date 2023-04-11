@@ -1750,7 +1750,7 @@ def interest_configuration_permission_query(user):
     user_doc = frappe.get_doc("User", user).as_dict()
     if "Lender" in [r.role for r in user_doc.roles]:
         if user_doc.get("lender"):
-            return "((`tabInterest Configuration`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabInterest Configuration`._assign like '%{user_session}%')".format(
+            return "(`tabInterest Configuration`.lender = {lender} or `tabInterest Configuration`._assign like '%{user_session}%')".format(
                 lender=frappe.db.escape(user_doc.lender), user_session=user
             )
 
