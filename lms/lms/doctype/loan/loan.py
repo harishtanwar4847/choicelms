@@ -1067,7 +1067,7 @@ class Loan(Document):
             else:
                 input_date = frappe.utils.now_datetime()
 
-            wef_current_date = input_date
+            wef_current_date = input_date.date()
 
             if self.balance > 0:
                 if self.is_default == 1:
