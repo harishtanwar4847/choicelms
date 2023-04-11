@@ -123,7 +123,10 @@ class LoanTransaction(Document):
                 "Loan Transaction",
                 {
                     "loan": self.loan,
-                    "transaction_type": "Interest",
+                    "transaction_type": [
+                        "in",
+                        ["Interest", "Penal Interest", "Additional Interest"],
+                    ],
                     "unpaid_interest": [">", 0],
                 },
                 "name",
@@ -248,6 +251,19 @@ class LoanTransaction(Document):
                 else (self.time).strftime("%d-%m-%Y %H:%M"),
             }
             frappe.enqueue_doc("Notification", "Payment", method="send", doc=doc)
+            # msg = frappe.get_doc(
+            #     "Spark SMS Notification", "Payment credited to account"
+            # ).message.format(
+            #     self.loan,
+            #     self.amount,
+            #     loan.balance,
+            #     datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime(
+            #         "%d-%m-%Y %H:%M"
+            #     )
+            #     if type(self.time) == str
+            #     else (self.time).strftime("%d-%m-%Y %H:%M"),
+            # )
+
             msg = "Dear Customer,\nYou loan account {}  has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {} Spark Loans".format(
                 self.loan,
                 self.amount,
@@ -278,6 +294,7 @@ class LoanTransaction(Document):
             )
 
             if msg:
+                # lms.send_sms_notification(customer=self.get_customer(),msg=msg)
                 receiver_list = [str(self.get_customer().phone)]
                 if self.get_customer().get_kyc().mob_num:
                     receiver_list.append(str(self.get_customer().get_kyc().mob_num))
@@ -307,6 +324,20 @@ class LoanTransaction(Document):
             }
             frappe.enqueue_doc("Notification", "Withdrawal", method="send", doc=doc)
             if self.requested == self.disbursed:
+
+                # mess = frappe.get_doc(
+                #     "Spark SMS Notification", "Withdrawal succesful"
+                # ).message.format(
+                #     amount=self.amount,
+                #     disbursed=self.disbursed,
+                #     balance=loan.balance,
+                #     date_time=datetime.strptime(
+                #         self.time, "%Y-%m-%d %H:%M:%S.%f"
+                #     ).strftime("%d-%m-%Y %H:%M")
+                #     if type(self.time) == str
+                #     else (self.time).strftime("%d-%m-%Y %H:%M"),
+                # )
+                # lms.send_sms_notification(customer=self.get_customer(), msg=mess)
                 mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     amount=self.amount,
                     disbursed=self.disbursed,
@@ -324,6 +355,9 @@ class LoanTransaction(Document):
                 message = fcm_notification.message.format(amount=self.amount)
 
             elif self.disbursed < self.requested:
+                # mess = frappe.get_doc(
+                #     "Spark SMS Notification", "Partial withdrawal successful"
+                # ).message.format(requested=self.requested, disbursed=self.disbursed)
                 mess = "Dear Customer,\nYour withdrawal request for Rs. {requested}  has been partially executed and Rs. {disbursed}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     requested=self.requested, disbursed=self.disbursed
                 )
@@ -338,6 +372,7 @@ class LoanTransaction(Document):
                 )
 
             if mess:
+                # lms.send_sms_notification(customer=self.get_customer(),msg=mess)
                 frappe.enqueue(
                     method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
                 )
@@ -522,6 +557,10 @@ class LoanTransaction(Document):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()
             if self.status == "Rejected":
+                # mess = frappe.get_doc(
+                #     "Spark SMS Notification", "Withdrawal rejected"
+                # ).message
+                lms.send_sms_notification(customer=customer, msg=mess)
                 mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()

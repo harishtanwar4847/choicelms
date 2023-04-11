@@ -73,8 +73,7 @@
    "fieldname": "interest_configuration",
    "fieldtype": "Link",
    "label": "Interest Configuration",
-   "options": "Interest Configuration",
-   "reqd": 1
+   "options": "Interest Configuration"
   },
   {
    "fieldname": "base_interest",

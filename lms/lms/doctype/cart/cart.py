@@ -73,12 +73,97 @@ class Cart(Document):
             )
 
             application_type = "New Loan"
+            base_interest = ""
+            rebate_interest = ""
+            is_default = ""
             if self.loan and not self.loan_margin_shortfall:
                 application_type = "Increase Loan"
+                loan = frappe.get_doc("Loan", self.loan)
+                wef_date = loan.wef_date
+                if type(wef_date) is str:
+                    wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+
+                if loan.is_default == 0:
+                    base_interest = (
+                        loan.old_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else loan.custom_base_interest
+                    )
+                    rebate_interest = (
+                        loan.old_rebate_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else loan.custom_rebate_interest
+                    )
+                    is_default = loan.is_default
+                else:
+                    interest_config = frappe.get_value(
+                        "Interest Configuration",
+                        {
+                            "to_amount": [
+                                ">=",
+                                lms.validate_rupees(self.increased_sanctioned_limit),
+                            ],
+                        },
+                        order_by="to_amount asc",
+                    )
+                    int_config = frappe.get_doc(
+                        "Interest Configuration", interest_config
+                    )
+                    base_interest = (
+                        loan.old_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else int_config.base_interest
+                    )
+                    rebate_interest = (
+                        loan.old_rebate_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else int_config.rebait_interest
+                    )
+                    is_default = loan.is_default
+
             elif self.loan and self.loan_margin_shortfall:
                 application_type = "Margin Shortfall"
+                loan = frappe.get_doc("Loan", self.loan)
+                wef_date = loan.wef_date
+                if type(wef_date) is str:
+                    wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_rebate_interest
+                )
+                is_default = loan.is_default
+
             if not approved_tnc and self.loan and not self.loan_margin_shortfall:
                 application_type = "Pledge More"
+                loan = frappe.get_doc("Loan", self.loan)
+                if loan.is_default == 0:
+                    base_interest = loan.base_interest
+                    rebate_interest = loan.rebate_interest
+                    is_default = loan.is_default
+                else:
+                    interest_config = frappe.get_value(
+                        "Interest Configuration",
+                        {
+                            "to_amount": [
+                                ">=",
+                                lms.validate_rupees(self.increased_sanctioned_limit),
+                            ],
+                        },
+                        order_by="to_amount asc",
+                    )
+                    int_config = frappe.get_doc(
+                        "Interest Configuration", interest_config
+                    )
+                    base_interest = int_config.base_interest
+                    rebate_interest = int_config.rebait_interest
+                    is_default = loan.is_default
 
             items = []
             for item in self.items:
@@ -126,6 +211,11 @@ class Cart(Document):
                     "increased_sanctioned_limit": self.increased_sanctioned_limit,
                     "instrument_type": self.instrument_type,
                     "scheme_type": self.scheme_type,
+                    "base_interest": base_interest,
+                    "rebate_interest": rebate_interest,
+                    "is_default": is_default,
+                    "custom_base_interest": base_interest,
+                    "custom_rebate_interest": rebate_interest,
                 }
             ).insert(ignore_permissions=True)
 
@@ -351,7 +441,37 @@ class Cart(Document):
             order_by="to_amount asc",
         )
         int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
+        if self.loan:
+            wef_date = loan.wef_date
+            if type(wef_date) is str:
+                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+            if loan.is_default == 0:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_rebate_interest
+                )
+            else:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.rebait_interest
+                )
+
+        else:
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
+        roi_ = round((base_interest * 12), 2)
         interest_charges_in_amount = int(
             lms.validate_rupees(
                 float(
@@ -415,12 +535,15 @@ class Cart(Document):
             ).title(),
             "roi": roi_,
             "default_interest": annual_default_interest,
-            "rebate_interest": int_config.rebait_interest,
+            "rebate_interest": rebate_interest,
             "rebait_threshold": lender.rebait_threshold,
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
             "apr": apr,
+            "penal_charges": lender.renewal_penal_interest
+            if lender.renewal_penal_interest
+            else "",
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
             ),

@@ -238,5 +238,21 @@ class Lender(Document):
         return frappe.get_doc("File", file_name)
 
     def get_lender_logo_file(self):
-        file_name = frappe.db.get_value("File", {"file_url": self.logo_file_1})
+        file_name = frappe.db.get_value("File", {"file_url": self.lender_logo})
         return frappe.get_doc("File", file_name) if file_name else None
+
+    def get_interest_letter_template(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.interest_letter})
+        return frappe.get_doc("File", file_name)
+
+    def get_lender_address_file(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.lender_address})
+        return frappe.get_doc("File", file_name) if file_name else None
+
+    def before_save(self):
+        if (self.lender_logo and self.lender_header) or (
+            self.lender_address and self.lender_footer
+        ):
+            frappe.throw(_("Please attach image or html charaters. Cannot use both."))
+        elif self.lender_logo and self.is_html:
+            frappe.throw(_("Please uncheck Is html checkbox."))

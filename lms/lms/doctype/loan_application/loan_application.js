@@ -2,6 +2,34 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Loan Application", {
+  is_default: function (frm) {
+    if (frm.doc.is_default == 0) {
+      frm.set_value("custom_base_interest", 0);
+      frm.set_value("custom_rebate_interest", 0);
+    } else {
+      frm.set_df_property("custom_base_interest", "read_only", 1);
+      frm.set_df_property("custom_rebate_interest", "read_only", 1);
+    }
+  },
+
+  on_load: function (frm) {
+    frappe.call({
+      method:
+        "lms.lms.doctype.loan_application.loan_application.check_for_pledge_failure",
+      freeze: true,
+      args: {
+        la_name: frm.doc.name,
+      },
+      callback: (res) => {
+        if (res.message == "Pledge Failure") {
+          frm.set_df_property("is_default", "read_only", 1);
+          frm.set_df_property("custom_base_interest", "read_only", 1);
+          frm.set_df_property("custom_rebate_interest", "read_only", 1);
+        }
+      },
+    });
+  },
+
   refresh: function (frm) {
     if (frm.doc.status != "Waiting to be pledged") {
       frm.get_field("items").grid.only_sortable();

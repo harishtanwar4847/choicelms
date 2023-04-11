@@ -694,6 +694,7 @@ def get_tnc(**kwargs):
             {
                 "cart_name": "",
                 "loan_name": "",
+                "loan_renewal_name": "",
                 "topup_amount": [lambda x: type(x) == float],
             },
             # {"cart_name": ""},
@@ -714,17 +715,31 @@ def get_tnc(**kwargs):
         user_kyc = lms.__user_kyc()
         user = lms.__user()
 
-        if data.get("cart_name") and data.get("loan_name"):
+        if (
+            data.get("cart_name")
+            and data.get("loan_name")
+            and data.get("loan_renewal_name")
+            or data.get("cart_name")
+            and data.get("loan_name")
+            or data.get("loan_name")
+            and data.get("loan_renewal_name")
+            or data.get("cart_name")
+            and data.get("loan_renewal_name")
+        ):
             # return utils.respondForbidden(
             #     message=frappe._(
             #         "Can not use both application at once, please use one."
             #     )
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Can not use both application at once, please use one.")
+                _("Can not use multiple application at once, please use one.")
             )
 
-        elif not data.get("cart_name") and not data.get("loan_name"):
+        elif (
+            not data.get("cart_name")
+            and not data.get("loan_name")
+            and not data.get("loan_renewal_name")
+        ):
             # if not data.get("cart_name"):
             # return utils.respondForbidden(
             #     message=frappe._(
@@ -733,7 +748,9 @@ def get_tnc(**kwargs):
             #     )
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Cart and Loan not found. Please use atleast one.")
+                _(
+                    "Cart, Loan and Loan Renewal Application not found. Please use atleast one."
+                )
             )
 
         if data.get("cart_name"):
@@ -757,6 +774,34 @@ def get_tnc(**kwargs):
             lender = frappe.get_doc("Lender", cart.lender)
             if cart.loan:
                 loan = frappe.get_doc("Loan", cart.loan)
+
+        elif data.get("loan_renewal_name"):
+            if data.get("topup_amount"):
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Do not enter topup amount for Cart."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Do not enter topup amount for Loan Renewal.")
+                )
+            renewal = frappe.get_doc(
+                "Spark Loan Renewal Application", data.get("loan_renewal_name")
+            )
+            if not renewal:
+                # return utils.respondNotFound(message=frappe._("Cart not found."))
+                raise lms.exceptions.NotFoundException(
+                    _("Loan Renewal Application not found")
+                )
+            if renewal.customer != customer.name:
+                # return utils.respondForbidden(
+                #     message=frappe._("Please use your own cart.")
+                # )
+                raise lms.exceptions.ForbiddenException(
+                    _("Please use your own Loan Renewal Application")
+                )
+            lender = frappe.get_doc("Lender", renewal.lender)
+            if renewal.loan:
+                loan = frappe.get_doc("Loan", renewal.loan)
 
         else:
             if not data.get("topup_amount"):
@@ -888,7 +933,96 @@ def get_tnc(**kwargs):
             order_by="to_amount asc",
         )
         int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = int_config.base_interest * 12
+        if data.get("cart_name") and cart.loan:
+            loan = frappe.get_doc("Loan", cart.loan)
+            wef_date = loan.wef_date
+            if type(wef_date) is str:
+                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+            if loan.is_default == 0:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_rebate_interest
+                )
+            else:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.rebait_interest
+                )
+
+        elif data.get("loan_renewal_name"):
+            renewal = frappe.get_doc(
+                "Spark Loan Renewal Application", data.get("loan_renewal_name")
+            )
+            loan = frappe.get_doc("Loan", renewal.loan)
+            wef_date = loan.wef_date
+            if type(wef_date) is str:
+                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+            if loan.is_default == 0:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_rebate_interest
+                )
+            else:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.rebait_interest
+                )
+        elif data.get("loan_name") and data.get("topup_amount"):
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
+            wef_date = loan.wef_date
+            if type(wef_date) is str:
+                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+            if loan.is_default == 0:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_rebate_interest
+                )
+            else:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.rebait_interest
+                )
+
+        else:
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
+        roi_ = base_interest * 12
         # diff = lms.diff_in_months(frappe.)
         charges = lms.charges_for_apr(lender.name, lms.validate_rupees(diff))
         apr = lms.calculate_apr(
@@ -956,8 +1090,10 @@ def get_tnc(**kwargs):
             )
         tnc_ul.append("<li><strong> Interest type </strong>: Fixed</li>")
         tnc_ul.append(
-            "<li><strong> Rate of interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>{} days</strong> of due date. Otherwise rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on the Management discretion from time to time];".format(
-                int_config.base_interest, lender.rebait_threshold
+            "<li><strong> Rate of interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>{} days</strong> of due date. Otherwise rebate of <strong>{}%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on the Management discretion from time to time];".format(
+                base_interest,
+                lender.rebait_threshold,
+                rebate_interest,
             )
             + "</li>"
         )

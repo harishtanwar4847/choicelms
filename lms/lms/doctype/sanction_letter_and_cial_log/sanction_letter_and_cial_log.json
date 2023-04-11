@@ -6,7 +6,8 @@
  "engine": "InnoDB",
  "field_order": [
   "loan",
-  "sl_table"
+  "sl_table",
+  "interest_letter_table"
  ],
  "fields": [
   {
@@ -21,6 +22,12 @@
    "fieldtype": "Table",
    "label": "SL Table",
    "options": "Sanction Letter Entries"
+  },
+  {
+   "fieldname": "interest_letter_table",
+   "fieldtype": "Table",
+   "label": "Interest Letter",
+   "options": "Interest Letter"
   }
  ],
  "index_web_pages_for_search": 1,

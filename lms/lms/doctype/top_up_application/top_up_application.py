@@ -134,6 +134,27 @@ class TopupApplication(Document):
             return
         self.notify_customer()
 
+        loan = self.get_loan()
+        lender = self.get_lender()
+        if self.status == "Approved":
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={
+                    "loan": loan.name,
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+            for doc in renewal_list:
+                renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
+                renewal_doc.status = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
+                renewal_doc.remarks = (
+                    "Rejected due to Approval of Top-up/Increase Loan Application"
+                )
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
     def before_submit(self):
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
@@ -167,64 +188,6 @@ class TopupApplication(Document):
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
-
-    # def create_tnc_file(self):
-    #     lender = self.get_lender()
-    #     customer = self.get_customer()
-    #     user_kyc = customer.get_kyc()
-    #     loan = self.get_loan()
-
-    #     doc = {
-    #         "esign_date": "__________",
-    #         "loan_application_number": self.loan,
-    #         "borrower_name": user_kyc.investor_name,
-    #         "borrower_address": user_kyc.address,
-    #         # "sanctioned_amount": self.top_up_amount,
-    #         # "sanctioned_amount_in_words": num2words(
-    #         #     self.top_up_amount, lang="en_IN"
-    #         # ).title(),
-    #         "sanctioned_amount": (self.top_up_amount + loan.sanctioned_limit),
-    #         "sanctioned_amount_in_words": num2words(
-    #             (self.top_up_amount + loan.sanctioned_limit), lang="en_IN"
-    #         ).title(),
-    #         "old_sanctioned_amount": loan.sanctioned_limit,
-    #         "old_sanctioned_amount_in_words": num2words(
-    #             loan.sanctioned_limit, lang="en_IN"
-    #         ).title(),
-    #         "rate_of_interest": lender.rate_of_interest,
-    #         "default_interest": lender.default_interest,
-    #         "account_renewal_charges": lender.account_renewal_charges,
-    #         "documentation_charges": lender.documentation_charges,
-    #         # "stamp_duty_charges": (lender.stamp_duty / 100)
-    #         # * self.sanctioned_limit,  # CR loan agreement changes
-    #         "processing_fee": lender.lender_processing_fees,
-    #         "transaction_charges_per_request": lender.transaction_charges_per_request,
-    #         "security_selling_share": lender.security_selling_share,
-    #         "cic_charges": lender.cic_charges,
-    #         "total_pages": lender.total_pages,
-    #     }
-
-    #     agreement_template = lender.get_loan_enhancement_agreement_template()
-
-    #     agreement = frappe.render_template(
-    #         agreement_template.get_content(), {"doc": doc}
-    #     )
-
-    #     from frappe.utils.pdf import get_pdf
-
-    #     agreement_pdf = get_pdf(agreement)
-
-    #     tnc_dir_path = frappe.utils.get_files_path("tnc")
-    #     import os
-
-    #     if not os.path.exists(tnc_dir_path):
-    #         os.mkdir(tnc_dir_path)
-    #     tnc_file = "tnc/{}.pdf".format(self.loan)
-    #     tnc_file_path = frappe.utils.get_files_path(tnc_file)
-
-    #     with open(tnc_file_path, "wb") as f:
-    #         f.write(agreement_pdf)
-    #     f.close()
 
     def esign_request(self):
         customer = self.get_customer()
@@ -309,7 +272,37 @@ class TopupApplication(Document):
             order_by="to_amount asc",
         )
         int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
+        if self.loan:
+            wef_date = loan.wef_date
+            if type(wef_date) is str:
+                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+
+            if loan.is_default == 0:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else loan.custom_rebate_interest
+                )
+            else:
+                base_interest = (
+                    loan.old_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.base_interest
+                )
+                rebate_interest = (
+                    loan.old_rebate_interest
+                    if wef_date >= frappe.utils.now_datetime().date()
+                    else int_config.rebait_interest
+                )
+        else:
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
+        roi_ = round((base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(self.top_up_amount))
         )
@@ -369,8 +362,11 @@ class TopupApplication(Document):
             ),
             "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
-            "rebate_interest": int_config.rebait_interest,
+            "rebate_interest": rebate_interest,
             "default_interest": annual_default_interest,
+            "penal_charges": lender.renewal_penal_interest
+            if lender.renewal_penal_interest
+            else "",
             "rebait_threshold": lender.rebait_threshold,
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
@@ -561,6 +557,9 @@ class TopupApplication(Document):
             )
 
         if doc.get("top_up_application").get("status") == "Approved":
+            # mess = frappe.get_doc(
+            #     "Spark SMS Notification", "Loan account topped up"
+            # ).message
             mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
 
             fcm_notification = frappe.get_doc(
@@ -571,6 +570,7 @@ class TopupApplication(Document):
         if doc.get("top_up_application").get("status") == "Rejected":
             # mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
 
+            # mess = frappe.get_doc("Spark SMS Notification", "Top Up rejected").message
             mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
             fcm_notification = frappe.get_doc(
@@ -579,6 +579,7 @@ class TopupApplication(Document):
             loan = self.loan
 
         if mess:
+            # lms.send_sms_notification(customer=self.get_customer,msg=mess)
             receiver_list = [str(self.get_customer().phone)]
             if doc.mob_num:
                 receiver_list.append(str(doc.mob_num))
@@ -641,11 +642,11 @@ class TopupApplication(Document):
 
     def before_save(self):
         loan = self.get_loan()
+        lender = self.get_lender()
         self.actual_drawing_power = loan.actual_drawing_power
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         self.sanctioned_limit = loan.sanctioned_limit
-        lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
         user_roles = frappe.db.get_values(
@@ -735,7 +736,37 @@ class TopupApplication(Document):
                 order_by="to_amount asc",
             )
             int_config = frappe.get_doc("Interest Configuration", interest_config)
-            roi_ = round((int_config.base_interest * 12), 2)
+            if self.loan:
+                wef_date = loan.wef_date
+                if type(wef_date) is str:
+                    wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+
+                if loan.is_default == 0:
+                    base_interest = (
+                        loan.old_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else loan.custom_base_interest
+                    )
+                    rebate_interest = (
+                        loan.old_rebate_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else loan.custom_rebate_interest
+                    )
+                else:
+                    base_interest = (
+                        loan.old_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else int_config.base_interest
+                    )
+                    rebate_interest = (
+                        loan.old_rebate_interest
+                        if wef_date >= frappe.utils.now_datetime().date()
+                        else int_config.rebait_interest
+                    )
+            else:
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+            roi_ = round((base_interest * 12), 2)
             charges = lms.charges_for_apr(
                 lender.name, lms.validate_rupees(float(self.top_up_amount))
             )
@@ -791,8 +822,11 @@ class TopupApplication(Document):
                 ),
                 "loan_application_no": self.name,
                 "rate_of_interest": lender.rate_of_interest,
-                "rebate_interest": int_config.rebait_interest,
+                "rebate_interest": rebate_interest,
                 "default_interest": annual_default_interest,
+                "penal_charges": lender.renewal_penal_interest
+                if lender.renewal_penal_interest
+                else "",
                 "rebait_threshold": lender.rebait_threshold,
                 "interest_charges_in_amount": frappe.utils.fmt_money(
                     interest_charges_in_amount
