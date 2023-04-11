@@ -2524,10 +2524,13 @@ class Loan(Document):
                 )
             )
 
-            sanction_letter_doc = frappe.db.get_value(
+            sanction_letter = frappe.db.get_value(
                 "Sanction Letter and CIAL Log",
                 {"loan": self.name},
                 "name",
+            )
+            sanction_letter_doc = frappe.get_doc(
+                "Sanction Letter and CIAL Log", sanction_letter
             )
             if sanction_letter_doc and not self.sl_cial_entries:
                 interest_letter = frappe.get_doc(
@@ -2543,7 +2546,9 @@ class Loan(Document):
                         "base_interest": self.custom_base_interest,
                         "rebate_interest": self.custom_rebate_interest,
                     }
-                ).insert(ignore_permissions=True)
+                )
+                sanction_letter_doc.append("interest_letter_table", interest_letter)
+                sanction_letter_doc.save(ignore_permissions=True)
                 frappe.db.commit()
                 self.db_set("sl_cial_entries", sanction_letter_doc)
 
@@ -2561,7 +2566,9 @@ class Loan(Document):
                         "base_interest": self.custom_base_interest,
                         "rebate_interest": self.custom_rebate_interest,
                     }
-                ).insert(ignore_permissions=True)
+                )
+                sanction_letter_doc.append("interest_letter_table", interest_letter)
+                sanction_letter_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
             else:
@@ -2605,7 +2612,7 @@ class Loan(Document):
         except Exception:
             frappe.log_error(
                 message=frappe.get_traceback() + "\nLoan : {}".format(self.name),
-                title=(_("Notify Customer failed in Loan")),
+                title=(("Notify Customer failed in Loan")),
             )
 
     def update_ltv(self):

@@ -963,7 +963,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         ):
             renewal_list = frappe.get_all(
                 "Spark Loan Renewal Application",
-                filters={"loan": self.loan, "status": ["Not IN", "Rejected"]},
+                filters={
+                    "loan": self.loan,
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
                 fields=["name"],
             )
             if renewal_list:
