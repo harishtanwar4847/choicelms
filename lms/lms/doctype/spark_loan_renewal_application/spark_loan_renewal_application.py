@@ -2116,6 +2116,38 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
             frappe.db.commit()
 
         for doc in existing_renewal_doc_list:
+            frappe.log_error(
+                message=(
+                    "exp == frappe.utils.now_datetime().date() + timedelta(days=9) : {}".format(
+                        str(
+                            exp
+                            == frappe.utils.now_datetime().date() + timedelta(days=9)
+                        )
+                    )
+                )
+                + "\nexp : {}".format(str(exp))
+                + "\nfrappe.utils.now_datetime().date() + timedelta(days=9)) : {}".format(
+                    str(frappe.utils.now_datetime().date() + timedelta(days=9))
+                ),
+                title=_("reminder error log - Update Doc"),
+            )
+
+            frappe.log_error(
+                message=(
+                    "exp == frappe.utils.now_datetime().date() + timedelta(days=2) : {}".format(
+                        str(
+                            exp
+                            == frappe.utils.now_datetime().date() + timedelta(days=2)
+                        )
+                    )
+                )
+                + "\nexp : {}".format(str(exp))
+                + "\nexp == frappe.utils.now_datetime().date() + timedelta(days=2) : {}".format(
+                    str(exp == frappe.utils.now_datetime().date() + timedelta(days=2))
+                ),
+                title=_("reminder error log - Update Doc"),
+            )
+
             if exp == frappe.utils.now_datetime().date() + timedelta(days=19):
                 renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
                 if doc.reminders == 1:
