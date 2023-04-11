@@ -2118,7 +2118,8 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
         for doc in existing_renewal_doc_list:
             frappe.log_error(
                 message=(
-                    "exp == frappe.utils.now_datetime().date() + timedelta(days=9) : {}".format(
+                    "loan name : {}".format(loan_name)
+                    + "\nexp == frappe.utils.now_datetime().date() + timedelta(days=9) : {}".format(
                         str(
                             exp
                             == frappe.utils.now_datetime().date() + timedelta(days=9)
@@ -2134,7 +2135,8 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 
             frappe.log_error(
                 message=(
-                    "exp == frappe.utils.now_datetime().date() + timedelta(days=2) : {}".format(
+                    "loan name : {}".format(loan_name)
+                    + "\nexp == frappe.utils.now_datetime().date() + timedelta(days=2) : {}".format(
                         str(
                             exp
                             == frappe.utils.now_datetime().date() + timedelta(days=2)
