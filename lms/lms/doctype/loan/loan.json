@@ -45,12 +45,12 @@
   "day_past_due",
   "custom_roi_section",
   "custom_base_interest",
+  "old_interest",
   "wef_date",
   "is_default",
   "column_break_40",
   "custom_rebate_interest",
-  "old_interest",
-  "amended_from"
+  "old_rebate_interest"
  ],
  "fields": [
   {
@@ -282,7 +282,7 @@
    "fieldname": "wef_date",
    "fieldtype": "Date",
    "label": "w.e.f date",
-   "reqd": 1    
+   "reqd": 1
   },
   {
    "fieldname": "custom_base_interest",
@@ -297,14 +297,6 @@
    "label": "Custom Rebate Interest",
    "mandatory_depends_on": "eval:doc.is_default == 0;",
    "read_only_depends_on": "eval:doc.is_default == 1;"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Loan",
-   "print_hide": 1
   },
   {
    "fieldname": "available_topup_amt",
@@ -327,13 +319,19 @@
   {
    "fieldname": "old_interest",
    "fieldtype": "Float",
-   "label": "Old Interest",
+   "label": "Old Base Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "old_rebate_interest",
+   "fieldtype": "Float",
+   "label": "Old Rebate Interest",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-03 19:33:40.761703",
+ "modified": "2023-04-11 11:24:34.049248",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

@@ -1102,11 +1102,21 @@ class Loan(Document):
                     ).day
 
                     # calculate daily base interest
-                    base_interest_daily = self.base_interest / num_of_days_in_month
+                    base_interest = (
+                        self.base_interest
+                        if self.wef_date >= frappe.utils.now_datetime().date()
+                        else self.old_interest
+                    )
+                    base_interest_daily = base_interest / num_of_days_in_month
                     base_amount = self.balance * base_interest_daily / 100
 
                     # calculate daily rebate interest
-                    rebate_interest_daily = self.rebate_interest / num_of_days_in_month
+                    rebate_interest = (
+                        self.rebate_interest
+                        if self.wef_date >= frappe.utils.now_datetime().date()
+                        else self.old_rebate_interest
+                    )
+                    rebate_interest_daily = rebate_interest / num_of_days_in_month
                     rebate_amount = self.balance * rebate_interest_daily / 100
 
                     virtual_interest_doc = frappe.get_doc(
@@ -1115,8 +1125,8 @@ class Loan(Document):
                             "lender": self.lender,
                             "loan": self.name,
                             "time": input_date,
-                            "base_interest": self.base_interest,
-                            "rebate_interest": self.rebate_interest,
+                            "base_interest": base_interest,
+                            "rebate_interest": rebate_interest,
                             "base_amount": base_amount,
                             "rebate_amount": rebate_amount,
                             "loan_balance": self.balance,
@@ -1923,8 +1933,8 @@ class Loan(Document):
                             )
                         )
                     else:
-                        old_interest_rate = self.old_interest
                         self.old_interest = self.base_interest
+                        self.old_rebate_interest = self.rebate_interest
                         self.base_interest = self.custom_base_interest
                         self.rebate_interest = self.custom_rebate_interest
                         self.notify_customer_roi()
