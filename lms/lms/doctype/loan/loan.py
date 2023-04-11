@@ -1067,6 +1067,8 @@ class Loan(Document):
             else:
                 input_date = frappe.utils.now_datetime()
 
+            wef_current_date = input_date
+
             if self.balance > 0:
                 if self.is_default == 1:
                     interest_configuration = frappe.db.get_value(
@@ -1104,7 +1106,7 @@ class Loan(Document):
                     # calculate daily base interest
                     base_interest = (
                         self.base_interest
-                        if self.wef_date >= frappe.utils.now_datetime().date()
+                        if self.wef_date >= wef_current_date
                         else self.old_interest
                     )
                     base_interest_daily = base_interest / num_of_days_in_month
@@ -1113,7 +1115,7 @@ class Loan(Document):
                     # calculate daily rebate interest
                     rebate_interest = (
                         self.rebate_interest
-                        if self.wef_date >= frappe.utils.now_datetime().date()
+                        if self.wef_date >= wef_current_date
                         else self.old_rebate_interest
                     )
                     rebate_interest_daily = rebate_interest / num_of_days_in_month
