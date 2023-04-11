@@ -16,6 +16,8 @@ def execute():
                     "rebate_interest": 0.2,
                     "custom_base_interest": 1.24,
                     "custom_rebate_interest": 0.2,
+                    "old_interest": 1.24,
+                    "old_rebate_interest": 0.2,
                     "wef_date": frappe.utils.now_datetime().date(),
                 },
                 update_modified=False,

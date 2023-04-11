@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [v5.16.0] - 2023-04-11
+
+## Added
+
+- [SPRK-48 - Loan Renewal and Custom ROI](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/582)
+
+## [Unreleased]
+
 ## [v5.15.0] - 2023-03-30
 
 ## Added
