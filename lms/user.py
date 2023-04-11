@@ -2370,24 +2370,6 @@ def loan_summary_dashboard(**kwargs):
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
                     )
-
-                if (
-                    extended_two_days
-                    and date_1
-                    and frappe.utils.now_datetime() < extended_two_days
-                ):
-                    loan_renewal_doc.tnc_show = 1
-                    frappe.log_error(
-                        message=frappe.get_traceback(),
-                        title=(
-                            _(
-                                "loan_renewal_doc.tnc_show".format(
-                                    loan_renewal_doc.tnc_show
-                                )
-                            )
-                        ),
-                    )
-
                 loan_renewal_doc.time_remaining = renewal_timer
                 loan_renewal_doc.action_status = action_status
 
@@ -2396,6 +2378,12 @@ def loan_summary_dashboard(**kwargs):
                 )
                 str_exp = str_exp.replace("-", "/")
                 loan_renewal_doc.expiry_date = str_exp
+                if loan.name in ["SL000004", "SL000026"]:
+                    str_exp = datetime.strptime(
+                        str(frappe.utils.now_datetime().date() + timedelta(7)),
+                        "%Y-%m-%d",
+                    ).strftime("%d/%m/%Y")
+                    loan_renewal_doc.expiry_date = str_exp
 
                 loan_renewal_doc_list.append(loan_renewal_doc)
             if loan.sl_cial_entries:

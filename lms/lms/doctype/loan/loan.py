@@ -2187,12 +2187,33 @@ class Loan(Document):
             },
             order_by="to_amount asc",
         )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        wef_date = self.wef_date
+        if type(wef_date) is str:
+            wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
         if self.is_default == 0:
-            base_interest = self.base_interest
-            rebate_interest = self.rebate_interest
+            base_interest = (
+                self.old_interest
+                if wef_date >= frappe.utils.now_datetime().date()
+                else self.custom_base_interest
+            )
+            rebate_interest = (
+                self.old_rebate_interest
+                if wef_date >= frappe.utils.now_datetime().date()
+                else self.custom_rebate_interest
+            )
         else:
-            base_interest = self.base_interest
-            rebate_interest = self.rebate_interest
+            base_interest = (
+                self.old_interest
+                if wef_date >= frappe.utils.now_datetime().date()
+                else int_config.base_interest
+            )
+            rebate_interest = (
+                self.old_rebate_interest
+                if wef_date >= frappe.utils.now_datetime().date()
+                else int_config.rebait_interest
+            )
+
         roi_ = round((base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(topup_amount))
