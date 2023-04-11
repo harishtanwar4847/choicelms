@@ -303,124 +303,126 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                 title=_("Loan Renewal Application - Customer Notification "),
             )
 
-    def on_submit(self):
-        las_settings = frappe.get_single("LAS Settings")
-        lender = frappe.get_doc("Lender", self.lender)
-        loan = self.get_loan()
-        loan_renewal_charges = lender.renewal_charges
-        customer = frappe.get_doc("Loan Customer", self.customer)
-        doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-        doc["loan_renewal_application"] = {
-            "status": self.status,
-            "lr_accepted_by_lender": self.lr_accepted_by_lender,
-        }
+    def on_update(self):
+        frappe.log_error(message="Mi alo baher")
+        if self.status == "Approved":
+            frappe.log_error(message="Mi alo")
+            las_settings = frappe.get_single("LAS Settings")
+            lender = frappe.get_doc("Lender", self.lender)
+            loan = self.get_loan()
+            loan_renewal_charges = lender.renewal_charges
+            customer = frappe.get_doc("Loan Customer", self.customer)
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+            doc["loan_renewal_application"] = {
+                "status": self.status,
+                "lr_accepted_by_lender": self.lr_accepted_by_lender,
+            }
 
-        if lender.renewal_charge_type == "Percentage":
-            amount = (loan_renewal_charges / 100) * self.drawing_power
-            loan_renewal_charges = loan.validate_loan_charges_amount(
-                lender,
-                amount,
-                "renewal_minimum_amount",
-                "renewal_maximum_amount",
+            if lender.renewal_charge_type == "Percentage":
+                amount = (loan_renewal_charges / 100) * self.drawing_power
+                loan_renewal_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "renewal_minimum_amount",
+                    "renewal_maximum_amount",
+                )
+            loan.create_loan_transaction(
+                transaction_type="Account Renewal Charges",
+                amount=loan_renewal_charges,
+                approve=True,
             )
-        loan.create_loan_transaction(
-            transaction_type="Account Renewal Charges",
-            amount=loan_renewal_charges,
-            approve=True,
-        )
-        frappe.db.commit()
-        loan_email_message = frappe.db.sql(
-            "select message from `tabNotification` where name ='Loan Renewal Application Approved';"
-        )[0][0]
-        loan_email_message = loan_email_message.replace("fullname", doc.fullname)
-        loan_email_message = loan_email_message.replace("fullname", doc.fullname)
-        loan_email_message = loan_email_message.replace(
-            "logo_file",
-            frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
-        )
-        loan_email_message = loan_email_message.replace(
-            "fb_icon",
-            frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
-        )
-        # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
-        loan_email_message = loan_email_message.replace(
-            "inst_icon",
-            frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
-        )
-        loan_email_message = loan_email_message.replace(
-            "lin_icon",
-            frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
-        )
-        attachments = ""
-        attachments = self.create_attachment()
-        frappe.enqueue(
-            method=frappe.sendmail,
-            recipients=[customer.user],
-            sender=None,
-            subject="Loan Renewal Application",
-            message=loan_email_message,
-            attachments=attachments,
-        )
-        current_year = int(frappe.utils.now_datetime().strftime("%Y"))
-        if (
-            (current_year % 400 == 0)
-            or (current_year % 100 != 0)
-            and (current_year % 4 == 0)
-        ):
-            no_of_days = 366
-        # Else it is not a leap year
-        else:
-            no_of_days = 365
-
-        expiry_date = loan.expiry_date + timedelta(days=no_of_days)
-        loan.reload()
-        # loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
-        # loan.base_interest = self.base_interest
-        # loan.rebate_interest = self.rebate_interest
-        # loan.wef_date = frappe.utils.now_datetime().date()
-        # loan.save(ignore_permissions=True)
-        # frappe.db.commit()
-        frappe.db.set_value(
-            "Loan",
-            self.loan,
-            {
-                "expiry_date": expiry_date,
-                "base_interest": self.base_interest,
-                "rebate_interest": self.rebate_interest,
-                "wef_date": frappe.utils.now_datetime().date(),
-                "old_interest": loan.base_interest,
-                "old_rebate_interest": loan.rebate_interest,
-            },
-        )
-        msg = """Dear Customer,
-        Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans
-        """.format(
-            link=las_settings.app_login_dashboard
-        )
-        fcm_notification = frappe.get_doc(
-            "Spark Push Notification",
-            "Loan Renewal approved",
-            fields=["*"],
-        )
-        send_spark_push_notification(
-            fcm_notification=fcm_notification,
-            loan=loan.name,
-            customer=customer,
-        )
-        if msg:
-            frappe.log_error(
-                message=self.name,
-                title=_("Loan Renewal Application - after msg"),
+            frappe.db.commit()
+            loan_email_message = frappe.db.sql(
+                "select message from `tabNotification` where name ='Loan Renewal Application Approved';"
+            )[0][0]
+            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
+            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
+            loan_email_message = loan_email_message.replace(
+                "logo_file",
+                frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
             )
-            receiver_list = [str(customer.phone)]
-            if customer.get_kyc().mob_num:
-                receiver_list.append(str(customer.get_kyc().mob_num))
-            if customer.get_kyc().choice_mob_no:
-                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+            loan_email_message = loan_email_message.replace(
+                "fb_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+            )
+            # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+            loan_email_message = loan_email_message.replace(
+                "inst_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+            )
+            loan_email_message = loan_email_message.replace(
+                "lin_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+            )
+            attachments = self.create_attachment()
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[customer.user],
+                sender=None,
+                subject="Loan Renewal Application",
+                message=loan_email_message,
+                attachments=attachments,
+            )
+            current_year = int(frappe.utils.now_datetime().strftime("%Y"))
+            if (
+                (current_year % 400 == 0)
+                or (current_year % 100 != 0)
+                and (current_year % 4 == 0)
+            ):
+                no_of_days = 366
+            # Else it is not a leap year
+            else:
+                no_of_days = 365
 
-            receiver_list = list(set(receiver_list))
+            expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+            loan.reload()
+            # loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+            # loan.base_interest = self.base_interest
+            # loan.rebate_interest = self.rebate_interest
+            # loan.wef_date = frappe.utils.now_datetime().date()
+            # loan.save(ignore_permissions=True)
+            # frappe.db.commit()
+            frappe.db.set_value(
+                "Loan",
+                self.loan,
+                {
+                    "expiry_date": expiry_date,
+                    "base_interest": self.base_interest,
+                    "rebate_interest": self.rebate_interest,
+                    "wef_date": frappe.utils.now_datetime().date(),
+                    "old_interest": loan.base_interest,
+                    "old_rebate_interest": loan.rebate_interest,
+                },
+            )
+            msg = """Dear Customer,
+            Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans
+            """.format(
+                link=las_settings.app_login_dashboard
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Loan Renewal approved",
+                fields=["*"],
+            )
+            send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                loan=loan.name,
+                customer=customer,
+            )
+            if msg:
+                frappe.log_error(
+                    message=self.name,
+                    title=_("Loan Renewal Application - after msg"),
+                )
+                receiver_list = [str(customer.phone)]
+                if customer.get_kyc().mob_num:
+                    receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                receiver_list = list(set(receiver_list))
+
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
     def create_attachment(self):
         attachments = []
