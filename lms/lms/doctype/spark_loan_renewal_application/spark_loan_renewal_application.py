@@ -304,10 +304,9 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
             )
 
     def on_submit(self):
-        print("ladksdsd")
         las_settings = frappe.get_single("LAS Settings")
         lender = frappe.get_doc("Lender", self.lender)
-        loan = frappe.get_doc("Loan", self.loan)
+        loan = self.get_loan()
         loan_renewal_charges = lender.renewal_charges
         customer = frappe.get_doc("Loan Customer", self.customer)
         doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
@@ -329,6 +328,7 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
             amount=loan_renewal_charges,
             approve=True,
         )
+        frappe.db.commit()
         loan_email_message = frappe.db.sql(
             "select message from `tabNotification` where name ='Loan Renewal Application Approved';"
         )[0][0]
@@ -372,8 +372,9 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
         else:
             no_of_days = 365
 
-        # loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
         expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+        loan.reload()
+        # loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
         # loan.base_interest = self.base_interest
         # loan.rebate_interest = self.rebate_interest
         # loan.wef_date = frappe.utils.now_datetime().date()
@@ -381,12 +382,14 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
         # frappe.db.commit()
         frappe.db.set_value(
             "Loan",
-            loan.name,
+            self.loan,
             {
                 "expiry_date": expiry_date,
                 "base_interest": self.base_interest,
                 "rebate_interest": self.rebate_interest,
                 "wef_date": frappe.utils.now_datetime().date(),
+                "old_interest": loan.base_interest,
+                "old_rebate_interest": loan.rebate_interest,
             },
         )
         msg = """Dear Customer,
@@ -394,7 +397,6 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
         """.format(
             link=las_settings.app_login_dashboard
         )
-        print("msg", msg)
         fcm_notification = frappe.get_doc(
             "Spark Push Notification",
             "Loan Renewal approved",
@@ -405,7 +407,6 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
             loan=loan.name,
             customer=customer,
         )
-        print("msg", msg)
         if msg:
             frappe.log_error(
                 message=self.name,
@@ -1096,7 +1097,6 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                 sL_letter = frappe.utils.get_url(
                     "files/{}".format(sanctioned_letter_pdf_file)
                 )
-                # print("sL_letter", sL_letter)
             if not check:
                 if not self.sanction_letter_logs:
                     sl = frappe.get_doc(
@@ -1129,7 +1129,6 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                         frappe.db.commit()
 
             if self.status == "Approved":
-                print("akash")
                 lender_esign_file = self.lender_esigned_document
                 if self.lender_esigned_document:
                     lfile_name = lender_esign_file.split("files/", 1)
@@ -1195,13 +1194,10 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
 
     def two_days_grace_period(self):
         try:
-            print("nandadn")
             updated_kyc = ""
             if self.new_kyc_name:
-                print("1")
                 updated_kyc = frappe.get_doc("User KYC", self.new_kyc_name)
             if updated_kyc and updated_kyc.kyc_status == "Approved":
-                print("2")
                 loan = frappe.get_doc("Loan", self.loan)
                 # exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
                 is_expired_date = datetime.strptime(

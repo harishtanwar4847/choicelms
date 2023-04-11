@@ -2550,7 +2550,7 @@ class Loan(Document):
                 sanction_letter_doc.append("interest_letter_table", interest_letter)
                 sanction_letter_doc.save(ignore_permissions=True)
                 frappe.db.commit()
-                self.db_set("sl_cial_entries", sanction_letter_doc)
+                self.db_set("sl_cial_entries", sanction_letter_doc.name)
 
             elif self.sl_cial_entries:
                 interest_letter = frappe.get_doc(
@@ -2591,7 +2591,7 @@ class Loan(Document):
                     }
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-                self.db_set("sl_cial_entries", sanction_letter_doc)
+                self.db_set("sl_cial_entries", sanction_letter_doc.name)
 
             if fcm_notification:
                 lms.send_spark_push_notification(
@@ -2612,7 +2612,7 @@ class Loan(Document):
         except Exception:
             frappe.log_error(
                 message=frappe.get_traceback() + "\nLoan : {}".format(self.name),
-                title=(("Notify Customer failed in Loan")),
+                title="Notify Customer failed in Loan",
             )
 
     def update_ltv(self):
