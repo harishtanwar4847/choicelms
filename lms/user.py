@@ -2368,6 +2368,11 @@ def loan_summary_dashboard(**kwargs):
                 )
                 str_exp = str_exp.replace("-", "/")
                 loan_renewal_doc.expiry_date = str_exp
+                if loan.name in ["SL000212"]:
+                    loan["expiry_date"] = datetime.strptime(
+                        str(frappe.utils.now_datetime().date() + timedelta(7)),
+                        "%Y-%m-%d",
+                    ).strftime("%d/%m/%Y")
 
                 loan_renewal_doc_list.append(loan_renewal_doc)
             if loan.sl_cial_entries:
