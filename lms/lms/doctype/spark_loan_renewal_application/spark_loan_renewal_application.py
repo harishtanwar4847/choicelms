@@ -1319,7 +1319,6 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 @frappe.whitelist()
 def all_loans_renewal_update_doc():
     try:
-        return
         loans = frappe.get_all("Loan", fields=["name"])
         for loan_name in loans:
             frappe.enqueue(
