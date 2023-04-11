@@ -304,9 +304,7 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
             )
 
     def on_update(self):
-        frappe.log_error(message="Mi alo baher")
         if self.status == "Approved":
-            frappe.log_error(message="Mi alo")
             las_settings = frappe.get_single("LAS Settings")
             lender = frappe.get_doc("Lender", self.lender)
             loan = self.get_loan()
@@ -409,10 +407,6 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 customer=customer,
             )
             if msg:
-                frappe.log_error(
-                    message=self.name,
-                    title=_("Loan Renewal Application - after msg"),
-                )
                 receiver_list = [str(customer.phone)]
                 if customer.get_kyc().mob_num:
                     receiver_list.append(str(customer.get_kyc().mob_num))
@@ -2049,6 +2043,19 @@ You have received a loan renewal extension of 7 days from the current expiry dat
             and loan.total_collateral_value > 0
             and len(loan.items) > 0
         ):
+            wef_date = loan.wef_date
+            if type(wef_date) is str:
+                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+            custom_base_interest = (
+                loan.old_interest
+                if wef_date >= frappe.utils.now_datetime().date()
+                else loan.custom_base_interest
+            )
+            custom_rebate_interest = (
+                loan.old_rebate_interest
+                if wef_date >= frappe.utils.now_datetime().date()
+                else loan.custom_rebate_interest
+            )
             renewal_doc = frappe.get_doc(
                 dict(
                     doctype="Spark Loan Renewal Application",
@@ -2060,8 +2067,8 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                     drawing_power=loan.drawing_power,
                     customer=customer.name,
                     customer_name=customer.full_name,
-                    custom_base_interest=loan.custom_base_interest,
-                    custom_rebate_interest=loan.custom_rebate_interest,
+                    custom_base_interest=custom_base_interest,
+                    custom_rebate_interest=custom_rebate_interest,
                     remarks="",
                 )
             ).insert(ignore_permissions=True)
@@ -2117,55 +2124,6 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
             frappe.db.commit()
 
         for doc in existing_renewal_doc_list:
-            frappe.log_error(
-                message=(
-                    "loan name : {}".format(loan_name)
-                    + "\nexp == frappe.utils.now_datetime().date() + timedelta(days=9) : {}".format(
-                        str(
-                            exp
-                            == frappe.utils.now_datetime().date() + timedelta(days=9)
-                        )
-                    )
-                )
-                + "\nexp : {}".format(str(exp))
-                + "\nfrappe.utils.now_datetime().date() + timedelta(days=9)) : {}".format(
-                    str(frappe.utils.now_datetime().date() + timedelta(days=9))
-                ),
-                title=_("reminder error log - Update Doc"),
-            )
-
-            frappe.log_error(
-                message=(
-                    "loan name : {}".format(loan_name)
-                    + "\nexp == frappe.utils.now_datetime().date() + timedelta(days=2) : {}".format(
-                        str(
-                            exp
-                            == frappe.utils.now_datetime().date() + timedelta(days=2)
-                        )
-                    )
-                )
-                + "\nexp : {}".format(str(exp))
-                + "\nexp == frappe.utils.now_datetime().date() + timedelta(days=2) : {}".format(
-                    str(frappe.utils.now_datetime().date() + timedelta(days=2))
-                ),
-                title=_("reminder error log - Update Doc"),
-            )
-            frappe.log_error(
-                message=(
-                    "loan name : {}".format(loan_name)
-                    + "\nexp == frappe.utils.now_datetime().date() + timedelta(days=19): {}".format(
-                        str(
-                            exp
-                            == frappe.utils.now_datetime().date() + timedelta(days=19)
-                        )
-                    )
-                )
-                + "\nexp : {}".format(str(exp))
-                + "\nfrappe.utils.now_datetime().date() + timedelta(days=19) : {}".format(
-                    str(frappe.utils.now_datetime().date() + timedelta(days=19))
-                ),
-                title=_("reminder error log - Update Doc"),
-            )
             if exp == frappe.utils.now_datetime().date() + timedelta(days=19):
                 renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
                 if doc.reminders == 1:
