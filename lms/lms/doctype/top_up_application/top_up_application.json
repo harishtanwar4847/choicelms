@@ -129,7 +129,7 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "section_break_17",

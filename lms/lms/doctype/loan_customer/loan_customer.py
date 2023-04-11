@@ -93,13 +93,10 @@ def loan_customer_template():
                 "DOB (dd-mm-yyyy)",
                 "CKYC No",
                 "Bank",
-                "Branch",
                 "Account No",
                 "IFSC",
-                "City",
                 "Account Holder Name",
-                "Bank Address",
-                "Account Type",
+                "MyCams Email ID",
             ],
         )
         file_name = "Customer_Details_{}".format(frappe.utils.now_datetime())

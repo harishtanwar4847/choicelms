@@ -12,8 +12,35 @@ import lms
 
 class SparkOfflineCustomerLog(Document):
     def before_save(self):
+        # validations
+        if self.first_name != self.customer_first_name:
+            frappe.throw(
+                "Users first name and Loan customers first name should be same"
+            )
+
+        if self.last_name != self.customer_last_name:
+            frappe.throw("Users last name and Loan customers last name should be same")
+
+        if self.mobile_no != self.customer_mobile:
+            frappe.throw(
+                "Users mobile number and Loan customers mobile number should be same"
+            )
+
+        if self.email_id != self.customer_email:
+            frappe.throw("Users email and Loan customers email should be same")
+
         if self.ckyc_status == "Success":
             self.ckyc_remarks = ""
+
+        if self.user_status == "Success":
+            self.user_remarks = ""
+        if self.customer_status == "Success":
+            self.customer_remarks = ""
+        if self.ckyc_status == "Success":
+            self.ckyc_remarks = ""
+        if self.bank_status == "Success":
+            self.bank_remarks = ""
+
         if (
             self.user_status == "Success"
             and self.customer_status == "Success"
@@ -45,10 +72,29 @@ def retry_process(doc_name):
             doc.user_status == "Pending" and doc.customer_status == "Pending"
         ):
             # validation for name
-            reg = lms.regex_special_characters(search=doc.first_name + doc.last_name)
+            reg = lms.regex_special_characters(
+                search=doc.first_name
+                + doc.last_name
+                + doc.customer_first_name
+                + doc.customer_last_name
+            )
             email_regex = (
                 r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
             )
+            first_name = False
+            last_name = False
+            if " " in doc.first_name:
+                first_name = True
+                message += "Space not allowed user First Name.\n"
+            if " " in doc.last_name:
+                last_name = True
+                message += "Space not allowed user Last Name.\n"
+            if " " in doc.customer_first_name:
+                first_name = True
+                message += "Space not allowed customer First Name.\n"
+            if " " in doc.customer_last_name:
+                last_name = True
+                message += "Space not allowed customer Last Name.\n"
             if reg:
                 message += (
                     "Special Characters not allowed in First Name and Last Name.\n"
@@ -60,12 +106,22 @@ def retry_process(doc_name):
             ):
                 message += "Please enter valid email ID.\n"
 
+            if (re.search(email_regex, doc.customer_email)) is None or (
+                len(doc.email_id.split("@")) > 2
+            ):
+                message += "Please enter customer valid email ID.\n"
+
             # validation for mobile number
             if (len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False):
                 message += "Please enter valid Mobile Number.\n"
 
-            if doc.city.isaplha() == False:
-                message += "Please enter valid city name.\n"
+            if (len(doc.customer_mobile) != 10) or (
+                doc.customer_mobile.isnumeric() == False
+            ):
+                message += "Please enter valid customer Mobile Number.\n"
+
+            # if doc.city.isalpha() == False:
+            #     message += "Please enter valid city name.\n"
 
             if (
                 (reg)
@@ -73,7 +129,16 @@ def retry_process(doc_name):
                     (re.search(email_regex, doc.email_id)) is None
                     or (len(doc.email_id.split("@")) > 2)
                 )
-                or ((len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False))
+                or (
+                    (re.search(email_regex, doc.customer_email)) is None
+                    or (len(doc.customer_email.split("@")) > 2)
+                )
+                or (
+                    (len(doc.customer_mobile) != 10)
+                    or (doc.customer_mobile.isnumeric() == False)
+                )
+                or (first_name)
+                or (last_name)
             ):
                 doc.user_status = "Failure"
                 doc.customer_status = "Failure"
@@ -90,9 +155,15 @@ def retry_process(doc_name):
                     tester=0,
                 )
                 customer = lms.create_customer(user)
+                customer.mycams_email_id = doc.mycams_email_id
                 doc.user_status = "Success"
                 doc.customer_status = "Success"
                 doc.user_remarks = message
+                # doc.user_name = user.name
+                doc.customer_name = customer.name
+                customer.offline_customer = 1
+                customer.is_email_verified = 1
+                customer.save(ignore_permissions=True)
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
@@ -125,8 +196,9 @@ def retry_process(doc_name):
             cust_name = frappe.get_value(
                 "Loan Customer", {"phone": doc.mobile_no, "user": doc.email_id}, "name"
             )
-            customer = frappe.get_doc("Loan Customer", cust_name)
-            lms.ckyc_offline(customer=customer, offline_customer=doc)
+            if doc.customer_status == "Success":
+                customer = frappe.get_doc("Loan Customer", cust_name)
+                lms.ckyc_offline(customer=customer, offline_customer=doc)
 
         return utils.respondWithSuccess(
             message="Process Successfully completed", data=doc.name
@@ -134,6 +206,6 @@ def retry_process(doc_name):
 
     except Exception:
         frappe.log_error(
-            message=frappe.get_traceback(),
+            message=frappe.get_traceback() + "\n\n Doc name = {}".format(str(doc_name)),
             title=frappe._("Spark Offline Customer Log"),
         )

@@ -8,6 +8,9 @@ frappe.ui.form.on("Sell Collateral Application", {
     if (frm.doc.status != "Pending") {
       frm.set_df_property("items", "read_only", 1);
     }
+    if (frm.doc.status == "Approved" || frm.doc.status == "Rejected") {
+      frm.set_df_property("processed", "read_only", 1);
+    }
     if (frm.doc.owner != frappe.session.user) {
       frm.set_df_property("loan_margin_shortfall", "read_only", 1);
     }
@@ -40,6 +43,7 @@ frappe.ui.form.on("Sell Collateral Application", {
             d.isin = row.isin;
             d.quantity = row.pledged_quantity;
             d.folio = row.folio;
+            d.psn = row.psn;
             frm.refresh_field("items");
           }
         });

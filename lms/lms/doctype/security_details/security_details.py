@@ -51,7 +51,7 @@ def security_details():
                     ),
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-            except:
+            except Exception:
                 frappe.log_error(
                     message=frappe.get_traceback()
                     + "\n\\n\nCutomer :{} -\n\nloan :{}".format(

@@ -5,7 +5,7 @@ import os
 import re
 import time
 from ctypes import util
-from datetime import MINYEAR, date, datetime, timedelta
+from datetime import MINYEAR, date, datetime, time, timedelta
 from random import choice, randint
 
 import frappe
@@ -45,7 +45,7 @@ def set_pin(**kwargs):
         customer = lms.__customer()
         if customer.set_pin == 0:
             customer.set_pin = 1
-            customer.insert(ignore_permissions=True)
+            customer.save(ignore_permissions=True)
             frappe.db.commit
 
         # mess = frappe._(
@@ -80,9 +80,6 @@ def get_choice_kyc(**kwargs):
         )
 
         if not data.get("accept_terms"):
-            # return utils.respondUnauthorized(
-            #     message=frappe._("Please accept Terms and Conditions.")
-            # )
             raise lms.exceptions.UnauthorizedException(
                 _("Please accept Terms and Conditions.")
             )
@@ -90,10 +87,6 @@ def get_choice_kyc(**kwargs):
         try:
             datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
         except ValueError:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Incorrect date format, should be DD-MM-YYYY")
             )
@@ -379,734 +372,19 @@ def kyc(**kwargs):
             # mess = frappe._(
             #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
-            mess = frappe._(
-                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
-                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
-            )
-            frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
+            # mess = frappe.get_doc("Spark SMS Notification","User Kyc").message
+            # lms.send_sms_notification(customer=[user.phone],msg=mess)
+            # mess = frappe._(
+            #     # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+            #     "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
+            # )
+            # frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
         data = {"user_kyc": user_kyc_doc}
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
-        lms.log_api_error()
-        return e.respond()
-
-
-@frappe.whitelist()
-def securities(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "lender": "",
-            },
-        )
-
-        reg = lms.regex_special_characters(search=data.get("lender"))
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
-
-        if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        customer = lms.__customer()
-        user_kyc = lms.__user_kyc()
-
-        securities_list = frappe.db.sql(
-            """
-        SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
-        FROM `tabClient Holding` as ch
-        WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
-        AND ch.pan = '{}'
-        order by ch.`modified` DESC""".format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-            ),
-            as_dict=True,
-        )
-
-        if len(securities_list) == 0:
-            las_settings = frappe.get_single("LAS Settings")
-
-            # get securities list from choice
-            payload = {
-                "UserID": las_settings.choice_user_id,
-                "ClientID": user_kyc.pan_no,
-            }
-
-            try:
-                res = requests.post(
-                    las_settings.choice_securities_list_api,
-                    json=payload,
-                    headers={"Accept": "application/json"},
-                )
-                if not res.ok:
-                    raise utils.exceptions.APIException(res.text)
-
-                res_json = res.json()
-                log = {
-                    "url": las_settings.choice_securities_list_api,
-                    "headers": {"Accept": "application/json"},
-                    "request": payload,
-                    "response": res_json,
-                }
-
-                lms.create_log(log, "securities_log")
-                frappe.logger().info(res_json)
-                if res_json["Status"] != "Success":
-                    raise utils.exceptions.APIException(res.text)
-
-                # setting eligibility
-                securities_list = [
-                    i for i in res_json["Response"] if i.get("Price") > 0
-                ]
-
-                # bulk insert fields
-                fields = [
-                    "name",
-                    "pan",
-                    "isin",
-                    "branch",
-                    "client_code",
-                    "client_name",
-                    "scrip_name",
-                    "depository",
-                    "stock_at",
-                    "quantity",
-                    "price",
-                    "scrip_value",
-                    "holding_as_on",
-                    "creation",
-                    "modified",
-                    "owner",
-                    "modified_by",
-                ]
-
-                # bulk insert values
-                values = []
-                for i in securities_list:
-                    if i.get("Holding_As_On", None):
-                        Holding_As_On = datetime.strptime(
-                            i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
-                        )
-                    else:
-                        Holding_As_On = frappe.utils.now_datetime()
-
-                    values.append(
-                        [
-                            i["Stock_At"] + "-" + i["ISIN"],
-                            user_kyc.pan_no,
-                            i["ISIN"],
-                            i["Branch"] if i.get("Branch", None) else "",
-                            i["Client_Code"] if i.get("Client_Code", None) else "",
-                            i["Client_Name"] if i.get("Client_Name", None) else "",
-                            i["Scrip_Name"],
-                            i["Depository"] if i.get("Depository", None) else "",
-                            i["Stock_At"],
-                            i["Quantity"],
-                            i["Price"],
-                            i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
-                            Holding_As_On,
-                            frappe.utils.now(),
-                            frappe.utils.now(),
-                            frappe.session.user,
-                            frappe.session.user,
-                        ]
-                    )
-
-                # delete existng records
-                frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
-
-                # bulk insert
-                frappe.db.bulk_insert(
-                    "Client Holding",
-                    fields=fields,
-                    values=values,
-                    ignore_duplicates=True,
-                )
-
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
-
-        securities_list_ = [i["ISIN"] for i in securities_list]
-        securities_category_map = lms.get_allowed_securities(
-            securities_list_, data.get("lender")
-        )
-
-        pledge_waiting_securitites = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
-            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
-            ch.name
-            FROM `tabLoan Application` as la
-            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
-            where la.status='Waiting to be pledged'
-            AND ch.pan = '{}'
-            AND lai.isin in {}
-            AND la.customer = '{}'
-            group by ch.stock_at, lai.isin
-            order by la.pledgor_boid, lai.isin
-        """.format(
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-            debug=True,
-        )
-
-        if len(pledge_waiting_securitites) > 0:
-            for i in pledge_waiting_securitites:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_to_be_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_to_be_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][
-                        i["pledgor_boid"]
-                    ] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        waiting_for_lender_approval_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
-            AND cl.request_type = 'Pledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(waiting_for_lender_approval_securities) > 0:
-            for i in waiting_for_lender_approval_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_for_approval_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_for_approval_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]][
-                        "waiting_for_approval_pledged_qty"
-                    ][i["pledgor_boid"]] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        unpledge_approved_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE cl.lender_approval_status='Approved'
-            AND cl.request_type = 'Unpledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(unpledge_approved_securities) > 0:
-            for i in unpledge_approved_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "unpledged_quantity", None
-                    ):
-                        securities_category_map[i["isin"]]["unpledged_quantity"] = {}
-                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                    #     "unpledged_quantity"
-                    # ]
-
-                    securities_category_map[i["isin"]]["unpledged_quantity"][
-                        i["pledgor_boid"]
-                    ] = i["unpledged_quantity"]
-                except KeyError:
-                    continue
-
-        for i in securities_list:
-            # process actual qty
-            if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
-                i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
-
-            try:
-                i["Category"] = securities_category_map[i["ISIN"]].get(
-                    "security_category"
-                )
-                i["Is_Eligible"] = True
-                i["Total_Qty"] = i["Quantity"]
-
-                if not i.get("waiting_to_be_pledged_qty", None):
-                    i["waiting_to_be_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_to_be_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_to_be_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_to_be_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_to_be_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("waiting_for_approval_pledged_qty", None):
-                    i["waiting_for_approval_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_for_approval_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_for_approval_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_for_approval_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_for_approval_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("unpledged_quantity", None):
-                    i["unpledged_quantity"] = 0
-
-                if securities_category_map[i["ISIN"]].get("unpledged_quantity", None):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "unpledged_quantity"
-                        ].keys()
-                    ):
-                        i["unpledged_quantity"] += float(
-                            securities_category_map[i["ISIN"]]["unpledged_quantity"][
-                                i["Stock_At"]
-                            ]
-                        )
-
-                available_quantity = (i["Quantity"] + i["unpledged_quantity"]) - (
-                    i["waiting_to_be_pledged_qty"]
-                    + i["waiting_for_approval_pledged_qty"]
-                )
-                i["Quantity"] = (
-                    available_quantity if available_quantity > 0 else float(0)
-                )
-
-            except KeyError:
-                i["Is_Eligible"] = False
-                i["Category"] = None
-
-        return utils.respondWithSuccess(data=securities_list)
-
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        return e.respond()
-
-
-"""Changes as per Concentration rule BRE security selection screen"""
-
-
-@frappe.whitelist()
-def securities_new(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {"lender": "", "level": "", "demat_account": ""},
-        )
-
-        if data.get("demat_account"):
-            demat_ = [i["pledgor_boid"] for i in data.get("demat_account", {})["list"]]
-            demat = lms.convert_list_to_tuple_string(demat_)
-
-        reg = lms.regex_special_characters(search=data.get("lender"))
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
-
-        if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        customer = lms.__customer()
-        user_kyc = lms.__user_kyc()
-
-        securities_list = frappe.db.sql(
-            """
-        SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
-        FROM `tabClient Holding` as ch
-        WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
-        AND ch.pan = '{}' {}
-        order by ch.`modified` DESC""".format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                "AND ch.stock_at in {}".format(demat)
-                if data.get("demat_account")
-                else "",
-            ),
-            as_dict=True,
-        )
-
-        if len(securities_list) == 0:
-
-            try:
-                las_settings = frappe.get_single("LAS Settings")
-
-                # get securities list from choice
-                payload = {
-                    "UserID": las_settings.choice_user_id,
-                    "ClientID": user_kyc.pan_no,
-                }
-                res = requests.post(
-                    url=las_settings.choice_securities_list_api,
-                    json=payload,
-                    headers={"Accept": "application/json"},
-                )
-                res_json = res.json()
-                log = {
-                    "url": las_settings.choice_securities_list_api,
-                    "headers": {"Accept": "application/json"},
-                    "request": payload,
-                    "response": res_json,
-                }
-
-                lms.create_log(log, "securities_new_log")
-
-                if not res.ok:
-                    raise utils.exceptions.APIException(res.text)
-                frappe.logger().info(res_json)
-
-                if res_json["Status"] != "Success":
-                    raise utils.exceptions.APIException(res.text)
-
-                # setting eligibility
-                securities_list = [
-                    i for i in res_json["Response"] if i.get("Price") > 0
-                ]
-
-                # bulk insert fields
-                fields = [
-                    "name",
-                    "pan",
-                    "isin",
-                    "branch",
-                    "client_code",
-                    "client_name",
-                    "scrip_name",
-                    "depository",
-                    "stock_at",
-                    "quantity",
-                    "price",
-                    "scrip_value",
-                    "holding_as_on",
-                    "creation",
-                    "modified",
-                    "owner",
-                    "modified_by",
-                ]
-
-                # bulk insert values
-                values = []
-                for i in securities_list:
-                    if i.get("Holding_As_On", None):
-                        Holding_As_On = datetime.strptime(
-                            i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
-                        )
-                    else:
-                        Holding_As_On = frappe.utils.now_datetime()
-
-                    values.append(
-                        [
-                            i["Stock_At"] + "-" + i["ISIN"],
-                            user_kyc.pan_no,
-                            i["ISIN"],
-                            i["Branch"] if i.get("Branch", None) else "",
-                            i["Client_Code"] if i.get("Client_Code", None) else "",
-                            i["Client_Name"] if i.get("Client_Name", None) else "",
-                            i["Scrip_Name"],
-                            i["Depository"] if i.get("Depository", None) else "",
-                            i["Stock_At"],
-                            i["Quantity"],
-                            i["Price"],
-                            i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
-                            Holding_As_On,
-                            frappe.utils.now(),
-                            frappe.utils.now(),
-                            frappe.session.user,
-                            frappe.session.user,
-                        ]
-                    )
-
-                # delete existng records
-                frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
-
-                # bulk insert
-                frappe.db.bulk_insert(
-                    "Client Holding",
-                    fields=fields,
-                    values=values,
-                    ignore_duplicates=True,
-                )
-
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
-
-        securities_list_ = [i["ISIN"] for i in securities_list]
-        securities_category_map = lms.get_allowed_securities(
-            securities_list_, data.get("lender")
-        )
-
-        pledge_waiting_securitites = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
-            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
-            ch.name
-            FROM `tabLoan Application` as la
-            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
-            where la.status='Waiting to be pledged'
-            AND ch.pan = '{}'
-            AND lai.isin in {}
-            AND la.customer = '{}'
-            group by ch.stock_at, lai.isin
-            order by la.pledgor_boid, lai.isin
-        """.format(
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-            # debug=True,
-        )
-
-        if len(pledge_waiting_securitites) > 0:
-            for i in pledge_waiting_securitites:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_to_be_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_to_be_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][
-                        i["pledgor_boid"]
-                    ] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        waiting_for_lender_approval_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
-            AND cl.request_type = 'Pledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(waiting_for_lender_approval_securities) > 0:
-            for i in waiting_for_lender_approval_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "waiting_for_approval_pledged_qty", None
-                    ):
-                        securities_category_map[i["isin"]][
-                            "waiting_for_approval_pledged_qty"
-                        ] = {}
-                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
-                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
-
-                    securities_category_map[i["isin"]][
-                        "waiting_for_approval_pledged_qty"
-                    ][i["pledgor_boid"]] = i["pledged_quantity"]
-                except KeyError:
-                    continue
-
-        unpledge_approved_securities = frappe.db.sql(
-            """
-            SELECT GROUP_CONCAT(cl.loan) as loan,
-            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
-            ch.name
-            FROM `tabCollateral Ledger` as cl
-            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-            WHERE cl.lender_approval_status='Approved'
-            AND cl.request_type = 'Unpledge'
-            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-            AND ch.pan = '{}'
-            AND cl.isin in {}
-            AND cl.customer = '{}'
-            group by ch.stock_at, cl.isin
-            order by cl.pledgor_boid, cl.isin;
-        """.format(
-                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                user_kyc.pan_no,
-                lms.convert_list_to_tuple_string(securities_list_),
-                customer.name,
-            ),
-            as_dict=True,
-        )
-
-        if len(unpledge_approved_securities) > 0:
-            for i in unpledge_approved_securities:
-                try:
-                    if not securities_category_map[i["isin"]].get(
-                        "unpledged_quantity", None
-                    ):
-                        securities_category_map[i["isin"]]["unpledged_quantity"] = {}
-                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                    #     "unpledged_quantity"
-                    # ]
-
-                    securities_category_map[i["isin"]]["unpledged_quantity"][
-                        i["pledgor_boid"]
-                    ] = i["unpledged_quantity"]
-                except KeyError:
-                    continue
-
-        for i in securities_list:
-            # process actual qty
-            if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
-                i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
-
-            try:
-                i["Category"] = securities_category_map[i["ISIN"]].get(
-                    "security_category"
-                )
-                i["Is_Eligible"] = True
-                i["Total_Qty"] = i["Quantity"]
-
-                if not i.get("waiting_to_be_pledged_qty", None):
-                    i["waiting_to_be_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_to_be_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_to_be_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_to_be_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_to_be_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("waiting_for_approval_pledged_qty", None):
-                    i["waiting_for_approval_pledged_qty"] = 0
-
-                if securities_category_map[i["ISIN"]].get(
-                    "waiting_for_approval_pledged_qty", None
-                ):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "waiting_for_approval_pledged_qty"
-                        ].keys()
-                    ):
-                        i["waiting_for_approval_pledged_qty"] += float(
-                            securities_category_map[i["ISIN"]][
-                                "waiting_for_approval_pledged_qty"
-                            ][i["Stock_At"]]
-                        )
-
-                if not i.get("unpledged_quantity", None):
-                    i["unpledged_quantity"] = 0
-
-                if securities_category_map[i["ISIN"]].get("unpledged_quantity", None):
-                    if (
-                        i["Stock_At"]
-                        in securities_category_map[i["ISIN"]][
-                            "unpledged_quantity"
-                        ].keys()
-                    ):
-                        i["unpledged_quantity"] += float(
-                            securities_category_map[i["ISIN"]]["unpledged_quantity"][
-                                i["Stock_At"]
-                            ]
-                        )
-
-                available_quantity = (i["Quantity"] + i["unpledged_quantity"]) - (
-                    i["waiting_to_be_pledged_qty"]
-                    + i["waiting_for_approval_pledged_qty"]
-                )
-                i["Quantity"] = (
-                    available_quantity if available_quantity > 0 else float(0)
-                )
-
-            except KeyError:
-                i["Is_Eligible"] = False
-                i["Category"] = None
-
-        return utils.respondWithSuccess(data=securities_list)
-
-    except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
 
@@ -1376,214 +654,6 @@ def approved_securities(**kwargs):
         if data.get("is_download"):
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
-                    instrument_type=data.get("instrument_type"),
-                    lender=data.get("lender"),
-                    filters=filters,
-                    allowed=allowed,
-                ),
-                as_dict=1,
-            )
-
-            approved_security_list.sort(
-                key=lambda item: (item["security_name"]).title(),
-            )
-
-            if not approved_security_list:
-                raise lms.exceptions.NotFoundException(_("No Record found"))
-
-            lt_list = []
-
-            for list in approved_security_list:
-                lt_list.append(list.values())
-            df = pd.DataFrame(lt_list)
-            df.columns = approved_security_list[0].keys()
-            df.drop("eligible_percentage", inplace=True, axis=1)
-            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
-            df.index += 1
-            approved_security_pdf_file = "{}-approved-securities.pdf".format(
-                data.get("lender")
-            ).replace(" ", "-")
-
-            date_ = frappe.utils.now_datetime()
-            # formatting of date as 1 => 1st, 11 => 11th, 21 => 21st
-            formatted_date = lms.date_str_format(date=date_.day)
-
-            curr_date = formatted_date + date_.strftime(" %B, %Y")
-
-            approved_security_pdf_file_path = frappe.utils.get_files_path(
-                approved_security_pdf_file
-            )
-
-            lender = frappe.get_doc("Lender", data["lender"])
-            las_settings = frappe.get_single("LAS Settings")
-            logo_file_path_1 = lender.get_lender_logo_file()
-            logo_file_path_2 = las_settings.get_spark_logo_file()
-            approved_securities_template = lender.get_approved_securities_template()
-            doc = {
-                "column_name": df.columns,
-                "rows": df.iterrows(),
-                "date": curr_date,
-                "logo_file_path_1": logo_file_path_1.file_url
-                if logo_file_path_1
-                else "",
-                "logo_file_path_2": logo_file_path_2.file_url
-                if logo_file_path_2
-                else "",
-                "instrument_type": data.get("instrument_type"),
-                "scheme_type": data.get("loan_type"),
-            }
-            agreement = frappe.render_template(
-                approved_securities_template.get_content(), {"doc": doc}
-            )
-
-            pdf_file = open(approved_security_pdf_file_path, "wb")
-
-            # from frappe.utils.pdf import get_pdf
-
-            # pdf = get_pdf(html_with_style)
-            pdf = lms.get_pdf(
-                agreement,
-                options={
-                    "margin-right": "1mm",
-                    "margin-left": "1mm",
-                    "page-size": "A4",
-                },
-            )
-            pdf_file.write(pdf)
-            pdf_file.close()
-
-            approved_security_pdf_file_url = frappe.utils.get_url(
-                "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
-                    " ", "-"
-                )
-            )
-        else:
-            if not data.get("per_page", None):
-                data["per_page"] = 20
-            if not data.get("start", None):
-                data["start"] = 0
-
-            approved_security_list = frappe.db.sql(
-                """
-            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
-                    instrument_type=data.get("instrument_type"),
-                    lender=data.get("lender"),
-                    filters=filters,
-                    allowed=allowed,
-                    limit=data.get("per_page"),
-                    offset=data.get("start"),
-                ),
-                as_dict=1,
-            )
-
-        res = {
-            "security_category_list": security_category_list,
-            "approved_securities_list": approved_security_list,
-            "pdf_file_url": approved_security_pdf_file_url,
-        }
-
-        return utils.respondWithSuccess(data=res)
-
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        return e.respond()
-
-
-@frappe.whitelist()
-def approved_securities(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "lender": "required",
-                "start": "decimal|min:0",
-                "per_page": "decimal|min:0",
-                "search": "",
-                "category": "",
-                "is_download": "decimal|between:0,1",
-                "loan_type": "",
-            },
-        )
-
-        reg = lms.regex_special_characters(
-            search=data.get("lender") + data.get("category")
-        )
-        search_reg = lms.regex_special_characters(
-            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
-        )
-        if reg or search_reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
-
-        if isinstance(data.get("is_download"), str):
-            data["is_download"] = int(data.get("is_download"))
-
-        if not data.get("loan_type") in [
-            "Equity",
-            "Mutual Fund - Equity",
-            "Mutual Fund - Debt",
-        ]:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._(
-            #         "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
-            #     ),
-            # )
-            raise lms.exceptions.FailureException(
-                _(
-                    "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
-                )
-            )
-
-        if data.get("loan_type") == "Mutual Fund - Equity":
-            data["loan_type"] = "Equity"
-        elif data.get("loan_type") == "Mutual Fund - Debt":
-            data["loan_type"] = "Debt"
-        else:
-            data["loan_type"] = "Shares"
-
-        security_category_list_ = frappe.db.get_all(
-            "Security Category",
-            filters={"lender": data.get("lender")},
-            fields=["distinct(category_name)"],
-            order_by="category_name asc",
-        )
-        security_category_list = [i.category_name for i in security_category_list_]
-
-        data["instrument_type"] = (
-            "Shares" if data.get("loan_type") == "Shares" else "Mutual Fund"
-        )
-
-        filters = ""
-        if data.get("loan_type", None) != "Shares":
-            filters = "and scheme_type = '{}'".format(
-                data.get("loan_type")
-                if data.get("loan_type") in ["Equity", "Debt"]
-                else ""
-            )
-
-        if data.get("search", None):
-            search_key = "like " + str("'%" + data.get("search") + "%'")
-            filters += "and security_name {}".format(search_key)
-
-        if data.get("category", None):
-            filters += " and security_category like '{}_%'".format(data.get("category"))
-
-        approved_security_list = []
-        approved_security_pdf_file_url = ""
-        allowed = ""
-        if data.get("instrument_type") == "Mutual Fund":
-            allowed = "and alsc.allowed = 1"
-
-        if data.get("is_download"):
-            approved_security_list = frappe.db.sql(
-                """
             select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, alsc.category_name as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
                     instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
@@ -1598,7 +668,6 @@ def approved_securities(**kwargs):
             )
 
             if not approved_security_list:
-                # return utils.respondNotFound(message=_("No Record Found"))
                 raise lms.exceptions.NotFoundException(_("No Record found"))
 
             lt_list = []
@@ -1627,7 +696,7 @@ def approved_securities(**kwargs):
             lender = frappe.get_doc("Lender", data["lender"])
             las_settings = frappe.get_single("LAS Settings")
             logo_file_path_1 = lender.get_lender_logo_file()
-            logo_file_path_2 = las_settings.get_spark_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             approved_securities_template = lender.get_approved_securities_template()
             doc = {
                 "column_name": df.columns,
@@ -1641,6 +710,9 @@ def approved_securities(**kwargs):
                 else "",
                 "instrument_type": data.get("instrument_type"),
                 "scheme_type": data.get("loan_type"),
+                "is_html": lender.is_html,
+                "lender_header": lender.lender_header,
+                "lender_footer": lender.lender_footer,
             }
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}
@@ -1648,10 +720,10 @@ def approved_securities(**kwargs):
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
 
-            from frappe.utils.pdf import get_pdf
+            # from frappe.utils.pdf import get_pdf
 
             # pdf = get_pdf(html_with_style)
-            pdf = get_pdf(
+            pdf = lms.get_pdf(
                 agreement,
                 options={
                     "margin-right": "1mm",
@@ -1809,12 +881,33 @@ def my_pledge_securities(**kwargs):
                 "customer": loan.customer,
                 "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
             },
-            fields=["count(name) as in_process"],
+            fields=["count(name) as in_process", "name"],
         )
 
         res["increase_loan"] = None
+        res["increase_loan_name"] = ""
         if existing_loan_application[0]["in_process"] == 0:
             res["increase_loan"] = 1
+        else:
+            res["increase_loan_name"] = existing_loan_application[0].name
+
+        # for topup application
+        existing_topup_application = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": loan.name,
+                "customer": loan.customer,
+                "status": ["not IN", ["Approved", "Rejected"]],
+            },
+            fields=["count(name) as in_process", "name"],
+        )
+
+        res["topup_application"] = None
+        res["topup_application_name"] = ""
+        if existing_topup_application[0]["in_process"] == 0:
+            res["topup_application"] = 1
+        else:
+            res["topup_application_name"] = existing_topup_application[0].name
 
         # check if any pending unpledge application exist
         unpledge_application_exist = frappe.get_all(
@@ -1853,15 +946,21 @@ def dashboard(**kwargs):
         utils.validator.validate_http_method("GET")
 
         user = lms.__user()
+        customer = lms.__customer()
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
         try:
-            user_kyc = lms.__user_kyc()
+            if customer.choice_kyc:
+                user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+            else:
+                user_kyc = lms.__user_kyc()
+            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            # for i in user_kyc.bank_account:
+            #     i.account_number = lms.user_details_hashing(i.account_number)
             user_kyc = lms.user_kyc_hashing(user_kyc)
         except UserKYCNotFoundException:
             user_kyc = None
-
-        customer = lms.__customer()
-        if not customer:
-            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         mgloan = []
         deadline_for_all_mg_shortfall = {}
@@ -2137,9 +1236,79 @@ def dashboard(**kwargs):
                     }
                 )
 
+        pending_loan_renewal_applications = frappe.get_all(
+            "Spark Loan Renewal Application",
+            filters={
+                "customer": customer.name,
+                "status": "Loan Renewal accepted by Lender",
+            },
+            fields=["*"],
+        )
+        lra_pending_esigns = []
+        if pending_loan_renewal_applications:
+            for loan_renewal_application in pending_loan_renewal_applications:
+                loan_renewal_application_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", loan_renewal_application.name
+                ).as_dict()
+
+                loan_renewal_application_doc.top_up_amount = lms.amount_formatter(
+                    loan_renewal_application_doc.top_up_amount
+                )
+                if loan_renewal_application_doc.sanction_letter_logs:
+                    lr_sanction_letter = frappe.db.sql(
+                        """select sanction_letter from `tabSanction Letter Entries` where parent = '{parent}' and renewal_application = '{name}'""".format(
+                            parent=loan_renewal_application_doc.sanction_letter_logs,
+                            name=loan_renewal_application_doc.name,
+                        ),
+                        as_dict=True,
+                    )
+                loan_doc = frappe.get_doc("Loan", loan_renewal_application.loan)
+                items = frappe.get_all(
+                    "Loan Item",
+                    {"parent": loan_doc.name, "pledged_quantity": [">", 0]},
+                    "*",
+                )
+                for i in items:
+                    i["lender_approval_status"] = (
+                        "Pledged" if i.type == "Shares" else "Lien"
+                    )
+                lra_pending_esigns.append(
+                    {
+                        "loan_renewal_application_doc": loan_renewal_application_doc,
+                        "sanction_letter": lr_sanction_letter[0]
+                        if lr_sanction_letter
+                        else None,
+                        "mess": "Congratulations! Your loan renewal application is being considered favourably by our lending partner. Please e-sign the loan agreement to avail the increased sanctioned limit now.",
+                        "loan_items": items,
+                    }
+                )
+
+        loans = frappe.get_all(
+            "Loan",
+            filters={"customer": customer.name},
+            fields=["*"],
+        )
+
+        loan_esigns = []
+        if loans:
+            for loan in loans:
+                loan_doc = frappe.get_doc("Loan", loan.name).as_dict()
+                for i in loan_doc["items"]:
+                    i["lender_approval_status"] = (
+                        "Pledged" if i["type"] == "Shares" else "Lien"
+                    )
+
+                loan_esigns.append(
+                    {
+                        "loan_doc": loan_doc,
+                        "mess": "Your ROI is updated by our lending partner. Please e-sign the loan agreement to avail the new ROI now.",
+                    }
+                )
+
         pending_esigns_list = dict(
             la_pending_esigns=la_pending_esigns,
             topup_pending_esigns=topup_pending_esigns,
+            loan_renewal_esigns=lra_pending_esigns,
         )
 
         number_of_user_login = frappe.get_all(
@@ -2354,6 +1523,12 @@ def get_profile_set_alerts(**kwargs):
             and not data.get("percentage")
             and not data.get("amount")
         ):
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please select Amount or Percentage for setting Alerts"
+            #     ),
+            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please select Amount or Percentage for setting Alerts.")
             )
@@ -2361,6 +1536,12 @@ def get_profile_set_alerts(**kwargs):
         elif (
             data.get("is_for_alerts") and data.get("percentage") and data.get("amount")
         ):
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please choose one between Amount or Percentage for setting Alerts"
+            #     ),
+            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please choose one between Amount or Percentage for setting Alerts.")
             )
@@ -2379,8 +1560,35 @@ def get_profile_set_alerts(**kwargs):
             customer.save(ignore_permissions=True)
             frappe.db.commit()
 
+        loan_application = frappe.get_all(
+            "Loan Application",
+            filters={"customer": customer.name, "application_type": "New Loan"},
+            fields=["*"],
+        )
+        loan = frappe.get_all(
+            "Loan",
+            filters={"customer": customer.name},
+            fields=["*"],
+        )
+        loan_name = ""
+        if loan_application:
+            status = loan_application[0].status
+            instrument_type = loan_application[0].instrument_type
+            pledgor_boid = loan_application[0].pledgor_boid
+            if status == "Approved" and loan:
+                loan_name = loan[0].name
+            else:
+                status = "Pending"
+        else:
+            status = ""
+            instrument_type = ""
+            pledgor_boid = ""
         res = {
             "customer_details": customer,
+            "loan_application_status": status,
+            "loan_name": loan_name,
+            "instrument_type": instrument_type,
+            "pledgor_boid": pledgor_boid,
             "user_kyc": user_kyc,
             "last_login": last_login_time,
             "profile_picture_file_url": profile_picture_file_url,
@@ -2577,14 +1785,6 @@ def all_lenders_list(**kwargs):
 
         all_levels = []
         all_lenders = []
-        loan_doc = frappe.get_all(
-            "Loan", filters={"customer": customer.name}, fields=["scheme_type"]
-        )
-        if loan_doc:
-            scheme_type = loan_doc[0].scheme_type
-        else:
-            scheme_type = ""
-
         # lenders = frappe.get_all("Lender", pluck="name", order_by="name asc")
         lenders = frappe.get_all("Lender", order_by="creation asc")
         for lender in lenders:
@@ -2598,17 +1798,11 @@ def all_lenders_list(**kwargs):
                 )
             ]
             # all_levels.append(query)
-            all_lenders.append(
-                {"name": lender.name, "levels": query, "scheme_type": scheme_type}
-            )
+            all_lenders.append({"name": lender.name, "levels": query})
         # all_levels.sort()
         # lenders.append(all_levels[-1])
         # data={"lenders": lenders, "levels": all_levels[-1]}
         return utils.respondWithSuccess(data=all_lenders)
-
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        return e.respond()
 
     except utils.exceptions.APIException as e:
         lms.log_api_error()
@@ -2806,6 +2000,16 @@ def loan_summary_dashboard(**kwargs):
                 "customer": customer.name,
                 "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
                 "pledge_status": ["!=", "Failure"],
+            },
+            fields=["name", "status", "creation"],
+            order_by="creation desc",
+        )
+
+        under_process_lr = frappe.get_all(
+            "Spark Loan Renewal Application",
+            filters={
+                "customer": customer.name,
+                "status": ["not IN", ["Approved", "Rejected", "Pending"]],
             },
             fields=["name", "status", "creation"],
             order_by="creation desc",
@@ -3024,6 +2228,16 @@ def loan_summary_dashboard(**kwargs):
         topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
+        version_details = frappe.get_all(
+            "Spark App Version",
+            filters={"is_live": 1},
+            fields=["*"],
+            order_by="release_date desc",
+            page_length=1,
+        )
+        if not version_details:
+            version_details = ["No Record found"]
+
         instrument_type = ""
         if under_process_la:
             instrument_type = frappe.get_doc(
@@ -3040,16 +2254,176 @@ def loan_summary_dashboard(**kwargs):
         elif all_loans:
             instrument_type = frappe.get_doc("Loan", all_loans[0].name).instrument_type
 
+        loan_renewal_doc_list = []
+        sl_letter = ""
+        for loan in all_loans:
+            loan_renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": loan.name, "status": ["!=", "Rejected"]},
+                fields=["name"],
+            )
+            top_up_application = frappe.get_all(
+                "Top up Application",
+                filters={
+                    "loan": loan.name,
+                    "status": ["NOT IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+
+            loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": loan.name,
+                    "application_type": [
+                        "IN",
+                        ["Increase Loan", "Pledge More", "Margin Shortfall"],
+                    ],
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+            user_kyc_pending = frappe.get_all(
+                "User KYC",
+                filters={
+                    "user": customer.user,
+                    "updated_kyc": 1,
+                    "kyc_status": "Pending",
+                },
+                fields=["*"],
+            )
+            if top_up_application or loan_application:
+                action_status = "Pending"
+            else:
+                action_status = ""
+            if loan_renewal_list:
+                loan_renewal_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", loan_renewal_list[0]
+                )
+                user_kyc = frappe.get_all(
+                    "User KYC",
+                    filters={
+                        "user": customer.user,
+                        "updated_kyc": 1,
+                    },
+                    fields=["*"],
+                )
+                loan_expiry = datetime.combine(loan.expiry_date, time.min)
+                date_7after_expiry = loan_expiry + timedelta(days=8)
+                is_expired_date = datetime.strptime(
+                    str(loan.expiry_date), "%Y-%m-%d"
+                ) + timedelta(days=14)
+                date_1 = 0
+                extended_two_days = 0
+                if loan_renewal_doc.kyc_approval_date:
+                    date_1 = loan_renewal_doc.kyc_approval_date.date()
+
+                    extended_two_days = loan_renewal_doc.kyc_approval_date + timedelta(
+                        days=2
+                    )
+                if (
+                    frappe.utils.now_datetime().date() > loan.expiry_date
+                    and frappe.utils.now_datetime().date()
+                    <= (loan.expiry_date + timedelta(days=7))
+                    and loan_renewal_doc.status != "Approved"
+                ):
+                    seconds = abs(
+                        date_7after_expiry - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+                    # loan_renewal_doc.time_remaining = renewal_timer
+                    # loan_renewal_doc.action_status = action_status
+
+                elif (
+                    frappe.utils.now_datetime().date()
+                    > (loan.expiry_date + timedelta(days=7))
+                    and frappe.utils.now_datetime().date()
+                    <= (loan.expiry_date + timedelta(days=14))
+                    and loan_renewal_doc.status != "Approved"
+                    and user_kyc_pending
+                ):
+                    seconds = abs(
+                        (date_7after_expiry + timedelta(days=7))
+                        - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+                elif (
+                    date_1
+                    and extended_two_days
+                    and date_1 > is_expired_date.date()
+                    and frappe.utils.now_datetime() < extended_two_days
+                ):
+                    seconds = abs(
+                        extended_two_days - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    # seconds = abs(extended_two_days).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+
+                else:
+                    seconds = 0
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+
+                if (
+                    extended_two_days
+                    and date_1
+                    and frappe.utils.now_datetime() < extended_two_days
+                ):
+                    loan_renewal_doc.tnc_show = 1
+                    frappe.log_error(
+                        message=frappe.get_traceback(),
+                        title=(
+                            _(
+                                "loan_renewal_doc.tnc_show".format(
+                                    loan_renewal_doc.tnc_show
+                                )
+                            )
+                        ),
+                    )
+
+                loan_renewal_doc.time_remaining = renewal_timer
+                loan_renewal_doc.action_status = action_status
+
+                str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+                    "%d-%m-%Y"
+                )
+                str_exp = str_exp.replace("-", "/")
+                loan_renewal_doc.expiry_date = str_exp
+
+                loan_renewal_doc_list.append(loan_renewal_doc)
+            if loan.sl_cial_entries:
+                loan_sanctioned_letter_list = frappe.get_all(
+                    "Sanction Letter and CIAL Log",
+                    filters={"name": loan.sl_cial_entries},
+                    fields=["*"],
+                )
+                sanction_letter_list = frappe.get_doc(
+                    "Sanction Letter and CIAL Log", loan_sanctioned_letter_list[0].name
+                )
+                for i in sanction_letter_list.sl_table:
+                    sl_letter = frappe.utils.get_url(i.sanction_letter)
+
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
             "actionable_loan": actionable_loan,
             "under_process_la": under_process_la,
+            "under_process_loan_renewal_app": under_process_lr,
             "active_loans": active_loans,
             "sell_collateral_list": sell_collateral_list,
             "unpledge_list": unpledge_list,
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
             "instrument_type": instrument_type,
+            "loan_renewal_application": loan_renewal_doc_list,
+            "sanctioned_letter": sl_letter,
+            "version_details": version_details[0],
         }
 
         return utils.respondWithSuccess(data=res)
@@ -3396,7 +2770,6 @@ def spark_demat_account(**kwargs):
             raise utils.exceptions.ValidationException(
                 {"demat": {"required": frappe._("list should be in list format.")}}
             )
-        print("customer.name", customer.name)
         frappe.delete_doc(
             "Spark Demat Account",
             frappe.get_all(
@@ -4351,10 +3724,19 @@ def ckyc_search(**kwargs):
                 .get("PID_DATA")
                 .get("SearchResponsePID")
             )
-            ckyc_no = {
-                # "ckyc_no": pid_data.get("CKYC_NO").replace("O", "").replace("o", "").replace("L", ""),
-                "ckyc_no": "".join(filter(str.isdigit, pid_data.get("CKYC_NO")))
-            }
+            if type(pid_data) != list:
+                pid_data = [pid_data]
+            ckyc_no_ = ",".join(
+                [
+                    "".join(filter(str.isdigit, pid.get("CKYC_NO")))
+                    + ":"
+                    + pid.get("KYC_DATE")
+                    for pid in pid_data
+                    if not pid.get("CONSTITUTION_TYPE")
+                ]
+            )
+
+            ckyc_no = {"ckyc_no": ckyc_no_}
             kyc_consent_doc = frappe.get_doc(
                 {
                     "doctype": "User Consent",
@@ -4396,320 +3778,371 @@ def ckyc_download(**kwargs):
         pid_data = {}
         customer = lms.__customer()
         user_kyc_name = ""
-
-        res_json = lms.ckyc_dot_net(
-            cust=customer,
-            pan_no=data.get("pan_no"),
-            is_for_download=True,
-            dob=data.get("dob"),
-            ckyc_no=data.get("ckyc_no"),
+        data["dob"] = datetime.strptime(data.get("dob"), "%d-%m-%Y").strftime(
+            "%d-%m-%Y"
         )
+        data["ckyc_no"] = data.get("ckyc_no").split(",")
+        kyc_dict = {}
 
-        if res_json.get("status") == 200 and not res_json.get("error"):
-            try:
-                pid_data = json.loads(res_json.get("data")).get("PID_DATA")
-
-                personal_details = pid_data.get("PERSONAL_DETAILS")
-                identity_details = pid_data.get("IDENTITY_DETAILS")
-                related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
-                image_details = pid_data.get("IMAGE_DETAILS")
-
-                user_kyc = frappe.get_doc(
-                    {
-                        "doctype": "User KYC",
-                        "owner": customer.user,
-                        "user": customer.user,
-                        "kyc_type": "CKYC",
-                        "pan_no": personal_details.get("PAN"),
-                        "date_of_birth": datetime.strptime(data.get("dob"), "%d-%m-%Y"),
-                        "consti_type": personal_details.get("CONSTI_TYPE"),
-                        "acc_type": personal_details.get("ACC_TYPE"),
-                        "ckyc_no": personal_details.get("CKYC_NO"),
-                        "prefix": personal_details.get("PREFIX"),
-                        "fname": personal_details.get("FNAME"),
-                        "mname": personal_details.get("MNAME"),
-                        "lname": personal_details.get("LNAME"),
-                        "fullname": personal_details.get("FULLNAME"),
-                        "maiden_prefix": personal_details.get("MAIDEN_PREFIX"),
-                        "maiden_fname": personal_details.get("MAIDEN_FNAME"),
-                        "maiden_mname": personal_details.get("MAIDEN_MNAME"),
-                        "maiden_lname": personal_details.get("MAIDEN_LNAME"),
-                        "maiden_fullname": personal_details.get("MAIDEN_FULLNAME"),
-                        "fatherspouse_flag": personal_details.get("FATHERSPOUSE_FLAG"),
-                        "father_prefix": personal_details.get("FATHER_PREFIX"),
-                        "father_fname": personal_details.get("FATHER_FNAME"),
-                        "father_mname": personal_details.get("FATHER_MNAME"),
-                        "father_lname": personal_details.get("FATHER_LNAME"),
-                        "father_fullname": personal_details.get("FATHER_FULLNAME"),
-                        "mother_prefix": personal_details.get("MOTHER_PREFIX"),
-                        "mother_fname": personal_details.get("MOTHER_FNAME"),
-                        "mother_mname": personal_details.get("MOTHER_MNAME"),
-                        "mother_lname": personal_details.get("MOTHER_LNAME"),
-                        "mother_fullname": personal_details.get("MOTHER_FULLNAME"),
-                        "gender": personal_details.get("GENDER"),
-                        "dob": personal_details.get("DOB"),
-                        "pan": personal_details.get("PAN"),
-                        "form_60": personal_details.get("FORM_60"),
-                        "perm_line1": personal_details.get("PERM_LINE1"),
-                        "perm_line2": personal_details.get("PERM_LINE2"),
-                        "perm_line3": personal_details.get("PERM_LINE3"),
-                        "perm_city": personal_details.get("PERM_CITY"),
-                        "perm_dist": personal_details.get("PERM_DIST"),
-                        "perm_state": personal_details.get("PERM_STATE"),
-                        "perm_country": personal_details.get("PERM_COUNTRY"),
-                        "perm_state_name": frappe.db.get_value(
-                            "Pincode Master",
-                            {"state": personal_details.get("PERM_STATE")},
-                            "state_name",
-                        ),
-                        "perm_country_name": frappe.db.get_value(
-                            "Country Master",
-                            {"name": personal_details.get("PERM_COUNTRY")},
-                            "country",
-                        ),
-                        "perm_pin": personal_details.get("PERM_PIN"),
-                        "perm_poa": personal_details.get("PERM_POA"),
-                        "perm_corres_sameflag": personal_details.get(
-                            "PERM_CORRES_SAMEFLAG"
-                        ),
-                        "corres_line1": personal_details.get("CORRES_LINE1"),
-                        "corres_line2": personal_details.get("CORRES_LINE2"),
-                        "corres_line3": personal_details.get("CORRES_LINE3"),
-                        "corres_city": personal_details.get("CORRES_CITY"),
-                        "corres_dist": personal_details.get("CORRES_DIST"),
-                        "corres_state": personal_details.get("CORRES_STATE"),
-                        "corres_country": personal_details.get("CORRES_COUNTRY"),
-                        "corres_state_name": frappe.db.get_value(
-                            "Pincode Master",
-                            {"state": personal_details.get("CORRES_STATE")},
-                            "state_name",
-                        ),
-                        "corres_country_name": frappe.db.get_value(
-                            "Country Master",
-                            {"name": personal_details.get("CORRES_COUNTRY")},
-                            "country",
-                        ),
-                        "corres_pin": personal_details.get("CORRES_PIN"),
-                        "corres_poa": personal_details.get("CORRES_POA"),
-                        "resi_std_code": personal_details.get("RESI_STD_CODE"),
-                        "resi_tel_num": personal_details.get("RESI_TEL_NUM"),
-                        "off_std_code": personal_details.get("OFF_STD_CODE"),
-                        "off_tel_num": personal_details.get("OFF_TEL_NUM"),
-                        "mob_code": personal_details.get("MOB_CODE"),
-                        "mob_num": personal_details.get("MOB_NUM"),
-                        "email": personal_details.get("EMAIL"),
-                        "email_id": personal_details.get("EMAIL"),
-                        "remarks": personal_details.get("REMARKS"),
-                        "dec_date": personal_details.get("DEC_DATE"),
-                        "dec_place": personal_details.get("DEC_PLACE"),
-                        "kyc_date": personal_details.get("KYC_DATE"),
-                        "doc_sub": personal_details.get("DOC_SUB"),
-                        "kyc_name": personal_details.get("KYC_NAME"),
-                        "kyc_designation": personal_details.get("KYC_DESIGNATION"),
-                        "kyc_branch": personal_details.get("KYC_BRANCH"),
-                        "kyc_empcode": personal_details.get("KYC_EMPCODE"),
-                        "org_name": personal_details.get("ORG_NAME"),
-                        "org_code": personal_details.get("ORG_CODE"),
-                        "num_identity": personal_details.get("NUM_IDENTITY"),
-                        "num_related": personal_details.get("NUM_RELATED"),
-                        "num_images": personal_details.get("NUM_IMAGES"),
-                    }
-                )
-
-                if user_kyc.gender == "M":
-                    gender_full = "Male"
-                elif user_kyc.gender == "F":
-                    gender_full = "Female"
-                else:
-                    gender_full = "Transgender"
-
-                user_kyc.gender_full = gender_full
-
-                if identity_details:
-                    identity = identity_details.get("IDENTITY")
-                    if identity:
-                        if type(identity) != list:
-                            identity = [identity]
-
-                        for i in identity:
-                            user_kyc.append(
-                                "identity_details",
-                                {
-                                    "sequence_no": i.get("SEQUENCE_NO"),
-                                    "ident_type": i.get("IDENT_TYPE"),
-                                    "ident_num": i.get("IDENT_NUM"),
-                                    "idver_status": i.get("IDVER_STATUS"),
-                                    "ident_category": frappe.db.get_value(
-                                        "Identity Code",
-                                        {"name": i.get("IDENT_TYPE")},
-                                        "category",
-                                    ),
-                                },
-                            )
-
-                if related_person_details:
-                    related_person = related_person_details.get("RELATED_PERSON")
-                    if related_person:
-                        if type(related_person) != list:
-                            related_person = [related_person]
-
-                        for r in related_person:
-                            photos_ = lms.upload_image_to_doctype(
-                                customer=customer,
-                                seq_no=r.get("REL_TYPE"),
-                                image_=r.get("PHOTO_DATA"),
-                                img_format=r.get("PHOTO_TYPE"),
-                            )
-                            perm_poi_photos_ = lms.upload_image_to_doctype(
-                                customer=customer,
-                                seq_no=r.get("REL_TYPE"),
-                                image_=r.get("PERM_POI_DATA"),
-                                img_format=r.get("PERM_POI_IMAGE_TYPE"),
-                            )
-                            corres_poi_photos_ = lms.upload_image_to_doctype(
-                                customer=customer,
-                                seq_no=r.get("REL_TYPE"),
-                                image_=r.get("CORRES_POI_DATA"),
-                                img_format=r.get("CORRES_POI_IMAGE_TYPE"),
-                            )
-                            user_kyc.append(
-                                "related_person_details",
-                                {
-                                    "sequence_no": r.get("SEQUENCE_NO"),
-                                    "rel_type": r.get("REL_TYPE"),
-                                    "add_del_flag": r.get("ADD_DEL_FLAG"),
-                                    "ckyc_no": r.get("CKYC_NO"),
-                                    "prefix": r.get("PREFIX"),
-                                    "fname": r.get("FNAME"),
-                                    "mname": r.get("MNAME"),
-                                    "lname": r.get("LNAME"),
-                                    "maiden_prefix": r.get("MAIDEN_PREFIX"),
-                                    "maiden_fname": r.get("MAIDEN_FNAME"),
-                                    "maiden_mname": r.get("MAIDEN_MNAME"),
-                                    "maiden_lname": r.get("MAIDEN_LNAME"),
-                                    "fatherspouse_flag": r.get("FATHERSPOUSE_FLAG"),
-                                    "father_prefix": r.get("FATHER_PREFIX"),
-                                    "father_fname": r.get("FATHER_FNAME"),
-                                    "father_mname": r.get("FATHER_MNAME"),
-                                    "father_lname": r.get("FATHER_LNAME"),
-                                    "mother_prefix": r.get("MOTHER_PREFIX"),
-                                    "mother_fname": r.get("MOTHER_FNAME"),
-                                    "mother_mname": r.get("MOTHER_MNAME"),
-                                    "mother_lname": r.get("MOTHER_LNAME"),
-                                    "gender": r.get("GENDER"),
-                                    "dob": r.get("DOB"),
-                                    "nationality": r.get("NATIONALITY"),
-                                    "pan": r.get("PAN"),
-                                    "form_60": r.get("FORM_60"),
-                                    "add_line1": r.get("Add_LINE1"),
-                                    "add_line2": r.get("Add_LINE2"),
-                                    "add_line3": r.get("Add_LINE3"),
-                                    "add_city": r.get("Add_CITY"),
-                                    "add_dist": r.get("Add_DIST"),
-                                    "add_state": r.get("Add_STATE"),
-                                    "add_country": r.get("Add_COUNTRY"),
-                                    "add_pin": r.get("Add_PIN"),
-                                    "perm_poi_type": r.get("PERM_POI_TYPE"),
-                                    "same_as_perm_flag": r.get("SAME_AS_PERM_FLAG"),
-                                    "corres_add_line1": r.get("CORRES_ADD_LINE1"),
-                                    "corres_add_line2": r.get("CORRES_ADD_LINE2"),
-                                    "corres_add_line3": r.get("CORRES_ADD_LINE3"),
-                                    "corres_add_city": r.get("CORRES_ADD_CITY"),
-                                    "corres_add_dist": r.get("CORRES_ADD_DIST"),
-                                    "corres_add_state": r.get("CORRES_ADD_STATE"),
-                                    "corres_add_country": r.get("CORRES_ADD_COUNTRY"),
-                                    "corres_add_pin": r.get("CORRES_ADD_PIN"),
-                                    "corres_poi_type": r.get("CORRES_POI_TYPE"),
-                                    "resi_std_code": r.get("RESI_STD_CODE"),
-                                    "resi_tel_num": r.get("RESI_TEL_NUM"),
-                                    "off_std_code": r.get("OFF_STD_CODE"),
-                                    "off_tel_num": r.get("OFF_TEL_NUM"),
-                                    "mob_code": r.get("MOB_CODE"),
-                                    "mob_num": r.get("MOB_NUM"),
-                                    "email": r.get("EMAIL"),
-                                    "remarks": r.get("REMARKS"),
-                                    "dec_date": r.get("DEC_DATE"),
-                                    "dec_place": r.get("DEC_PLACE"),
-                                    "kyc_date": r.get("KYC_DATE"),
-                                    "doc_sub": r.get("DOC_SUB"),
-                                    "kyc_name": r.get("KYC_NAME"),
-                                    "kyc_designation": r.get("KYC_DESIGNATION"),
-                                    "kyc_branch": r.get("KYC_BRANCH"),
-                                    "kyc_empcode": r.get("KYC_EMPCODE"),
-                                    "org_name": r.get("ORG_NAME"),
-                                    "org_code": r.get("ORG_CODE"),
-                                    "photo_type": r.get("PHOTO_TYPE"),
-                                    "photo": photos_,
-                                    "perm_poi_image_type": r.get("PERM_POI_IMAGE_TYPE"),
-                                    "perm_poi": perm_poi_photos_,
-                                    "corres_poi_image_type": r.get(
-                                        "CORRES_POI_IMAGE_TYPE"
-                                    ),
-                                    "corres_poi": corres_poi_photos_,
-                                    "proof_of_possession_of_aadhaar": r.get(
-                                        "PROOF_OF_POSSESSION_OF_AADHAAR"
-                                    ),
-                                    "voter_id": r.get("VOTER_ID"),
-                                    "nrega": r.get("NREGA"),
-                                    "passport": r.get("PASSPORT"),
-                                    "driving_licence": r.get("DRIVING_LICENCE"),
-                                    "national_poplation_reg_letter": r.get(
-                                        "NATIONAL_POPLATION_REG_LETTER"
-                                    ),
-                                    "offline_verification_aadhaar": r.get(
-                                        "OFFLINE_VERIFICATION_AADHAAR"
-                                    ),
-                                    "e_kyc_authentication": r.get(
-                                        "E_KYC_AUTHENTICATION"
-                                    ),
-                                },
-                            )
-
-                if image_details:
-                    image_ = image_details.get("IMAGE")
-                    if image_:
-                        if type(image_) != list:
-                            image_ = [image_]
-
-                        for im in image_:
-                            image_data = lms.upload_image_to_doctype(
-                                customer=customer,
-                                seq_no=im.get("SEQUENCE_NO"),
-                                image_=im.get("IMAGE_DATA"),
-                                img_format=im.get("IMAGE_TYPE"),
-                            )
-                            user_kyc.append(
-                                "image_details",
-                                {
-                                    "sequence_no": im.get("SEQUENCE_NO"),
-                                    "image_type": im.get("IMAGE_TYPE"),
-                                    "image_code": im.get("IMAGE_CODE"),
-                                    "global_flag": im.get("GLOBAL_FLAG"),
-                                    "branch_code": im.get("BRANCH_CODE"),
-                                    "image_name": frappe.db.get_value(
-                                        "Document Master",
-                                        {"name": im.get("IMAGE_CODE")},
-                                        "document_name",
-                                    ),
-                                    "image": image_data,
-                                },
-                            )
-
-                user_kyc.insert(ignore_permissions=True)
-                user_kyc_name = user_kyc.name
-                frappe.db.commit()
-
-            except Exception:
-                raise lms.exceptions.RespondFailureException()
-        else:
-            frappe.db.rollback
-            lms.log_api_error(mess=str(res_json))
-            return utils.respondWithFailure(
-                status=res_json.get("status"),
-                message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
-                data=res_json.get("error"),
+        for ckyc in data.get("ckyc_no"):
+            res_json = lms.ckyc_dot_net(
+                cust=customer,
+                pan_no=data.get("pan_no"),
+                is_for_download=True,
+                dob=data.get("dob"),
+                ckyc_no=ckyc.split(":")[0],
             )
 
+            if res_json.get("status") == 200 and not res_json.get("error"):
+                try:
+                    pid_data = json.loads(res_json.get("data")).get("PID_DATA")
+
+                    personal_details = pid_data.get("PERSONAL_DETAILS")
+                    identity_details = pid_data.get("IDENTITY_DETAILS")
+                    related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
+                    image_details = pid_data.get("IMAGE_DETAILS")
+
+                    user_kyc = frappe.get_doc(
+                        {
+                            "doctype": "User KYC",
+                            "owner": customer.user,
+                            "user": customer.user,
+                            "kyc_type": "CKYC",
+                            "pan_no": personal_details.get("PAN"),
+                            "date_of_birth": datetime.strptime(
+                                data.get("dob"), "%d-%m-%Y"
+                            ),
+                            "consti_type": personal_details.get("CONSTI_TYPE"),
+                            "acc_type": personal_details.get("ACC_TYPE"),
+                            "ckyc_no": personal_details.get("CKYC_NO"),
+                            "prefix": personal_details.get("PREFIX"),
+                            "fname": personal_details.get("FNAME"),
+                            "mname": personal_details.get("MNAME"),
+                            "lname": personal_details.get("LNAME"),
+                            "fullname": personal_details.get("FULLNAME"),
+                            "maiden_prefix": personal_details.get("MAIDEN_PREFIX"),
+                            "maiden_fname": personal_details.get("MAIDEN_FNAME"),
+                            "maiden_mname": personal_details.get("MAIDEN_MNAME"),
+                            "maiden_lname": personal_details.get("MAIDEN_LNAME"),
+                            "maiden_fullname": personal_details.get("MAIDEN_FULLNAME"),
+                            "fatherspouse_flag": personal_details.get(
+                                "FATHERSPOUSE_FLAG"
+                            ),
+                            "father_prefix": personal_details.get("FATHER_PREFIX"),
+                            "father_fname": personal_details.get("FATHER_FNAME"),
+                            "father_mname": personal_details.get("FATHER_MNAME"),
+                            "father_lname": personal_details.get("FATHER_LNAME"),
+                            "father_fullname": personal_details.get("FATHER_FULLNAME"),
+                            "mother_prefix": personal_details.get("MOTHER_PREFIX"),
+                            "mother_fname": personal_details.get("MOTHER_FNAME"),
+                            "mother_mname": personal_details.get("MOTHER_MNAME"),
+                            "mother_lname": personal_details.get("MOTHER_LNAME"),
+                            "mother_fullname": personal_details.get("MOTHER_FULLNAME"),
+                            "gender": personal_details.get("GENDER"),
+                            "dob": personal_details.get("DOB"),
+                            "pan": personal_details.get("PAN"),
+                            "form_60": personal_details.get("FORM_60"),
+                            "perm_line1": personal_details.get("PERM_LINE1"),
+                            "perm_line2": personal_details.get("PERM_LINE2"),
+                            "perm_line3": personal_details.get("PERM_LINE3"),
+                            "perm_city": personal_details.get("PERM_CITY"),
+                            "perm_dist": personal_details.get("PERM_DIST"),
+                            "perm_state": personal_details.get("PERM_STATE"),
+                            "perm_country": personal_details.get("PERM_COUNTRY"),
+                            "perm_state_name": frappe.db.get_value(
+                                "Pincode Master",
+                                {"state": personal_details.get("PERM_STATE")},
+                                "state_name",
+                            ),
+                            "perm_country_name": frappe.db.get_value(
+                                "Country Master",
+                                {"name": personal_details.get("PERM_COUNTRY")},
+                                "country",
+                            ),
+                            "perm_pin": personal_details.get("PERM_PIN"),
+                            "perm_poa": personal_details.get("PERM_POA"),
+                            "perm_corres_sameflag": personal_details.get(
+                                "PERM_CORRES_SAMEFLAG"
+                            ),
+                            "corres_line1": personal_details.get("CORRES_LINE1"),
+                            "corres_line2": personal_details.get("CORRES_LINE2"),
+                            "corres_line3": personal_details.get("CORRES_LINE3"),
+                            "corres_city": personal_details.get("CORRES_CITY"),
+                            "corres_dist": personal_details.get("CORRES_DIST"),
+                            "corres_state": personal_details.get("CORRES_STATE"),
+                            "corres_country": personal_details.get("CORRES_COUNTRY"),
+                            "corres_state_name": frappe.db.get_value(
+                                "Pincode Master",
+                                {"state": personal_details.get("CORRES_STATE")},
+                                "state_name",
+                            ),
+                            "corres_country_name": frappe.db.get_value(
+                                "Country Master",
+                                {"name": personal_details.get("CORRES_COUNTRY")},
+                                "country",
+                            ),
+                            "corres_pin": personal_details.get("CORRES_PIN"),
+                            "corres_poa": personal_details.get("CORRES_POA"),
+                            "resi_std_code": personal_details.get("RESI_STD_CODE"),
+                            "resi_tel_num": personal_details.get("RESI_TEL_NUM"),
+                            "off_std_code": personal_details.get("OFF_STD_CODE"),
+                            "off_tel_num": personal_details.get("OFF_TEL_NUM"),
+                            "mob_code": personal_details.get("MOB_CODE"),
+                            "mob_num": personal_details.get("MOB_NUM"),
+                            "email": personal_details.get("EMAIL"),
+                            "email_id": personal_details.get("EMAIL"),
+                            "remarks": personal_details.get("REMARKS"),
+                            "dec_date": personal_details.get("DEC_DATE"),
+                            "dec_place": personal_details.get("DEC_PLACE"),
+                            "kyc_date": personal_details.get("KYC_DATE"),
+                            "doc_sub": personal_details.get("DOC_SUB"),
+                            "kyc_name": personal_details.get("KYC_NAME"),
+                            "kyc_designation": personal_details.get("KYC_DESIGNATION"),
+                            "kyc_branch": personal_details.get("KYC_BRANCH"),
+                            "kyc_empcode": personal_details.get("KYC_EMPCODE"),
+                            "org_name": personal_details.get("ORG_NAME"),
+                            "org_code": personal_details.get("ORG_CODE"),
+                            "num_identity": personal_details.get("NUM_IDENTITY"),
+                            "num_related": personal_details.get("NUM_RELATED"),
+                            "num_images": personal_details.get("NUM_IMAGES"),
+                        }
+                    )
+
+                    if user_kyc.gender == "M":
+                        gender_full = "Male"
+                    elif user_kyc.gender == "F":
+                        gender_full = "Female"
+                    else:
+                        gender_full = "Transgender"
+
+                    user_kyc.gender_full = gender_full
+
+                    if identity_details:
+                        identity = identity_details.get("IDENTITY")
+                        if identity:
+                            if type(identity) != list:
+                                identity = [identity]
+
+                            for i in identity:
+                                user_kyc.append(
+                                    "identity_details",
+                                    {
+                                        "sequence_no": i.get("SEQUENCE_NO"),
+                                        "ident_type": i.get("IDENT_TYPE"),
+                                        "ident_num": i.get("IDENT_NUM"),
+                                        "idver_status": i.get("IDVER_STATUS"),
+                                        "ident_category": frappe.db.get_value(
+                                            "Identity Code",
+                                            {"name": i.get("IDENT_TYPE")},
+                                            "category",
+                                        ),
+                                    },
+                                )
+
+                    if related_person_details:
+                        related_person = related_person_details.get("RELATED_PERSON")
+                        if related_person:
+                            if type(related_person) != list:
+                                related_person = [related_person]
+
+                            for r in related_person:
+                                photos_ = lms.upload_image_to_doctype(
+                                    customer=customer,
+                                    seq_no=r.get("REL_TYPE"),
+                                    image_=r.get("PHOTO_DATA"),
+                                    img_format=r.get("PHOTO_TYPE"),
+                                )
+                                perm_poi_photos_ = lms.upload_image_to_doctype(
+                                    customer=customer,
+                                    seq_no=r.get("REL_TYPE"),
+                                    image_=r.get("PERM_POI_DATA"),
+                                    img_format=r.get("PERM_POI_IMAGE_TYPE"),
+                                )
+                                corres_poi_photos_ = lms.upload_image_to_doctype(
+                                    customer=customer,
+                                    seq_no=r.get("REL_TYPE"),
+                                    image_=r.get("CORRES_POI_DATA"),
+                                    img_format=r.get("CORRES_POI_IMAGE_TYPE"),
+                                )
+                                user_kyc.append(
+                                    "related_person_details",
+                                    {
+                                        "sequence_no": r.get("SEQUENCE_NO"),
+                                        "rel_type": r.get("REL_TYPE"),
+                                        "add_del_flag": r.get("ADD_DEL_FLAG"),
+                                        "ckyc_no": r.get("CKYC_NO"),
+                                        "prefix": r.get("PREFIX"),
+                                        "fname": r.get("FNAME"),
+                                        "mname": r.get("MNAME"),
+                                        "lname": r.get("LNAME"),
+                                        "maiden_prefix": r.get("MAIDEN_PREFIX"),
+                                        "maiden_fname": r.get("MAIDEN_FNAME"),
+                                        "maiden_mname": r.get("MAIDEN_MNAME"),
+                                        "maiden_lname": r.get("MAIDEN_LNAME"),
+                                        "fatherspouse_flag": r.get("FATHERSPOUSE_FLAG"),
+                                        "father_prefix": r.get("FATHER_PREFIX"),
+                                        "father_fname": r.get("FATHER_FNAME"),
+                                        "father_mname": r.get("FATHER_MNAME"),
+                                        "father_lname": r.get("FATHER_LNAME"),
+                                        "mother_prefix": r.get("MOTHER_PREFIX"),
+                                        "mother_fname": r.get("MOTHER_FNAME"),
+                                        "mother_mname": r.get("MOTHER_MNAME"),
+                                        "mother_lname": r.get("MOTHER_LNAME"),
+                                        "gender": r.get("GENDER"),
+                                        "dob": r.get("DOB"),
+                                        "nationality": r.get("NATIONALITY"),
+                                        "pan": r.get("PAN"),
+                                        "form_60": r.get("FORM_60"),
+                                        "add_line1": r.get("Add_LINE1"),
+                                        "add_line2": r.get("Add_LINE2"),
+                                        "add_line3": r.get("Add_LINE3"),
+                                        "add_city": r.get("Add_CITY"),
+                                        "add_dist": r.get("Add_DIST"),
+                                        "add_state": r.get("Add_STATE"),
+                                        "add_country": r.get("Add_COUNTRY"),
+                                        "add_pin": r.get("Add_PIN"),
+                                        "perm_poi_type": r.get("PERM_POI_TYPE"),
+                                        "same_as_perm_flag": r.get("SAME_AS_PERM_FLAG"),
+                                        "corres_add_line1": r.get("CORRES_ADD_LINE1"),
+                                        "corres_add_line2": r.get("CORRES_ADD_LINE2"),
+                                        "corres_add_line3": r.get("CORRES_ADD_LINE3"),
+                                        "corres_add_city": r.get("CORRES_ADD_CITY"),
+                                        "corres_add_dist": r.get("CORRES_ADD_DIST"),
+                                        "corres_add_state": r.get("CORRES_ADD_STATE"),
+                                        "corres_add_country": r.get(
+                                            "CORRES_ADD_COUNTRY"
+                                        ),
+                                        "corres_add_pin": r.get("CORRES_ADD_PIN"),
+                                        "corres_poi_type": r.get("CORRES_POI_TYPE"),
+                                        "resi_std_code": r.get("RESI_STD_CODE"),
+                                        "resi_tel_num": r.get("RESI_TEL_NUM"),
+                                        "off_std_code": r.get("OFF_STD_CODE"),
+                                        "off_tel_num": r.get("OFF_TEL_NUM"),
+                                        "mob_code": r.get("MOB_CODE"),
+                                        "mob_num": r.get("MOB_NUM"),
+                                        "email": r.get("EMAIL"),
+                                        "remarks": r.get("REMARKS"),
+                                        "dec_date": r.get("DEC_DATE"),
+                                        "dec_place": r.get("DEC_PLACE"),
+                                        "kyc_date": r.get("KYC_DATE"),
+                                        "doc_sub": r.get("DOC_SUB"),
+                                        "kyc_name": r.get("KYC_NAME"),
+                                        "kyc_designation": r.get("KYC_DESIGNATION"),
+                                        "kyc_branch": r.get("KYC_BRANCH"),
+                                        "kyc_empcode": r.get("KYC_EMPCODE"),
+                                        "org_name": r.get("ORG_NAME"),
+                                        "org_code": r.get("ORG_CODE"),
+                                        "photo_type": r.get("PHOTO_TYPE"),
+                                        "photo": photos_,
+                                        "perm_poi_image_type": r.get(
+                                            "PERM_POI_IMAGE_TYPE"
+                                        ),
+                                        "perm_poi": perm_poi_photos_,
+                                        "corres_poi_image_type": r.get(
+                                            "CORRES_POI_IMAGE_TYPE"
+                                        ),
+                                        "corres_poi": corres_poi_photos_,
+                                        "proof_of_possession_of_aadhaar": r.get(
+                                            "PROOF_OF_POSSESSION_OF_AADHAAR"
+                                        ),
+                                        "voter_id": r.get("VOTER_ID"),
+                                        "nrega": r.get("NREGA"),
+                                        "passport": r.get("PASSPORT"),
+                                        "driving_licence": r.get("DRIVING_LICENCE"),
+                                        "national_poplation_reg_letter": r.get(
+                                            "NATIONAL_POPLATION_REG_LETTER"
+                                        ),
+                                        "offline_verification_aadhaar": r.get(
+                                            "OFFLINE_VERIFICATION_AADHAAR"
+                                        ),
+                                        "e_kyc_authentication": r.get(
+                                            "E_KYC_AUTHENTICATION"
+                                        ),
+                                    },
+                                )
+
+                    if image_details:
+                        image_ = image_details.get("IMAGE")
+                        if image_:
+                            if type(image_) != list:
+                                image_ = [image_]
+
+                            for im in image_:
+                                image_data = lms.upload_image_to_doctype(
+                                    customer=customer,
+                                    seq_no=im.get("SEQUENCE_NO"),
+                                    image_=im.get("IMAGE_DATA"),
+                                    img_format=im.get("IMAGE_TYPE"),
+                                )
+                                user_kyc.append(
+                                    "image_details",
+                                    {
+                                        "sequence_no": im.get("SEQUENCE_NO"),
+                                        "image_type": im.get("IMAGE_TYPE"),
+                                        "image_code": im.get("IMAGE_CODE"),
+                                        "global_flag": im.get("GLOBAL_FLAG"),
+                                        "branch_code": im.get("BRANCH_CODE"),
+                                        "image_name": frappe.db.get_value(
+                                            "Document Master",
+                                            {"name": im.get("IMAGE_CODE")},
+                                            "document_name",
+                                        ),
+                                        "image": image_data,
+                                    },
+                                )
+
+                    user_kyc.insert(ignore_permissions=True)
+                    user_kyc_name = user_kyc.name
+                    kyc_dict.update(
+                        {
+                            user_kyc_name: datetime.strptime(
+                                ckyc.split(":")[1], "%d-%m-%Y"
+                            )
+                        }
+                    )
+                    frappe.db.commit()
+
+                except Exception:
+                    raise lms.exceptions.RespondFailureException()
+            else:
+                frappe.db.rollback
+                lms.log_api_error(mess=str(res_json))
+                return utils.respondWithFailure(
+                    status=res_json.get("status"),
+                    message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
+                    data=res_json.get("error"),
+                )
+        user_kyc_name = ",".join(
+            dict(sorted(kyc_dict.items(), key=lambda item: item[1])).keys()
+        )
+        if len(user_kyc_name.split(",")) > 1:
+            for dup_kyc in user_kyc_name.split(",")[1:]:
+                frappe.get_doc(
+                    {
+                        "doctype": "Duplicate KYC",
+                        "user_kyc": dup_kyc,
+                        "user": lms.__user().name,
+                        "parent": user_kyc_name.split(",")[0],
+                        "parentfield": "duplicate_kyc",
+                        "parenttype": "User KYC",
+                    }
+                ).insert(ignore_permissions=True)
+
+            filter = "= '{}'".format(user_kyc_name.split(",")[1])
+            if len(user_kyc_name.split(",")[1:]) > 1:
+                filter = "in {}".format(
+                    lms.convert_list_to_tuple_string(
+                        [d.name for d in user_kyc_name.split(",")[1:]]
+                    )
+                )
+            frappe.db.sql(
+                "update `tabUser KYC` set parent_kyc='{main_kyc}' where name {filter}".format(
+                    main_kyc=user_kyc_name.split(",")[0], filter=filter
+                ),
+                debug=True,
+            )
+
+            frappe.db.commit()
         return utils.respondWithSuccess(data={"user_kyc_name": user_kyc_name})
     except utils.exceptions.APIException as e:
         frappe.db.rollback
@@ -4844,300 +4277,481 @@ def ckyc_consent_details(**kwargs):
                 "user_kyc_name": "required",
                 "address_details": "",
                 "accept_terms": "",
+                "is_loan_renewal": "required",
             },
         )
 
-        try:
-            user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
-        except UserKYCNotFoundException:
-            user_kyc = None
-        try:
-            consent_details = frappe.get_doc("Consent", "Ckyc")
-        except frappe.DoesNotExistError:
-            raise lms.exceptions.NotFoundException(message=_("Consent not found"))
+        # user kyc name = first entry in kyc doctype
+        # multiple kyc = remaining kyc entries
+        # add multiple kyc names in parent kyc doctype
+        # add parent kyc to all multiple kyc
+        multiple_kyc = data.get("user_kyc_name").split(",")[1:]
+        data["user_kyc_name"] = data.get("user_kyc_name").split(",")[0]
 
         if data.get("address_details") and not data.get("accept_terms"):
             raise lms.exceptions.UnauthorizedException(
                 message=_("Please accept Terms and Conditions.")
             )
 
-        poa_type = frappe.get_list(
-            "Proof of Address Master", pluck="poa_name", ignore_permissions=True
-        )
+        if data.get("user_kyc_name") and data.get("is_loan_renewal") == 1:
+            customer = lms.__customer()
+            user_kyc_doc = frappe.get_doc("User KYC", customer.choice_kyc)
 
-        country = frappe.get_all(
-            "Country Master",
-            fields=["country"],
-            pluck="country",
-            order_by="country asc",
-        )
+            res_json = lms.ckyc_dot_net(
+                cust=customer,
+                pan_no=user_kyc_doc.pan_no,
+                is_for_download=True,
+                dob=user_kyc_doc.dob,
+                ckyc_no=user_kyc_doc.ckyc_no,
+            )
+            if res_json.get("status") == 200 and not res_json.get("error"):
+                try:
+                    new_user_kyc = lms.ckyc_commit(
+                        res_json=res_json, customer=customer, dob=user_kyc_doc.dob
+                    )
+                    new_user_kyc_doc = frappe.get_doc("User KYC", new_user_kyc.name)
+                    new_user_kyc_doc.updated_kyc = 1
+                    banks = []
+                    for i in user_kyc_doc.bank_account:
+                        bank = frappe.get_doc(
+                            {
+                                "parent": new_user_kyc_doc.name,
+                                "parenttype": "User KYC",
+                                "parentfield": "bank_account",
+                                "bank_status": i.get("bank_status"),
+                                "bank": i.get("bank"),
+                                "branch": i.get("branch"),
+                                "account_number": i.get("account_number"),
+                                "ifsc": i.get("ifsc"),
+                                "city": i.get("city"),
+                                "is_default": i.get("is_default"),
+                                "penny_request_id": i.get("penny_request_id"),
+                                "account_holder_name": i.get("account_holder_name"),
+                                "personalized_cheque": i.get("personalized_cheque"),
+                                "account_type": i.get("account_type"),
+                                "bank_transaction_status": i.get(
+                                    "bank_transaction_status"
+                                ),
+                                "notification_sent": i.get("notification_sent"),
+                                "doctype": "User Bank Account",
+                            }
+                        ).insert(ignore_permissions=True)
+                        banks.append(bank)
+                    new_user_kyc_doc.bank_account = banks
+                    new_user_kyc_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
 
-        # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
-        # user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
-        # user_kyc.email = lms.user_details_hashing(user_kyc.email)
-        # user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
-        # user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
-        user_kyc = lms.user_kyc_hashing(user_kyc)
+                    ckyc_address_doc = frappe.get_doc(
+                        {
+                            "doctype": "Customer Address Details",
+                            "perm_line1": new_user_kyc_doc.perm_line1,
+                            "perm_line2": new_user_kyc_doc.perm_line2,
+                            "perm_line3": new_user_kyc_doc.perm_line3,
+                            "perm_city": new_user_kyc_doc.perm_city,
+                            "perm_dist": new_user_kyc_doc.perm_dist,
+                            "perm_state": new_user_kyc_doc.perm_state_name,
+                            "perm_country": new_user_kyc_doc.perm_country_name,
+                            "perm_pin": new_user_kyc_doc.perm_pin,
+                            "perm_poa": "",
+                            "perm_image": "",
+                            "corres_poa_image": "",
+                            "perm_corres_flag": new_user_kyc_doc.perm_corres_sameflag,
+                            "corres_line1": new_user_kyc_doc.corres_line1,
+                            "corres_line2": new_user_kyc_doc.corres_line2,
+                            "corres_line3": new_user_kyc_doc.corres_line3,
+                            "corres_city": new_user_kyc_doc.corres_city,
+                            "corres_dist": new_user_kyc_doc.corres_dist,
+                            "corres_state": new_user_kyc_doc.corres_state_name,
+                            "corres_country": new_user_kyc_doc.corres_country_name,
+                            "corres_pin": new_user_kyc_doc.corres_pin,
+                            "corres_poa": "",
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
 
-        data_res = {
-            "user_kyc_doc": user_kyc,
-            "consent_details": consent_details,
-            "poa_type": poa_type,
-            "country": country,
-        }
-        message = "Success"
+                    try:
+                        if new_user_kyc_doc.updated_kyc == 1:
+                            consent_details = frappe.get_doc("Consent", "Re-Ckyc")
+                        else:
+                            consent_details = frappe.get_doc("Consent", "Ckyc")
+                    except frappe.DoesNotExistError:
+                        raise lms.exceptions.NotFoundException(
+                            message=_("Consent not found")
+                        )
 
-        if data.get("address_details") and data.get("accept_terms"):
-            validate_address(
-                address=data.get("address_details", {}),
-            )
-            user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
-            address = []
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line1,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line1"),
+                    poa_type = frappe.get_list(
+                        "Proof of Address Master",
+                        pluck="poa_name",
+                        ignore_permissions=True,
+                    )
+
+                    country = frappe.get_all(
+                        "Country Master",
+                        fields=["country"],
+                        pluck="country",
+                        order_by="country asc",
+                    )
+
+                    user_kyc = lms.user_kyc_hashing(new_user_kyc_doc)
+                    if user_kyc.address_details:
+                        address = frappe.get_doc(
+                            "Customer Address Details", user_kyc.address_details
+                        )
+                    else:
+                        address = ""
+
+                    data_res = {
+                        "user_kyc_doc": user_kyc,
+                        "consent_details": consent_details,
+                        "poa_type": poa_type,
+                        "country": country,
+                        "address": address,
+                    }
+                    message = "Success"
+
+                    return utils.respondWithSuccess(message=message, data=data_res)
+
+                except Exception as e:
+                    lms.log_api_error(mess=str(res_json))
+                    return utils.respondWithFailure(
+                        status=res_json.get("status"),
+                        message="Something went wrong",
+                        data=str(e),
+                    )
+            else:
+                lms.log_api_error(mess=str(res_json))
+                return utils.respondWithFailure(
+                    status=res_json.get("status"),
+                    message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
+                    data=res_json.get("error"),
                 )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line2,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line2"),
+        else:
+            try:
+                user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
+            except UserKYCNotFoundException:
+                user_kyc = None
+            try:
+                if user_kyc.updated_kyc == 1:
+                    consent_details = frappe.get_doc("Consent", "Re-Ckyc")
+                else:
+                    consent_details = frappe.get_doc("Consent", "Ckyc")
+            except frappe.DoesNotExistError:
+                raise lms.exceptions.NotFoundException(message=_("Consent not found"))
+
+            if data.get("address_details") and not data.get("accept_terms"):
+                raise lms.exceptions.UnauthorizedException(
+                    message=_("Please accept Terms and Conditions.")
                 )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line3,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line3"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_city,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("city"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_dist,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("district"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_state_name,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("state"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_country_name,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("country"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_pin,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("pin_code"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line1,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line1"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line2,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line2"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line3,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line3"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_city,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("city"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_dist,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("district"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_state_name,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("state"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_country_name,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("country"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_pin,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("pin_code"),
-                )
+
+            poa_type = frappe.get_list(
+                "Proof of Address Master", pluck="poa_name", ignore_permissions=True
             )
 
-            perm_add_photos = lms.upload_image_to_doctype(
-                customer=lms.__customer(user_kyc_doc.user),
-                seq_no="perm-add",
-                image_=data.get("address_details")
-                .get("permanent_address")
-                .get("address_proof_image"),
-                img_format="jpeg",
-                img_folder="user_ckyc_address",
-                compress=1,
-            )
-            corres_add_photos = lms.upload_image_to_doctype(
-                customer=lms.__customer(user_kyc_doc.user),
-                seq_no="corres-add",
-                image_=data.get("address_details")
-                .get("corresponding_address")
-                .get("address_proof_image"),
-                img_format="jpeg",
-                img_folder="user_ckyc_address",
-                compress=1,
+            country = frappe.get_all(
+                "Country Master",
+                fields=["country"],
+                pluck="country",
+                order_by="country asc",
             )
 
-            ckyc_address_doc = frappe.get_doc(
-                {
-                    "doctype": "Customer Address Details",
-                    "perm_line1": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line1"),
-                    "perm_line2": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line2"),
-                    "perm_line3": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line3"),
-                    "perm_city": data.get("address_details")
-                    .get("permanent_address")
-                    .get("city"),
-                    "perm_dist": data.get("address_details")
-                    .get("permanent_address")
-                    .get("district"),
-                    "perm_state": data.get("address_details")
-                    .get("permanent_address")
-                    .get("state"),
-                    "perm_country": data.get("address_details")
-                    .get("permanent_address")
-                    .get("country"),
-                    "perm_pin": data.get("address_details")
-                    .get("permanent_address")
-                    .get("pin_code"),
-                    "perm_poa": data.get("address_details")
-                    .get("permanent_address")
-                    .get("poa_type"),
-                    "perm_image": perm_add_photos,
-                    "corres_poa_image": corres_add_photos,
-                    "perm_corres_flag": data.get("address_details").get(
-                        "perm_corres_flag"
-                    ),
-                    "corres_line1": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line1"),
-                    "corres_line2": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line2"),
-                    "corres_line3": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line3"),
-                    "corres_city": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("city"),
-                    "corres_dist": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("district"),
-                    "corres_state": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("state"),
-                    "corres_country": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("country"),
-                    "corres_pin": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("pin_code"),
-                    "corres_poa": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("poa_type"),
-                }
-            ).insert(ignore_permissions=True)
-            user_kyc_doc.address_details = ckyc_address_doc.name
-            user_kyc_doc.consent_given = 1
-            if False in address:
-                user_kyc_doc.is_edited = 1
-                ckyc_address_doc.is_edited = 1
-                ckyc_address_doc.save(ignore_permissions=True)
-            user_kyc_doc.save(ignore_permissions=True)
-            kyc_consent_doc = frappe.get_doc(
-                {
-                    "doctype": "User Consent",
-                    "mobile": lms.__user().phone,
-                    "consent": "Ckyc",
-                }
-            )
-            kyc_consent_doc.insert(ignore_permissions=True)
+            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            # user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
+            # user_kyc.email = lms.user_details_hashing(user_kyc.email)
+            # user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
+            # user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+            user_kyc = lms.user_kyc_hashing(user_kyc)
+            if user_kyc.address_details:
+                address = frappe.get_doc(
+                    "Customer Address Details", user_kyc.address_details
+                )
 
-            frappe.db.commit()
-            message = "Your KYC verification is in process, it will be executed in next 24 hours"
+            else:
+                address = ""
 
-        # responce all these for user kyc get request
-        return utils.respondWithSuccess(message=message, data=data_res)
+            data_res = {
+                "user_kyc_doc": user_kyc,
+                "consent_details": consent_details,
+                "poa_type": poa_type,
+                "country": country,
+                "address": address,
+            }
+            message = "Success"
+
+            if data.get("address_details") and data.get("accept_terms"):
+                validate_address(
+                    address=data.get("address_details", {}),
+                )
+                user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
+                address = []
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_line1,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line1"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_line2,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line2"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_line3,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line3"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_city,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("city"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_dist,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("district"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_state_name,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("state"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_country_name,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("country"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.perm_pin,
+                        "=",
+                        data.get("address_details")
+                        .get("permanent_address")
+                        .get("pin_code"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_line1,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line1"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_line2,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line2"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_line3,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line3"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_city,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("city"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_dist,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("district"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_state_name,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("state"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_country_name,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("country"),
+                    )
+                )
+                address.append(
+                    frappe.compare(
+                        user_kyc_doc.corres_pin,
+                        "=",
+                        data.get("address_details")
+                        .get("corresponding_address")
+                        .get("pin_code"),
+                    )
+                )
+
+                perm_add_photos = lms.upload_image_to_doctype(
+                    customer=lms.__customer(user_kyc_doc.user),
+                    seq_no="perm-add",
+                    image_=data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_proof_image"),
+                    img_format="png",
+                    img_folder="user_ckyc_address",
+                    compress=1,
+                )
+                corres_add_photos = lms.upload_image_to_doctype(
+                    customer=lms.__customer(user_kyc_doc.user),
+                    seq_no="corres-add",
+                    image_=data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_proof_image"),
+                    img_format="png",
+                    img_folder="user_ckyc_address",
+                    compress=1,
+                )
+
+                ckyc_address_doc = frappe.get_doc(
+                    {
+                        "doctype": "Customer Address Details",
+                        "perm_line1": data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line1"),
+                        "perm_line2": data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line2"),
+                        "perm_line3": data.get("address_details")
+                        .get("permanent_address")
+                        .get("address_line3"),
+                        "perm_city": data.get("address_details")
+                        .get("permanent_address")
+                        .get("city"),
+                        "perm_dist": data.get("address_details")
+                        .get("permanent_address")
+                        .get("district"),
+                        "perm_state": data.get("address_details")
+                        .get("permanent_address")
+                        .get("state"),
+                        "perm_country": data.get("address_details")
+                        .get("permanent_address")
+                        .get("country"),
+                        "perm_pin": data.get("address_details")
+                        .get("permanent_address")
+                        .get("pin_code"),
+                        "perm_poa": data.get("address_details")
+                        .get("permanent_address")
+                        .get("poa_type"),
+                        "perm_image": perm_add_photos,
+                        "corres_poa_image": corres_add_photos,
+                        "perm_corres_flag": data.get("address_details").get(
+                            "perm_corres_flag"
+                        ),
+                        "corres_line1": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line1"),
+                        "corres_line2": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line2"),
+                        "corres_line3": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("address_line3"),
+                        "corres_city": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("city"),
+                        "corres_dist": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("district"),
+                        "corres_state": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("state"),
+                        "corres_country": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("country"),
+                        "corres_pin": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("pin_code"),
+                        "corres_poa": data.get("address_details")
+                        .get("corresponding_address")
+                        .get("poa_type"),
+                    }
+                ).insert(ignore_permissions=True)
+                user_kyc_doc.address_details = ckyc_address_doc.name
+                user_kyc_doc.consent_given = 1
+                if False in address:
+                    user_kyc_doc.is_edited = 1
+                    ckyc_address_doc.is_edited = 1
+                    ckyc_address_doc.save(ignore_permissions=True)
+                if multiple_kyc:
+                    for kyc in multiple_kyc:
+                        kyc_doc = frappe.get_doc("User KYC", kyc)
+                        kyc_doc.consent_given = 1
+                        kyc_doc.address_details = ckyc_address_doc.name
+                        if False in address:
+                            kyc_doc.is_edited = 1
+                        kyc_doc.save(ignore_permissions=True)
+                user_kyc_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+                if user_kyc_doc.updated_kyc == 0:
+                    kyc_consent_doc = frappe.get_doc(
+                        {
+                            "doctype": "User Consent",
+                            "mobile": lms.__user().phone,
+                            "consent": "Ckyc",
+                        }
+                    )
+                else:
+                    kyc_consent_doc = frappe.get_doc(
+                        {
+                            "doctype": "User Consent",
+                            "mobile": lms.__user().phone,
+                            "consent": "Re-Ckyc",
+                        }
+                    )
+                kyc_consent_doc.insert(ignore_permissions=True)
+
+                frappe.db.commit()
+                message = "Your KYC verification is in process, it will be executed in next 24 hours"
+
+            # response all these for user kyc get request
+            return utils.respondWithSuccess(message=message, data=data_res)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         lms.log_api_error()
@@ -5170,12 +4784,13 @@ def get_bank_details():
                 las_settings.choice_pan_api, params=params, headers=headers
             )
             if res.status_code != 200:
+                lms.log_api_error()
                 raise FailureException()
             data = res.json()
             log = {
                 "url": las_settings.choice_pan_api,
                 "headers": headers,
-                "request": params,
+                "request": str(params),
                 "response": data,
             }
             lms.create_log(log, "get_bank_details_log")
@@ -5269,8 +4884,9 @@ def get_app_version_details():
 def get_demat_details():
     try:
         utils.validator.validate_http_method("GET")
-
         user = lms.__user()
+        log = {"start_time": str(frappe.utils.now_datetime()), "user": user.name}
+        lms.create_log(log, "get_demat_details_api_start_time")
         user_kyc = frappe.get_all(
             "User KYC",
             filters={"user": user.name, "kyc_status": ("!=", "Rejected")},
@@ -5287,11 +4903,17 @@ def get_demat_details():
             }
 
             try:
+                log_1 = {
+                    "start_time": str(frappe.utils.now_datetime()),
+                    "user": user.name,
+                }
                 res = requests.post(
                     las_settings.choice_securities_list_api,
                     json=payload,
                     headers={"Accept": "application/json"},
                 )
+                log_1["end_time"]: str(frappe.utils.now_datetime())
+                lms.create_log(log_1, "get_demat_details_request_time")
                 if not res.ok:
                     raise utils.exceptions.APIException(res.text)
 
@@ -5357,6 +4979,8 @@ def get_demat_details():
             #     raise lms.exceptions.NotFoundException(_("No Record found"))
             for d in demat_details:
                 d["stock_at"] = d.get("dpid") + d.get("client_id")
+        log["end_time"] = str(frappe.utils.now_datetime())
+        lms.create_log(log, "get_demat_details_time_log")
         return utils.respondWithSuccess(data=demat_details)
     except utils.exceptions.APIException as e:
         lms.log_api_error()
@@ -5367,12 +4991,14 @@ def get_demat_details():
 def shares_eligibility(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
+        user = lms.__user()
+        log_1 = {"start_time": str(frappe.utils.now_datetime()), "user": user.name}
+        lms.create_log(log_1, "shares_eligibility_api_start_time")
 
         data = utils.validator.validate(
             kwargs,
             {"lender": "", "level": "", "demat": ""},
         )
-
         # reg = lms.regex_special_characters(search=data.get("lender"))
         # if reg:
         #     # return utils.respondWithFailure(
@@ -5455,7 +5081,7 @@ def shares_eligibility(**kwargs):
                     lms.create_log(log, "securities_log")
                     frappe.logger().info(res_json)
                     if res_json["Status"] != "Success":
-                        raise utils.exceptions.APIException(res.text)
+                        raise lms.exceptions.NotFoundException()
 
                     # setting eligibility
                     securities_list = [
@@ -5463,335 +5089,366 @@ def shares_eligibility(**kwargs):
                         for i in res_json["Response"]
                         if i.get("Price") > 0 and i.get("Quantity") > 0
                     ]
+                    security_stock_at_list = [i["Stock_At"] for i in securities_list]
 
-                    # bulk insert fields
-                    fields = [
-                        "name",
-                        "pan",
-                        "isin",
-                        "branch",
-                        "client_code",
-                        "client_name",
-                        "scrip_name",
-                        "depository",
-                        "stock_at",
-                        "quantity",
-                        "price",
-                        "scrip_value",
-                        "holding_as_on",
-                        "creation",
-                        "modified",
-                        "owner",
-                        "modified_by",
-                    ]
+                    if res_json["Response"]:
+                        # bulk insert fields
+                        fields = [
+                            "name",
+                            "pan",
+                            "isin",
+                            "branch",
+                            "client_code",
+                            "client_name",
+                            "scrip_name",
+                            "depository",
+                            "stock_at",
+                            "quantity",
+                            "price",
+                            "scrip_value",
+                            "holding_as_on",
+                            "creation",
+                            "modified",
+                            "owner",
+                            "modified_by",
+                        ]
 
-                    # bulk insert values
-                    values = []
-                    for i in securities_list:
-                        if i.get("Holding_As_On", None):
-                            Holding_As_On = datetime.strptime(
-                                i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
+                        # print("res_json",res_json["Response"])
+                        # bulk insert values
+                        values = []
+                        for i in securities_list:
+                            if i.get("Holding_As_On", None):
+                                Holding_As_On = datetime.strptime(
+                                    i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
+                                )
+                            else:
+                                Holding_As_On = frappe.utils.now_datetime()
+
+                            values.append(
+                                [
+                                    i["Stock_At"] + "-" + i["ISIN"],
+                                    user_kyc.pan_no,
+                                    i["ISIN"],
+                                    i["Branch"] if i.get("Branch", None) else "",
+                                    i["Client_Code"]
+                                    if i.get("Client_Code", None)
+                                    else "",
+                                    i["Client_Name"]
+                                    if i.get("Client_Name", None)
+                                    else "",
+                                    i["Scrip_Name"],
+                                    i["Depository"]
+                                    if i.get("Depository", None)
+                                    else "",
+                                    i["Stock_At"],
+                                    i["Quantity"],
+                                    i["Price"],
+                                    i["Scrip_Value"]
+                                    if i.get("Scrip_Value", None)
+                                    else "",
+                                    Holding_As_On,
+                                    frappe.utils.now(),
+                                    frappe.utils.now(),
+                                    frappe.session.user,
+                                    frappe.session.user,
+                                ]
                             )
-                        else:
-                            Holding_As_On = frappe.utils.now_datetime()
 
-                        values.append(
-                            [
-                                i["Stock_At"] + "-" + i["ISIN"],
-                                user_kyc.pan_no,
-                                i["ISIN"],
-                                i["Branch"] if i.get("Branch", None) else "",
-                                i["Client_Code"] if i.get("Client_Code", None) else "",
-                                i["Client_Name"] if i.get("Client_Name", None) else "",
-                                i["Scrip_Name"],
-                                i["Depository"] if i.get("Depository", None) else "",
-                                i["Stock_At"],
-                                i["Quantity"],
-                                i["Price"],
-                                i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
-                                Holding_As_On,
-                                frappe.utils.now(),
-                                frappe.utils.now(),
-                                frappe.session.user,
-                                frappe.session.user,
-                            ]
+                        # delete existng records
+                        frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
+
+                        # bulk insert
+                        frappe.db.bulk_insert(
+                            "Client Holding",
+                            fields=fields,
+                            values=values,
+                            ignore_duplicates=True,
                         )
-
-                    # delete existng records
-                    frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
-
-                    # bulk insert
-                    frappe.db.bulk_insert(
-                        "Client Holding",
-                        fields=fields,
-                        values=values,
-                        ignore_duplicates=True,
-                    )
-                    # return utils.respondWithSuccess(data=securities_list)
+                        # return utils.respondWithSuccess(data=securities_list)
 
                 except requests.RequestException as e:
                     raise utils.exceptions.APIException(str(e))
 
-                securities_list_ = [i["ISIN"] for i in securities_list]
-
-                instrument_type = "Shares"
-                securities_category_map = lms.get_allowed_securities(
-                    securities_list_, lender_list, instrument_type, levels
-                )
-                securities_category_map_list = []
-                for i in securities_category_map:
-                    securities_category_map_list.append(i)
-                if securities_category_map_list:
-                    pledge_waiting_securitites = frappe.db.sql(
-                        """
-                        SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
-                        lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
-                        ch.name
-                        FROM `tabLoan Application` as la
-                        LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
-                        LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
-                        where la.status='Waiting to be pledged'
-                        AND ch.pan = '{}'
-                        AND lai.isin in {}
-                        AND la.customer = '{}'
-                        group by ch.stock_at, lai.isin
-                        order by la.pledgor_boid, lai.isin
-                    """.format(
-                            user_kyc.pan_no,
-                            lms.convert_list_to_tuple_string(
-                                securities_category_map_list
-                            ),
-                            customer.name,
-                        ),
-                        as_dict=True,
-                        # debug=True,
+                if res_json["Response"] and securities_list:
+                    securities_list_ = [i["ISIN"] for i in securities_list]
+                    instrument_type = "Shares"
+                    securities_category_map = lms.get_allowed_securities(
+                        securities_list_, lender_list, instrument_type, levels
                     )
-                    if len(pledge_waiting_securitites) > 0:
-                        for i in pledge_waiting_securitites:
+                    securities_category_map_list = []
+                    for i in securities_category_map:
+                        securities_category_map_list.append(i)
+                    final_securities_list = []
+                    if securities_category_map_list:
+                        pledge_waiting_securitites = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
+                            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
+                            ch.name
+                            FROM `tabLoan Application` as la
+                            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
+                            where la.status='Waiting to be pledged'
+                            AND ch.pan = '{}'
+                            AND lai.isin in {}
+                            AND la.customer = '{}'
+                            group by ch.stock_at, lai.isin
+                            order by la.pledgor_boid, lai.isin
+                        """.format(
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                            # debug=True,
+                        )
+                        if len(pledge_waiting_securitites) > 0:
+                            for i in pledge_waiting_securitites:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "waiting_to_be_pledged_qty", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "waiting_to_be_pledged_qty"
+                                        ] = {}
+                                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
+                                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+
+                                    securities_category_map[i["isin"]][
+                                        "waiting_to_be_pledged_qty"
+                                    ][i["pledgor_boid"]] = i["pledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        waiting_for_lender_approval_securities = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
+                            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
+                            ch.name
+                            FROM `tabCollateral Ledger` as cl
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+                            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
+                            AND cl.request_type = 'Pledge'
+                            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+                            AND ch.pan = '{}'
+                            AND cl.isin in {}
+                            AND cl.customer = '{}'
+                            group by ch.stock_at, cl.isin
+                            order by cl.pledgor_boid, cl.isin;
+                        """.format(
+                                datetime.strftime(
+                                    frappe.utils.now_datetime(), "%Y-%m-%d"
+                                ),
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                        )
+                        if len(waiting_for_lender_approval_securities) > 0:
+                            for i in waiting_for_lender_approval_securities:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "waiting_for_approval_pledged_qty", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "waiting_for_approval_pledged_qty"
+                                        ] = {}
+                                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
+                                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+
+                                    securities_category_map[i["isin"]][
+                                        "waiting_for_approval_pledged_qty"
+                                    ][i["pledgor_boid"]] = i["pledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        unpledge_approved_securities = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(cl.loan) as loan,
+                            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
+                            ch.name
+                            FROM `tabCollateral Ledger` as cl
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+                            WHERE cl.lender_approval_status='Approved'
+                            AND cl.request_type = 'Unpledge'
+                            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+                            AND ch.pan = '{}'
+                            AND cl.isin in {}
+                            AND cl.customer = '{}'
+                            group by ch.stock_at, cl.isin
+                            order by cl.pledgor_boid, cl.isin;
+                        """.format(
+                                datetime.strftime(
+                                    frappe.utils.now_datetime(), "%Y-%m-%d"
+                                ),
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                        )
+                        if len(unpledge_approved_securities) > 0:
+                            for i in unpledge_approved_securities:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "unpledged_quantity", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "unpledged_quantity"
+                                        ] = {}
+                                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                                    #     "unpledged_quantity"
+                                    # ]
+
+                                    securities_category_map[i["isin"]][
+                                        "unpledged_quantity"
+                                    ][i["pledgor_boid"]] = i["unpledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        for i in securities_list:
+                            # process actual qty
+                            if i.get("Holding_As_On", None) and not isinstance(
+                                i["Holding_As_On"], str
+                            ):
+                                i["Holding_As_On"] = i["Holding_As_On"].strftime(
+                                    "%Y-%m-%dT%H:%M:%S"
+                                )
+
                             try:
-                                if not securities_category_map[i["isin"]].get(
+                                i["Category"] = securities_category_map[i["ISIN"]].get(
+                                    "security_category"
+                                )
+
+                                i["Is_Eligible"] = True
+                                i["Total_Qty"] = i["Quantity"]
+
+                                if not i.get("waiting_to_be_pledged_qty", None):
+                                    i["waiting_to_be_pledged_qty"] = 0
+
+                                if securities_category_map[i["ISIN"]].get(
                                     "waiting_to_be_pledged_qty", None
                                 ):
-                                    securities_category_map[i["isin"]][
-                                        "waiting_to_be_pledged_qty"
-                                    ] = {}
-                                    # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
-                                    #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "waiting_to_be_pledged_qty"
+                                        ].keys()
+                                    ):
+                                        i["waiting_to_be_pledged_qty"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "waiting_to_be_pledged_qty"
+                                            ][i["Stock_At"]]
+                                        )
 
-                                securities_category_map[i["isin"]][
-                                    "waiting_to_be_pledged_qty"
-                                ][i["pledgor_boid"]] = i["pledged_quantity"]
-                            except KeyError:
-                                continue
+                                if not i.get("waiting_for_approval_pledged_qty", None):
+                                    i["waiting_for_approval_pledged_qty"] = 0
 
-                    waiting_for_lender_approval_securities = frappe.db.sql(
-                        """
-                        SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
-                        cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
-                        ch.name
-                        FROM `tabCollateral Ledger` as cl
-                        LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-                        WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
-                        AND cl.request_type = 'Pledge'
-                        AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-                        AND ch.pan = '{}'
-                        AND cl.isin in {}
-                        AND cl.customer = '{}'
-                        group by ch.stock_at, cl.isin
-                        order by cl.pledgor_boid, cl.isin;
-                    """.format(
-                            datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                            user_kyc.pan_no,
-                            lms.convert_list_to_tuple_string(
-                                securities_category_map_list
-                            ),
-                            customer.name,
-                        ),
-                        as_dict=True,
-                    )
-                    if len(waiting_for_lender_approval_securities) > 0:
-                        for i in waiting_for_lender_approval_securities:
-                            try:
-                                if not securities_category_map[i["isin"]].get(
+                                if securities_category_map[i["ISIN"]].get(
                                     "waiting_for_approval_pledged_qty", None
                                 ):
-                                    securities_category_map[i["isin"]][
-                                        "waiting_for_approval_pledged_qty"
-                                    ] = {}
-                                    # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
-                                    #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "waiting_for_approval_pledged_qty"
+                                        ].keys()
+                                    ):
+                                        i["waiting_for_approval_pledged_qty"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "waiting_for_approval_pledged_qty"
+                                            ][i["Stock_At"]]
+                                        )
 
-                                securities_category_map[i["isin"]][
-                                    "waiting_for_approval_pledged_qty"
-                                ][i["pledgor_boid"]] = i["pledged_quantity"]
+                                if not i.get("unpledged_quantity", None):
+                                    i["unpledged_quantity"] = 0
+
+                                if securities_category_map[i["ISIN"]].get(
+                                    "unpledged_quantity", None
+                                ):
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "unpledged_quantity"
+                                        ].keys()
+                                    ):
+                                        i["unpledged_quantity"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "unpledged_quantity"
+                                            ][i["Stock_At"]]
+                                        )
+
+                                available_quantity = (
+                                    i["Quantity"] + i["unpledged_quantity"]
+                                ) - (
+                                    i["waiting_to_be_pledged_qty"]
+                                    + i["waiting_for_approval_pledged_qty"]
+                                )
+                                i["Quantity"] = (
+                                    available_quantity
+                                    if available_quantity > 0
+                                    else float(0)
+                                )
+
                             except KeyError:
-                                continue
+                                i["Is_Eligible"] = False
+                                i["Category"] = None
 
-                    unpledge_approved_securities = frappe.db.sql(
-                        """
-                        SELECT GROUP_CONCAT(cl.loan) as loan,
-                        cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
-                        ch.name
-                        FROM `tabCollateral Ledger` as cl
-                        LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-                        WHERE cl.lender_approval_status='Approved'
-                        AND cl.request_type = 'Unpledge'
-                        AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-                        AND ch.pan = '{}'
-                        AND cl.isin in {}
-                        AND cl.customer = '{}'
-                        group by ch.stock_at, cl.isin
-                        order by cl.pledgor_boid, cl.isin;
-                    """.format(
-                            datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                            user_kyc.pan_no,
-                            lms.convert_list_to_tuple_string(
-                                securities_category_map_list
-                            ),
-                            customer.name,
+                            i.update(is_choice=is_choice)
+                            if i["Category"] != None and i["Stock_At"] == data.get(
+                                "demat"
+                            ):
+                                final_securities_list.append(i)
+                                image = frappe.get_all(
+                                    "Allowed Security",
+                                    filters={"isin": i["ISIN"]},
+                                    fields=["amc_image", "eligible_percentage"],
+                                )
+                                if image[0].amc_image:
+                                    image[0].amc_image = frappe.utils.get_url(
+                                        image[0].amc_image
+                                    )
+                                i.update(
+                                    amc_image=image[0].amc_image,
+                                    eligible_percentage=image[0].eligible_percentage,
+                                )
+
+                    lender = lms.convert_list_to_tuple_string(lender_list)
+                    lender_info = frappe.db.sql(
+                        """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
+                            lender
                         ),
                         as_dict=True,
                     )
-                    if len(unpledge_approved_securities) > 0:
-                        for i in unpledge_approved_securities:
-                            try:
-                                if not securities_category_map[i["isin"]].get(
-                                    "unpledged_quantity", None
-                                ):
-                                    securities_category_map[i["isin"]][
-                                        "unpledged_quantity"
-                                    ] = {}
-                                # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                                #     "unpledged_quantity"
-                                # ]
-
-                                securities_category_map[i["isin"]][
-                                    "unpledged_quantity"
-                                ][i["pledgor_boid"]] = i["unpledged_quantity"]
-                            except KeyError:
-                                continue
-                    final_securities_list = []
-                    for i in securities_list:
-                        # process actual qty
-                        if i.get("Holding_As_On", None) and not isinstance(
-                            i["Holding_As_On"], str
-                        ):
-                            i["Holding_As_On"] = i["Holding_As_On"].strftime(
-                                "%Y-%m-%dT%H:%M:%S"
-                            )
-
-                        try:
-                            i["Category"] = securities_category_map[i["ISIN"]].get(
-                                "security_category"
-                            )
-
-                            i["Is_Eligible"] = True
-                            i["Total_Qty"] = i["Quantity"]
-
-                            if not i.get("waiting_to_be_pledged_qty", None):
-                                i["waiting_to_be_pledged_qty"] = 0
-
-                            if securities_category_map[i["ISIN"]].get(
-                                "waiting_to_be_pledged_qty", None
-                            ):
-                                if (
-                                    i["Stock_At"]
-                                    in securities_category_map[i["ISIN"]][
-                                        "waiting_to_be_pledged_qty"
-                                    ].keys()
-                                ):
-                                    i["waiting_to_be_pledged_qty"] += float(
-                                        securities_category_map[i["ISIN"]][
-                                            "waiting_to_be_pledged_qty"
-                                        ][i["Stock_At"]]
-                                    )
-
-                            if not i.get("waiting_for_approval_pledged_qty", None):
-                                i["waiting_for_approval_pledged_qty"] = 0
-
-                            if securities_category_map[i["ISIN"]].get(
-                                "waiting_for_approval_pledged_qty", None
-                            ):
-                                if (
-                                    i["Stock_At"]
-                                    in securities_category_map[i["ISIN"]][
-                                        "waiting_for_approval_pledged_qty"
-                                    ].keys()
-                                ):
-                                    i["waiting_for_approval_pledged_qty"] += float(
-                                        securities_category_map[i["ISIN"]][
-                                            "waiting_for_approval_pledged_qty"
-                                        ][i["Stock_At"]]
-                                    )
-
-                            if not i.get("unpledged_quantity", None):
-                                i["unpledged_quantity"] = 0
-
-                            if securities_category_map[i["ISIN"]].get(
-                                "unpledged_quantity", None
-                            ):
-                                if (
-                                    i["Stock_At"]
-                                    in securities_category_map[i["ISIN"]][
-                                        "unpledged_quantity"
-                                    ].keys()
-                                ):
-                                    i["unpledged_quantity"] += float(
-                                        securities_category_map[i["ISIN"]][
-                                            "unpledged_quantity"
-                                        ][i["Stock_At"]]
-                                    )
-
-                            available_quantity = (
-                                i["Quantity"] + i["unpledged_quantity"]
-                            ) - (
-                                i["waiting_to_be_pledged_qty"]
-                                + i["waiting_for_approval_pledged_qty"]
-                            )
-                            i["Quantity"] = (
-                                available_quantity
-                                if available_quantity > 0
-                                else float(0)
-                            )
-
-                        except KeyError:
-                            i["Is_Eligible"] = False
-                            i["Category"] = None
-
-                        i.update(is_choice=is_choice)
-                        if i["Category"] != None and i["Stock_At"] == data.get("demat"):
-                            final_securities_list.append(i)
-                            image = frappe.get_all(
-                                "Allowed Security",
-                                filters={"isin": i["ISIN"]},
-                                fields=["amc_image", "eligible_percentage"],
-                            )
-                            if image[0].amc_image:
-                                image[0].amc_image = frappe.utils.get_url(
-                                    image[0].amc_image
-                                )
-                            i.update(
-                                amc_image=image[0].amc_image,
-                                eligible_percentage=image[0].eligible_percentage,
-                            )
+                    data = {
+                        "Securities": final_securities_list,
+                        "lender_info": lender_info,
+                    }
+                    if (
+                        not data.get("Securities")
+                        and not demat_acc_no in security_stock_at_list
+                    ):
+                        raise lms.exceptions.NotFoundException()
+                    log_3 = {
+                        "start_time": str(frappe.utils.now_datetime()),
+                        "user": user.name,
+                    }
+                    lms.create_log(log_3, "shares_eligibility_end_time")
+                    if res_json["Response"] and not data.get("Securities"):
+                        return utils.respondWithSuccess(data=data)
+                    return utils.respondWithSuccess(data=data)
                 else:
-                    final_securities_list = ()
-                lender = lms.convert_list_to_tuple_string(lender_list)
-                lender_info = frappe.db.sql(
-                    """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
-                        lender
-                    ),
-                    as_dict=True,
-                )
-                data = {"Securities": final_securities_list, "lender_info": lender_info}
-                return utils.respondWithSuccess(data=data)
-
+                    raise lms.exceptions.NotFoundException()
             else:
-                data = get_distinct_securities(lender_list, levels)
-                return utils.respondWithSuccess(data=data)
+                get_distinct_securities(lender_list, levels)
         else:
-            data = get_distinct_securities(lender_list, levels)
-            return utils.respondWithSuccess(data=data)
+            get_distinct_securities(lender_list, levels)
 
     except utils.exceptions.APIException as e:
         lms.log_api_error()
@@ -5799,56 +5456,66 @@ def shares_eligibility(**kwargs):
 
 
 def get_distinct_securities(lender_list, levels):
-    lender = lms.convert_list_to_tuple_string(lender_list)
-    lender_query = " and als.lender in {}".format(lender)
-    sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
-        lender, levels
-    )
-    securities_list = frappe.db.sql(
-        """select als.isin as ISIN, sc.category_name as Category, als.eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
-            als.amc_image
-            from `tabAllowed Security` als 
-            LEFT JOIN `tabSecurity` s on s.isin = als.isin
-            LEFT JOIN `tabSecurity Category` sc ON als.security_category = sc.name 
-            where als.instrument_type='Shares' and
-            s.price > 0{}{}
-            group by als.isin
-            order by als.creation desc;""".format(
-            lender_query, sub_query
-        ),
-        as_dict=True,
-    )
-    lender_info = frappe.db.sql(
-        """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
-            lender
-        ),
-        as_dict=True,
-    )
-    dummy_keys = {
-        "Branch": None,
-        "Client_Code": None,
-        "Client_Name": None,
-        "Depository": None,
-        "Stock_At": None,
-        "Quantity": None,
-        "Scrip_Value": None,
-        "Holding_As_On": None,
-        "Is_Eligible": None,
-        "Total_Qty": None,
-        "waiting_to_be_pledged_qty": None,
-        "waiting_for_approval_pledged_qty": None,
-        "unpledged_quantity": None,
-        "is_choice": 0,
-    }
-    for i in securities_list:
-        i.update(dummy_keys)
+    try:
+        lender = lms.convert_list_to_tuple_string(lender_list)
+        lender_query = " and als.lender in {}".format(lender)
+        sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
+            lender, levels
+        )
+        securities_list = frappe.db.sql(
+            """select als.isin as ISIN, sc.category_name as Category, als.eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
+                als.amc_image
+                from `tabAllowed Security` als 
+                LEFT JOIN `tabSecurity` s on s.isin = als.isin
+                LEFT JOIN `tabSecurity Category` sc ON als.security_category = sc.name 
+                where als.instrument_type='Shares' and
+                s.price > 0{}{}
+                group by als.isin
+                order by als.creation desc;""".format(
+                lender_query, sub_query
+            ),
+            as_dict=True,
+        )
+        lender_info = frappe.db.sql(
+            """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
+                lender
+            ),
+            as_dict=True,
+        )
+        dummy_keys = {
+            "Branch": None,
+            "Client_Code": None,
+            "Client_Name": None,
+            "Depository": None,
+            "Stock_At": None,
+            "Quantity": None,
+            "Scrip_Value": None,
+            "Holding_As_On": None,
+            "Is_Eligible": None,
+            "Total_Qty": None,
+            "waiting_to_be_pledged_qty": None,
+            "waiting_for_approval_pledged_qty": None,
+            "unpledged_quantity": None,
+            "is_choice": 0,
+        }
+        for i in securities_list:
+            i.update(dummy_keys)
 
-    for scheme in securities_list:
-        if scheme.amc_image:
-            scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
+        for scheme in securities_list:
+            if scheme.amc_image:
+                scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
 
-    data = {"Securities": securities_list, "lender_info": lender_info}
-    return data
+        data = {"Securities": securities_list, "lender_info": lender_info}
+        # if not data.get("Securities") and :
+        #     raise lms.exceptions.NotFoundException()
+        log = {"start_time": str(frappe.utils.now_datetime())}
+        lms.create_log(log, "shares_eligibility_end_time")
+        if not securities_list and not data.get("Securities"):
+            return utils.respondWithSuccess(data=data)
+        return utils.respondWithSuccess(data=data)
+    except Exception as e:
+        lms.log_api_error()
+        return e.respond()
 
 
 @frappe.whitelist()
@@ -5903,24 +5570,75 @@ def au_penny_drop(**kwargs):
             customer=customer,
             seq_no=data.get("account_number"),
             image_=data.get("personalized_cheque"),
-            img_format="jpeg",
+            img_format="png",
             img_folder="personalized_cheque",
             compress=1,
         )
         bank_acc = frappe.get_all(
             "User Bank Account",
-            {"account_number": data.get("account_number"), "is_repeated": 0},
+            {
+                "account_number": data.get("account_number"),
+                "is_repeated": 0,
+                # "is_mismatched": 0,
+            },
             "*",
             order_by="creation desc",
         )
+        mismatch_bank_acc = frappe.db.count(
+            "User Bank Account",
+            {"account_number": data.get("account_number"), "is_mismatched": 1},
+        )
+        penny_name_mismatch = frappe.get_all(
+            "Penny Name Mismatch", {"account_number": data.get("account_number")}, "*"
+        )
+        if not mismatch_bank_acc and penny_name_mismatch:
+            bank_account_list_ = frappe.get_all(
+                "User Bank Account",
+                filters={"parent": user_kyc.name},
+                fields="*",
+            )
+            for b in bank_account_list_:
+                other_bank_ = frappe.get_doc("User Bank Account", b.name)
+                if other_bank_.is_default == 1:
+                    other_bank_.is_default = 0
+                    other_bank_.save(ignore_permissions=True)
+                    frappe.db.commit()
+            frappe.get_doc(
+                {
+                    "doctype": "User Bank Account",
+                    "parentfield": "bank_account",
+                    "parenttype": "User KYC",
+                    "bank": data.get("bank"),
+                    "branch": data.get("branch"),
+                    "account_type": data.get("bank_account_type"),
+                    "account_number": data.get("account_number"),
+                    "ifsc": data.get("ifsc"),
+                    "account_holder_name": data.get("account_holder_name"),
+                    "personalized_cheque": photos_,
+                    "city": data.get("city"),
+                    "parent": user_kyc.name,
+                    "is_default": True,
+                    "bank_status": "Pending",
+                    "penny_request_id": penny_name_mismatch[0].penny_request_id,
+                    "bank_transaction_status": penny_name_mismatch[
+                        0
+                    ].bank_transaction_status,
+                    "is_mismatched": 1,
+                }
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+            return utils.respondWithSuccess(
+                status=201,
+                message="Your bank details are under the verification process",
+            )
 
-        if bank_acc:
+        if bank_acc and not penny_name_mismatch:
             if bank_acc[0].ifsc == data.get("ifsc"):
                 if frappe.utils.now_datetime().date() >= (
                     bank_acc[0].creation.date()
                     + timedelta(days=las_settings.pennydrop_days_passed)
                 ):
-                    res_json = lms.au_pennydrop_api(data)
+                    res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
                 else:
                     bank_account_list_ = frappe.get_all(
                         "User Bank Account",
@@ -5933,6 +5651,7 @@ def au_penny_drop(**kwargs):
                             other_bank_.is_default = 0
                             other_bank_.save(ignore_permissions=True)
                             frappe.db.commit()
+                    lms.log_api_error(bank_acc[0])
                     frappe.get_doc(
                         {
                             "doctype": "User Bank Account",
@@ -5943,7 +5662,7 @@ def au_penny_drop(**kwargs):
                             "account_type": data.get("bank_account_type"),
                             "account_number": data.get("account_number"),
                             "ifsc": data.get("ifsc"),
-                            "account_holder_name": bank_acc[0].account_holder_name,
+                            "account_holder_name": data.get("account_holder_name"),
                             "personalized_cheque": photos_,
                             "city": data.get("city"),
                             "parent": user_kyc.name,
@@ -5961,32 +5680,67 @@ def au_penny_drop(**kwargs):
                         message="Your account details have been successfully verified"
                     )
             else:
-                res_json = lms.au_pennydrop_api(data)
+                res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
         else:
-            res_json = lms.au_pennydrop_api(data)
+            res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
 
         if res_json:
             if (
-                res_json.get("StatusCode") == 200
-                and res_json.get("Message") == "Success"
+                res_json.get("status_code") == 200
+                and res_json.get("message") == "Success"
             ):
-                result_ = res_json.get("Body").get("pennyResponse").get("Result")
-                if (
-                    res_json.get("Body").get("pennyResponse").get("status-code")
-                    == "101"
-                ):
+                result_ = res_json.get("body").get("Result")
+                if res_json.get("body").get("status-code") == "101":
                     if result_.get("bankTxnStatus") == True:
-                        if not result_.get("accountName").lower():
+                        if not result_.get("accountName"):
                             raise lms.exceptions.RespondFailureException(
                                 _(
                                     "We have found a mismatch in the account holder name as per the fetched data"
                                 )
                             )
                         else:
-                            matching = lms.name_matching(
-                                user_kyc, result_.get("accountName")
-                            )
-                            if matching == False:
+                            matching = res_json.get("body").get("fuzzy_match_score")
+                            if (
+                                not matching
+                                or matching
+                                < las_settings.penny_name_mismatch_percentage
+                            ):
+                                frappe.get_doc(
+                                    {
+                                        "doctype": "Penny Name Mismatch",
+                                        "customer": customer.name,
+                                        "user_kyc": user_kyc.name,
+                                        "kyc_first_name": user_kyc.fname,
+                                        "kyc_middle_name": user_kyc.mname,
+                                        "kyc_last_name": user_kyc.lname,
+                                        "kyc_full_name": user_kyc.fullname,
+                                        "penny_response_account_name": result_.get(
+                                            "accountName"
+                                        ),
+                                        "bank": data.get("bank"),
+                                        "branch": data.get("branch"),
+                                        "city": data.get("city"),
+                                        "penny_request_id": res_json.get("body").get(
+                                            "request_id"
+                                        ),
+                                        # "is_default": True,
+                                        "ifsc": data.get("ifsc"),
+                                        "account_number": result_.get("accountNumber"),
+                                        "bank_transaction_status": result_.get(
+                                            "bankTxnStatus"
+                                        ),
+                                        "personalized_cheque": photos_,
+                                        "account_type": data.get("bank_account_type"),
+                                        "penny_name_mismatch_percentage": matching,
+                                    }
+                                ).insert()
+                                frappe.db.commit()
+                                frappe.local.form_dict[
+                                    "kyc_full_name"
+                                ] = user_kyc.fullname
+                                frappe.local.form_dict[
+                                    "penny_response_account_name"
+                                ] = result_.get("accountName")
                                 raise lms.exceptions.RespondFailureException(
                                     _(
                                         "We have found a mismatch in the account holder name as per the fetched data"
@@ -6030,17 +5784,17 @@ def au_penny_drop(**kwargs):
                                                 "accountNumber"
                                             ),
                                             "ifsc": data.get("ifsc"),
-                                            "account_holder_name": result_.get(
-                                                "accountName"
+                                            "account_holder_name": data.get(
+                                                "account_holder_name"
                                             ),
                                             "personalized_cheque": photos_,
                                             "city": data.get("city"),
                                             "parent": user_kyc.name,
                                             "is_default": True,
                                             "bank_status": "Pending",
-                                            "penny_request_id": res_json.get("Body")
-                                            .get("pennyResponse")
-                                            .get("request_id"),
+                                            "penny_request_id": res_json.get(
+                                                "body"
+                                            ).get("request_id"),
                                             "bank_transaction_status": result_.get(
                                                 "bankTxnStatus"
                                             ),
@@ -6080,17 +5834,17 @@ def au_penny_drop(**kwargs):
                                                 "accountNumber"
                                             ),
                                             "ifsc": data.get("ifsc"),
-                                            "account_holder_name": result_.get(
-                                                "accountName"
+                                            "account_holder_name": data.get(
+                                                "account_holder_name"
                                             ),
                                             "personalized_cheque": photos_,
                                             "city": data.get("city"),
                                             "parent": user_kyc.name,
                                             "is_default": True,
                                             "bank_status": "Pending",
-                                            "penny_request_id": res_json.get("Body")
-                                            .get("pennyResponse")
-                                            .get("request_id"),
+                                            "penny_request_id": res_json.get(
+                                                "body"
+                                            ).get("request_id"),
                                             "bank_transaction_status": result_.get(
                                                 "bankTxnStatus"
                                             ),
@@ -6100,6 +5854,7 @@ def au_penny_drop(**kwargs):
 
                             else:
                                 # For non choice user
+                                lms.log_api_error(result_)
                                 frappe.get_doc(
                                     {
                                         "doctype": "User Bank Account",
@@ -6110,24 +5865,23 @@ def au_penny_drop(**kwargs):
                                         "account_type": data.get("bank_account_type"),
                                         "account_number": result_.get("accountNumber"),
                                         "ifsc": data.get("ifsc"),
-                                        "account_holder_name": result_.get(
-                                            "accountName"
+                                        "account_holder_name": data.get(
+                                            "account_holder_name"
                                         ),
                                         "personalized_cheque": photos_,
                                         "city": data.get("city"),
                                         "parent": user_kyc.name,
                                         "is_default": True,
                                         "bank_status": "Pending",
-                                        "penny_request_id": res_json.get("Body")
-                                        .get("pennyResponse")
-                                        .get("request_id"),
+                                        "penny_request_id": res_json.get("body").get(
+                                            "request_id"
+                                        ),
                                         "bank_transaction_status": result_.get(
                                             "bankTxnStatus"
                                         ),
                                     }
                                 ).insert(ignore_permissions=True)
                                 frappe.db.commit()
-
                             return utils.respondWithSuccess(
                                 message="Your account details have been successfully verified"
                             )
@@ -6146,8 +5900,8 @@ def au_penny_drop(**kwargs):
             else:
                 lms.log_api_error(mess=str(res_json))
                 return utils.respondWithFailure(
-                    status=res_json.get("StatusCode"),
-                    message=res_json.get("Message"),
+                    status=res_json.get("status_code"),
+                    message=res_json.get("message"),
                 )
 
     except utils.exceptions.APIException as e:

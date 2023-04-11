@@ -22,6 +22,7 @@
   "actual_drawing_power",
   "expiry_date",
   "loan_agreement",
+  "sl_cial_entries",
   "margin_shortfall_amount",
   "instrument_type",
   "scheme_type",
@@ -32,21 +33,30 @@
   "is_irregular",
   "is_penalize",
   "interest_details_section",
+  "base_interest",
   "base_interest_amount",
   "interest_due",
   "penal_interest_charges",
   "total_interest_incl_penal_due",
   "column_break_28",
+  "rebate_interest",
   "rebate_interest_amount",
   "interest_overdue",
-  "day_past_due"
+  "day_past_due",
+  "custom_roi_section",
+  "custom_base_interest",
+  "old_interest",
+  "wef_date",
+  "is_default",
+  "column_break_40",
+  "custom_rebate_interest",
+  "old_rebate_interest"
  ],
  "fields": [
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -249,15 +259,80 @@
    "read_only": 1
   },
   {
+   "fieldname": "custom_roi_section",
+   "fieldtype": "Section Break",
+   "label": "Custom ROI"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "column_break_40",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sl_cial_entries",
+   "fieldtype": "Link",
+   "label": "SL CIAL Entries",
+   "options": "Sanction Letter and CIAL Log"
+  },
+  {
+   "fieldname": "wef_date",
+   "fieldtype": "Date",
+   "label": "w.e.f date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "custom_base_interest",
+   "fieldtype": "Float",
+   "label": "Custom Base Interest",
+   "mandatory_depends_on": "eval:doc.is_default == 0;",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
+  },
+  {
+   "fieldname": "custom_rebate_interest",
+   "fieldtype": "Float",
+   "label": "Custom Rebate Interest",
+   "mandatory_depends_on": "eval:doc.is_default == 0;",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
+  },
+  {
    "fieldname": "available_topup_amt",
    "fieldtype": "Currency",
    "label": "Available TopUp Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest (Per Month)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "old_interest",
+   "fieldtype": "Float",
+   "label": "Old Base Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "old_rebate_interest",
+   "fieldtype": "Float",
+   "label": "Old Rebate Interest",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-03 14:36:44.213747",
+ "modified": "2023-04-11 11:24:34.049248",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

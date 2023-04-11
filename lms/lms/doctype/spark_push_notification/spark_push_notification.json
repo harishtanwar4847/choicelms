@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_rename": 1,
  "autoname": "Prompt",
  "creation": "2021-08-23 11:43:10.284529",
  "doctype": "DocType",
@@ -47,7 +48,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-01 15:12:18.032169",
+ "modified": "2023-04-06 13:02:25.799780",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Push Notification",

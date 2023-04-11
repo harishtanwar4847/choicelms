@@ -78,11 +78,16 @@
    "fieldname": "security_category",
    "fieldtype": "Data",
    "label": "Security/Scheme Category"
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN/Lien Mark Number"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2023-01-03 13:17:15.880510",
+ "modified": "2022-12-15 17:45:52.789223",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Item",

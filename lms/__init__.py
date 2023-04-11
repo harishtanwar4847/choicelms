@@ -57,7 +57,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.13.4"
+__version__ = "5.15.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -260,6 +260,14 @@ def generate_user_token(user_name):
 
 def create_user(first_name, last_name, mobile, email, tester):
     try:
+        log = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "mobile": mobile,
+            "email": email,
+            "tester": tester,
+        }
+        create_log(log, "before_user_creation")
         user = frappe.get_doc(
             {
                 "doctype": "User",
@@ -279,7 +287,8 @@ def create_user(first_name, last_name, mobile, email, tester):
                 else [{"doctype": "Has Role", "role": "Loan Customer"}],
             }
         ).insert(ignore_permissions=True)
-
+        log = {"user_doc": user.as_dict()}
+        create_log(log, "after_user_creation")
         return user
     except Exception as e:
         raise utils.exceptions.APIException(message=str(e))
@@ -455,7 +464,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares", level=N
     select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
     allowed = ""
     if instrument_type == "Mutual Fund":
-        select += ", als.scheme_type, als.allowed"
+        select += ", als.scheme_type, als.amc_code, als.allowed"
         allowed = "and als.allowed = 1"
 
     if type(lender) == list:
@@ -487,7 +496,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares", level=N
         isin=convert_list_to_tuple_string(securities),
     )
 
-    results = frappe.db.sql(query, as_dict=1, debug=True)
+    results = frappe.db.sql(query, as_dict=1)
 
     security_map = {}
 
@@ -516,7 +525,7 @@ def __user_kyc(entity=None, pan_no=None, throw=True):
     filters = {"user": __user(entity).name, "consent_given": 1}
     if pan_no:
         filters["pan_no"] = pan_no
-    res = frappe.get_all("User KYC", filters=filters, order_by="creation desc")
+    res = frappe.get_all("User KYC", filters=filters, order_by="kyc_status asc")
 
     if len(res) == 0:
         if throw:
@@ -777,7 +786,6 @@ def create_log(log, file_name):
                 logs = f.read()
             f.close()
         logs = json.loads(logs or "[]")
-        log["req_time"] = str(frappe.utils.now_datetime())
         logs.append(log)
         with open(log_file, "w") as f:
             f.write(json.dumps(logs))
@@ -792,7 +800,9 @@ def create_log(log, file_name):
         os.remove(log_file)
         frappe.log_error(
             message=frappe.get_traceback()
-            + "\n\nFile name -\n{}\n\nLog details -\n{}".format(file_name, str(log)),
+            + "\n\nFile name -\n{}\n\nBackup File name -\n{}\n\nLog details -\n{}".format(
+                file_name, log_text_file, str(log)
+            ),
             title="Create Log JSONDecodeError",
         )
     except Exception as e:
@@ -1148,9 +1158,12 @@ def rupees_to_words(num):
     return amt_str
 
 
-def convert_sec_to_hh_mm_ss(seconds):
+def convert_sec_to_hh_mm_ss(seconds, is_for_days=False):
     min, sec = divmod(seconds, 60)
     hour, min = divmod(min, 60)
+    if is_for_days:
+        day, hour = divmod(hour, 24)
+        return "%dD:%02dh:%02dm:%02ds" % (day, hour, min, sec)
     return "%d:%02d:%02d" % (hour, min, sec)
 
 
@@ -1207,6 +1220,15 @@ def log_api_error(mess=""):
         headers = {k: v for k, v in frappe.local.request.headers.items()}
         customer = frappe.get_all("Loan Customer", filters={"user": __user().name})
 
+        if request_parameters.get("cmd").split(".")[
+            -1
+        ] == "au_penny_drop" and request_parameters.get("personalized_cheque"):
+            personalized_cheque_log(
+                request_parameters.get("account_number"),
+                request_parameters.get("personalized_cheque"),
+                "png",
+            )
+            request_parameters["personalized_cheque"] = ""
         if len(customer) == 0:
             message = "Request Parameters : {}\n\nHeaders : {}".format(
                 str(request_parameters), str(headers)
@@ -1280,14 +1302,16 @@ def rzp_payment_webhook_callback(**kwargs):
                     data
                     and len(data) > 0
                     and data["entity"] == "event"
-                    and data["event"]
-                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                    and data["event"] in ["payment.captured", "payment.failed"]
                 ):
-                    frappe.enqueue(
-                        method="lms.update_rzp_payment_transaction",
-                        data=data,
-                        job_name="Payment Webhook",
-                    )
+                    # frappe.enqueue(
+                    #     method="lms.update_rzp_payment_transaction",
+                    #     data=data,
+                    #     job_name="Payment Webhook",
+                    # )
+                    update_rzp_payment_transaction(data)
+                else:
+                    create_log({"authorized_log": data}, "rzp_authorized_log")
             if not rzp_user:
                 frappe.log_error(
                     message=frappe.get_traceback()
@@ -1340,8 +1364,8 @@ def update_rzp_payment_transaction(data):
             )
             older_razorpay_event = loan_transaction.razorpay_event
             # Assign RZP event to loan transaction
-            if data["event"] == "payment.authorized":
-                razorpay_event = "Authorized"
+            # if data["event"] == "payment.authorized":
+            #     razorpay_event = "Authorized"
             if data["event"] == "payment.captured":
                 razorpay_event = "Captured"
             if data["event"] == "payment.failed":
@@ -1454,17 +1478,17 @@ def update_rzp_payment_transaction(data):
                 loan_transaction.on_submit()
 
             # Send notification depended on events
-            if data["event"] == "payment.authorized":
+            if data["event"] == "payment.captured":
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
                 # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
                     loan_margin_shortfall = frappe.get_doc(
                         "Loan Margin Shortfall", loan_transaction.loan_margin_shortfall
                     )
-                    if loan_margin_shortfall.status == "Pending":
-                        loan_margin_shortfall.status = "Request Pending"
-                        loan_margin_shortfall.save(ignore_permissions=True)
-                        frappe.db.commit()
+                    # if loan_margin_shortfall.status == "Pending":
+                    #     loan_margin_shortfall.status = "Request Pending"
+                    #     loan_margin_shortfall.save(ignore_permissions=True)
+                    #     frappe.db.commit()
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                     frappe.enqueue_doc(
                         "Notification",
@@ -1472,6 +1496,11 @@ def update_rzp_payment_transaction(data):
                         method="send",
                         doc=doc,
                     )
+                    # msg = frappe.get_doc(
+                    #     "Spark SMS Notification", "Margin shortfall - action taken"
+                    # ).message
+                    # send_sms_notification(customer=customer, msg=msg)
+
                     msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification",
@@ -1494,11 +1523,20 @@ def update_rzp_payment_transaction(data):
                     frappe.enqueue_doc(
                         "Notification", "Payment Request", method="send", doc=doc
                     )
+                # msg = frappe.get_doc(
+                #     "Spark SMS Notification", "Payment Successful"
+                # ).message.format(loan_transaction.amount, loan.name)
+                # send_sms_notification(customer=customer, msg=msg)
+
                 msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
                     loan_transaction.amount, loan.name
                 )
             # send notification if rzp event is failed
             if data["event"] == "payment.failed":
+                # msg = frappe.get_doc(
+                #     "Spark SMS Notification", "Payment Failed"
+                # ).message.format(loan_transaction.amount, loan.name)
+                # send_sms_notification(customer=customer, msg=msg)
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                     loan_transaction.amount, loan.name
                 )
@@ -2038,18 +2076,22 @@ def system_report_enqueue():
     frappe.enqueue(
         method="lms.lms.doctype.client_summary.client_summary.client_summary",
         queue="long",
+        job_name="client summary",
     )
     frappe.enqueue(
         method="lms.lms.doctype.security_transaction.security_transaction.security_transaction",
         queue="long",
+        job_name="security transaction",
     )
     frappe.enqueue(
         method="lms.lms.doctype.security_exposure_summary.security_exposure_summary.security_exposure_summary",
         queue="long",
+        job_name="security exposure summary",
     )
     frappe.enqueue(
         method="lms.lms.doctype.security_details.security_details.security_details",
         queue="long",
+        job_name="security details",
     )
     curr_date = frappe.utils.now_datetime().date()
     last_date = (curr_date.replace(day=1) + timedelta(days=32)).replace(
@@ -2059,6 +2101,7 @@ def system_report_enqueue():
         frappe.enqueue(
             method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation_enqueue",
             queue="long",
+            job_name="interest calculation enqueue",
         )
     frappe.enqueue(
         method="lms.lms.doctype.loan.loan.available_top_up_update",
@@ -2484,11 +2527,13 @@ def ckyc_offline(customer, offline_customer):
                     "account_type": offline_customer.account_type,
                 },
             ).insert(ignore_permissions=True)
-            customer.kyc_update = 1
+            # customer.kyc_update = 1
             customer.choice_kyc = user_kyc.name
             customer.offline_customer = 1
             customer.save(ignore_permissions=True)
             offline_customer.ckyc_status = "Success"
+            offline_customer.user_kyc_name = user_kyc.name
+            offline_customer.kyc_name = user_kyc.name
             offline_customer.save(ignore_permissions=True)
             frappe.db.commit()
 
@@ -2516,170 +2561,233 @@ def ckyc_offline(customer, offline_customer):
 
 @frappe.whitelist()
 def customer_file_upload(upload_file):
-    files = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
-    file = frappe.get_doc("File", files[0].name)
-    file_path = file.get_full_path()
-    with open(file_path, "r") as upfile:
-        fcontent = upfile.read()
+    try:
+        files = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
+        file = frappe.get_doc("File", files[0].name)
+        file_path = file.get_full_path()
+        with open(file_path, "r") as upfile:
+            fcontent = upfile.read()
 
-    csv_data = read_csv_content(fcontent)
-    message = ""
+        csv_data = read_csv_content(fcontent)
 
-    for i in csv_data[1:]:
-        # validation for name
-        reg = regex_special_characters(search=i[0] + i[1])
-        if reg:
-            message += "Special Characters not allowed in First Name and Last Name.\n"
-
-        # Validation for Email
-        email_regex = (
-            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
-        )
-        if re.search(email_regex, i[3]) is None or (len(i[3].split("@")) > 2):
-            message += "Please enter valid email ID.\n"
-
-        # Validation for Alphanumeric
-        alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
-        pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
-        if (re.search(pan_regex, i[4]) is None) or (
-            re.search(alphanum_regex, i[10]) is None
-        ):
-            message += "Please enter valid Pan No or IFSC code.\n"
-
-        # validation for mobile number
-        if (len(i[2]) > 10) or (i[2].isnumeric == False):
-            message += "Please enter valid Mobile Number.\n"
-
-        if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
-            message += "Please enter valid CKYC Number or Account Number.\n"
-
-        if i[11].isaplha() == False:
-            message += "Please enter valid city name.\n"
-
-        # entry in Spark offline customer log doctype
-        offline_customer = frappe.get_doc(
-            dict(
-                doctype="Spark Offline Customer Log",
-                first_name=i[0],
-                last_name=i[1],
-                mobile_no=i[2],
-                email_id=i[3],
-                customer_first_name=i[0],
-                customer_last_name=i[1],
-                customer_mobile=i[2],
-                customer_email=i[3],
-                pan_no=i[4],
-                ckyc_no=i[6],
-                dob=i[5],
-                bank=i[7],
-                branch=i[8],
-                account_no=i[9],
-                ifsc=i[10],
-                city=i[11],
-                account_holder_name=i[12],
-                bank_address=i[13],
-                account_type=i[14],
-            )
-        ).insert(ignore_permissions=True)
-        frappe.db.commit()
-
-        if (
-            (reg)
-            or (
-                re.search(email_regex, offline_customer.customer_email) is None
-                or (len(offline_customer.customer_email.split("@")) > 2)
-            )
-            or (
-                (len(offline_customer.mobile_no) > 10)
-                or offline_customer.mobile_no.isnumeric == False
-            )
-            or (offline_customer.ckyc_no.isnumeric() == False)
-            or (
-                (offline_customer.account_no.isnumeric() == False)
-                or (re.search(alphanum_regex, offline_customer.ifsc) is None)
-            )
-            or (re.search(pan_regex, offline_customer.pan_no) is None)
-        ):
-            offline_customer.user_status = "Failure"
-            offline_customer.user_remarks = message
-            offline_customer.customer_status = "Failure"
-            offline_customer.ckyc_status = "Failure"
-            offline_customer.bank_status = "Failure"
-            offline_customer.save(ignore_permissions=True)
-            frappe.db.commit()
-            # frappe.throw(_("Please Enter valid data"))
-
-        else:
-            # user creation
-            res = frappe.get_all(
-                "User",
-                filters={
-                    "phone": offline_customer.mobile_no,
-                    "mobile_no": offline_customer.mobile_no,
-                },
-            )
-            cust = frappe.get_all(
-                "Loan Customer", filters={"phone": offline_customer.mobile_no}
-            )
-            if res and cust:
-                offline_customer.user_status = "Success"
-                offline_customer.save(ignore_permissions=True)
-                frappe.db.commit()
-            else:
-                user = create_user(
-                    offline_customer.first_name,
-                    offline_customer.last_name,
-                    offline_customer.mobile_no,
-                    offline_customer.customer_email,
-                    tester=0,
+        for i in csv_data[1:]:
+            message = ""
+            # validation for name
+            first_name = False
+            last_name = False
+            if " " in i[0]:
+                first_name = True
+                message += "Space not allowed in First Name.\n"
+            if " " in i[1]:
+                last_name = True
+                message += "Space not allowed in Last Name.\n"
+            reg = regex_special_characters(search=i[0] + i[1])
+            if reg:
+                message += (
+                    "Special Characters not allowed in First Name and Last Name.\n"
                 )
-                offline_customer.user_status = "Success"
+
+            # Validation for Email
+            email_regex = (
+                r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+            )
+            if re.search(email_regex, i[3]) is None or (len(i[3].split("@")) > 2):
+                message += "Please enter valid email ID.\n"
+
+            # Validation for Alphanumeric
+            alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
+            pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
+            if (re.search(pan_regex, i[4]) is None) or (
+                re.search(alphanum_regex, i[10]) is None
+            ):
+                message += "Please enter valid Pan No or IFSC code.\n"
+
+            # validation for mobile number
+            if (len(i[2]) > 10) or (i[2].isnumeric == False):
+                message += "Please enter valid Mobile Number.\n"
+
+            if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
+                message += "Please enter valid CKYC Number or Account Number.\n"
+
+            # if i[11].isalpha() == False:
+            #     message += "Please enter valid city name.\n"
+
+            # entry in Spark offline customer log doctype
+            offline_customer = frappe.get_doc(
+                dict(
+                    doctype="Spark Offline Customer Log",
+                    first_name=i[0],
+                    last_name=i[1],
+                    mobile_no=i[2],
+                    email_id=i[3],
+                    customer_first_name=i[0],
+                    customer_last_name=i[1],
+                    customer_mobile=i[2],
+                    customer_email=i[3],
+                    pan_no=i[4],
+                    ckyc_no=i[6],
+                    dob=i[5],
+                    bank=i[7],
+                    # branch=i[8],
+                    account_no=i[8],
+                    ifsc=i[9],
+                    # city=i[11],
+                    account_holder_name=i[10],
+                    # bank_address=i[13],
+                    # account_type=i[11],
+                    mycams_email_id=i[11],
+                )
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+
+            if (
+                (reg)
+                or (
+                    re.search(email_regex, offline_customer.customer_email) is None
+                    or (len(offline_customer.customer_email.split("@")) > 2)
+                )
+                or (
+                    (len(offline_customer.mobile_no) > 10)
+                    or offline_customer.mobile_no.isnumeric == False
+                )
+                or (offline_customer.ckyc_no.isnumeric() == False)
+                or (
+                    (offline_customer.account_no.isnumeric() == False)
+                    or (re.search(alphanum_regex, offline_customer.ifsc) is None)
+                )
+                or (re.search(pan_regex, offline_customer.pan_no) is None)
+                or (first_name)
+                or (last_name)
+            ):
+                offline_customer.user_status = "Failure"
+                offline_customer.user_remarks = message
+                offline_customer.customer_status = "Failure"
+                offline_customer.ckyc_status = "Failure"
+                offline_customer.bank_status = "Failure"
                 offline_customer.save(ignore_permissions=True)
                 frappe.db.commit()
+                # frappe.throw(_("Please Enter valid data"))
 
-                # loan customer creation
+            else:
+                # user creation
                 res = frappe.get_all(
+                    "User",
+                    filters={
+                        "phone": offline_customer.mobile_no,
+                        "mobile_no": offline_customer.mobile_no,
+                    },
+                )
+                cust = frappe.get_all(
                     "Loan Customer", filters={"phone": offline_customer.mobile_no}
                 )
-                res_user = frappe.get_all("Loan Customer", filters={"user": user.name})
-                if res or res_user:
-                    frappe.throw(
-                        _(
-                            "Loan Customer already exists".format(
-                                offline_customer.mobile_no
-                            )
-                        )
+                if res and cust:
+                    offline_customer.user_status = "Failure"
+                    offline_customer.user_remarks = "Duplicate Value"
+                    offline_customer.customer_status = "Failure"
+                    offline_customer.customer_remarks = "Duplicate Values"
+                    # offline_customer.user_name == res[0].name
+                    offline_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
+                else:
+                    res_email = frappe.get_all(
+                        "User", filters={"email": offline_customer.customer_email}
                     )
-                    offline_customer.customer_status = "Success"
-                    offline_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
-                else:
-                    customer = create_customer(user)
-                    customer.offline_customer = 1
-                    customer.save(ignore_permissions=True)
-                    offline_customer.customer_status = "Success"
-                    offline_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
+                    res_mobile = frappe.get_all(
+                        "User",
+                        filters={
+                            "phone": offline_customer.mobile_no,
+                            "mobile_no": offline_customer.mobile_no,
+                        },
+                    )
+                    if res_email or res_mobile:
+                        d_name = res_email[0].name if res_email else res_mobile[0].name
+                        user = frappe.get_doc("User", d_name)
+                        offline_customer.user_status = "Failure"
+                        offline_customer.user_remarks = "Duplicate Value"
+                        offline_customer.customer_status = "Failure"
+                        offline_customer.customer_remarks = "Duplicate Values"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    else:
+                        user = create_user(
+                            offline_customer.first_name,
+                            offline_customer.last_name,
+                            offline_customer.mobile_no,
+                            offline_customer.customer_email,
+                            tester=0,
+                        )
+                        offline_customer.user_status = "Success"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
 
-                # User Kyc creation
-                res_kyc = frappe.get_all("User KYC", filters={"user": user.name})
-                if res_kyc:
-                    frappe.throw(_("User KYC already exists"))
-                    offline_customer.ckyc_status = "Success"
-                    offline_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
+                    # loan customer creation
+                    res = frappe.get_all(
+                        "Loan Customer", filters={"phone": offline_customer.mobile_no}
+                    )
+                    res_user = frappe.get_all(
+                        "Loan Customer", filters={"user": user.name}
+                    )
+                    cust_status = ""
+                    if res or res_user:
+                        doc_name = res[0].name if res else res_user[0].name
+                        # frappe.throw(
+                        #     _(
+                        #         "Loan Customer already exists".format(
+                        #             offline_customer.mobile_no
+                        #         )
+                        #     )
+                        # )
+                        offline_customer.customer_status = "Failure"
+                        offline_customer.customer_remarks = (
+                            "Loan Customer already exists"
+                        )
+                        # offline_customer.user_name == doc_name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    else:
+                        customer = create_customer(user)
+                        customer.offline_customer = 1
+                        customer.is_email_verified = 1
+                        customer.save(ignore_permissions=True)
+                        offline_customer.customer_status = "Success"
+                        cust_status = "Success"
+                        offline_customer.customer_name = customer.name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
 
-                else:
-                    ckyc_offline(customer=customer, offline_customer=offline_customer)
+                    # User Kyc creation
+                    res_kyc = frappe.get_all("User KYC", filters={"user": user.name})
+                    if res_kyc:
+                        frappe.throw(_("User KYC already exists"))
+                        offline_customer.ckyc_status = "Failure"
+                        offline_customer.ckyc_remarks = "Duplicate Values"
+                        offline_customer.user_kyc_name = res_kyc[0].name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+
+                    else:
+                        if cust_status == "Success":
+                            ckyc_offline(
+                                customer=customer, offline_customer=offline_customer
+                            )
+    except Exception:
+        frappe.log_error(
+            title="Create User Customer Cron Error",
+            message=frappe.get_traceback()
+            + "\n\n{}".format(str(i) if i else str(upload_file)),
+        )
 
 
 @frappe.whitelist()
 def create_user_customer(upload_file):
-    frappe.enqueue(
-        method=customer_file_upload(upload_file=upload_file),
-        queue="long",
-        job_name="Offline Customer File Processing",
-    )
+    try:
+        frappe.enqueue(
+            method=customer_file_upload(upload_file=upload_file),
+            queue="long",
+            job_name="Offline Customer File Processing",
+        )
+    except Exception:
+        frappe.log_error(title="Create User Customer Main Function Error")
 
 
 def penny_call_create_contact(user=None, customer=None, user_kyc=None):
@@ -3450,7 +3558,7 @@ def penny_validate_fund_account():
         log_api_error()
 
 
-def au_pennydrop_api(data):
+def au_pennydrop_api(data, kyc_full_name):
     try:
         ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
             abs(randint(0, 9999) - randint(1, 99))
@@ -3472,6 +3580,7 @@ def au_pennydrop_api(data):
             "ReqId": ReqId,
             "IFSCCode": data.get("ifsc"),
             "AccNum": data.get("account_number"),
+            "BeneficiaryName": kyc_full_name,
             "HashValue": base64.b64encode(final_hash).decode("ascii"),
         }
         data["payload"] = payload
@@ -3524,6 +3633,10 @@ def name_matching(user_kyc, bank_acc_full_name):
             and user_kyc.lname.replace(" ", "").lower() in bank_acc_full_name
         ):
             return True
+        elif (user_kyc.fname and not user_kyc.mname and not user_kyc.lname) and (
+            user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
         else:
             return False
     except Exception:
@@ -3531,6 +3644,307 @@ def name_matching(user_kyc, bank_acc_full_name):
             title="Name matching Error",
             message=frappe.get_traceback()
             + "User Kyc Name:\n{}\n\n".format(user_kyc.name),
+        )
+
+
+def ckyc_commit(res_json, customer, dob):
+    pid_data = json.loads(res_json.get("data")).get("PID_DATA")
+
+    personal_details = pid_data.get("PERSONAL_DETAILS")
+    identity_details = pid_data.get("IDENTITY_DETAILS")
+    related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
+    image_details = pid_data.get("IMAGE_DETAILS")
+
+    user_kyc = frappe.get_doc(
+        {
+            "doctype": "User KYC",
+            "owner": customer.user,
+            "user": customer.user,
+            "kyc_type": "CKYC",
+            "pan_no": personal_details.get("PAN"),
+            "date_of_birth": datetime.strptime(dob, "%d-%m-%Y"),
+            "consti_type": personal_details.get("CONSTI_TYPE"),
+            "acc_type": personal_details.get("ACC_TYPE"),
+            "ckyc_no": personal_details.get("CKYC_NO"),
+            "prefix": personal_details.get("PREFIX"),
+            "fname": personal_details.get("FNAME"),
+            "mname": personal_details.get("MNAME"),
+            "lname": personal_details.get("LNAME"),
+            "fullname": personal_details.get("FULLNAME"),
+            "maiden_prefix": personal_details.get("MAIDEN_PREFIX"),
+            "maiden_fname": personal_details.get("MAIDEN_FNAME"),
+            "maiden_mname": personal_details.get("MAIDEN_MNAME"),
+            "maiden_lname": personal_details.get("MAIDEN_LNAME"),
+            "maiden_fullname": personal_details.get("MAIDEN_FULLNAME"),
+            "fatherspouse_flag": personal_details.get("FATHERSPOUSE_FLAG"),
+            "father_prefix": personal_details.get("FATHER_PREFIX"),
+            "father_fname": personal_details.get("FATHER_FNAME"),
+            "father_mname": personal_details.get("FATHER_MNAME"),
+            "father_lname": personal_details.get("FATHER_LNAME"),
+            "father_fullname": personal_details.get("FATHER_FULLNAME"),
+            "mother_prefix": personal_details.get("MOTHER_PREFIX"),
+            "mother_fname": personal_details.get("MOTHER_FNAME"),
+            "mother_mname": personal_details.get("MOTHER_MNAME"),
+            "mother_lname": personal_details.get("MOTHER_LNAME"),
+            "mother_fullname": personal_details.get("MOTHER_FULLNAME"),
+            "gender": personal_details.get("GENDER"),
+            "dob": personal_details.get("DOB"),
+            "pan": personal_details.get("PAN"),
+            "form_60": personal_details.get("FORM_60"),
+            "perm_line1": personal_details.get("PERM_LINE1"),
+            "perm_line2": personal_details.get("PERM_LINE2"),
+            "perm_line3": personal_details.get("PERM_LINE3"),
+            "perm_city": personal_details.get("PERM_CITY"),
+            "perm_dist": personal_details.get("PERM_DIST"),
+            "perm_state": personal_details.get("PERM_STATE"),
+            "perm_country": personal_details.get("PERM_COUNTRY"),
+            "perm_state_name": frappe.db.get_value(
+                "Pincode Master",
+                {"state": personal_details.get("PERM_STATE")},
+                "state_name",
+            ),
+            "perm_country_name": frappe.db.get_value(
+                "Country Master",
+                {"name": personal_details.get("PERM_COUNTRY")},
+                "country",
+            ),
+            "perm_pin": personal_details.get("PERM_PIN"),
+            "perm_poa": personal_details.get("PERM_POA"),
+            "perm_corres_sameflag": personal_details.get("PERM_CORRES_SAMEFLAG"),
+            "corres_line1": personal_details.get("CORRES_LINE1"),
+            "corres_line2": personal_details.get("CORRES_LINE2"),
+            "corres_line3": personal_details.get("CORRES_LINE3"),
+            "corres_city": personal_details.get("CORRES_CITY"),
+            "corres_dist": personal_details.get("CORRES_DIST"),
+            "corres_state": personal_details.get("CORRES_STATE"),
+            "corres_country": personal_details.get("CORRES_COUNTRY"),
+            "corres_state_name": frappe.db.get_value(
+                "Pincode Master",
+                {"state": personal_details.get("CORRES_STATE")},
+                "state_name",
+            ),
+            "corres_country_name": frappe.db.get_value(
+                "Country Master",
+                {"name": personal_details.get("CORRES_COUNTRY")},
+                "country",
+            ),
+            "corres_pin": personal_details.get("CORRES_PIN"),
+            "corres_poa": personal_details.get("CORRES_POA"),
+            "resi_std_code": personal_details.get("RESI_STD_CODE"),
+            "resi_tel_num": personal_details.get("RESI_TEL_NUM"),
+            "off_std_code": personal_details.get("OFF_STD_CODE"),
+            "off_tel_num": personal_details.get("OFF_TEL_NUM"),
+            "mob_code": personal_details.get("MOB_CODE"),
+            "mob_num": personal_details.get("MOB_NUM"),
+            "email": personal_details.get("EMAIL"),
+            "email_id": personal_details.get("EMAIL"),
+            "remarks": personal_details.get("REMARKS"),
+            "dec_date": personal_details.get("DEC_DATE"),
+            "dec_place": personal_details.get("DEC_PLACE"),
+            "kyc_date": personal_details.get("KYC_DATE"),
+            "doc_sub": personal_details.get("DOC_SUB"),
+            "kyc_name": personal_details.get("KYC_NAME"),
+            "kyc_designation": personal_details.get("KYC_DESIGNATION"),
+            "kyc_branch": personal_details.get("KYC_BRANCH"),
+            "kyc_empcode": personal_details.get("KYC_EMPCODE"),
+            "org_name": personal_details.get("ORG_NAME"),
+            "org_code": personal_details.get("ORG_CODE"),
+            "num_identity": personal_details.get("NUM_IDENTITY"),
+            "num_related": personal_details.get("NUM_RELATED"),
+            "num_images": personal_details.get("NUM_IMAGES"),
+        }
+    )
+
+    if user_kyc.gender == "M":
+        gender_full = "Male"
+    elif user_kyc.gender == "F":
+        gender_full = "Female"
+    else:
+        gender_full = "Transgender"
+
+    user_kyc.gender_full = gender_full
+
+    if identity_details:
+        identity = identity_details.get("IDENTITY")
+        if identity:
+            if type(identity) != list:
+                identity = [identity]
+
+            for i in identity:
+                user_kyc.append(
+                    "identity_details",
+                    {
+                        "sequence_no": i.get("SEQUENCE_NO"),
+                        "ident_type": i.get("IDENT_TYPE"),
+                        "ident_num": i.get("IDENT_NUM"),
+                        "idver_status": i.get("IDVER_STATUS"),
+                        "ident_category": frappe.db.get_value(
+                            "Identity Code",
+                            {"name": i.get("IDENT_TYPE")},
+                            "category",
+                        ),
+                    },
+                )
+
+    if related_person_details:
+        related_person = related_person_details.get("RELATED_PERSON")
+        if related_person:
+            if type(related_person) != list:
+                related_person = [related_person]
+
+            for r in related_person:
+                photos_ = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=r.get("REL_TYPE"),
+                    image_=r.get("PHOTO_DATA"),
+                    img_format=r.get("PHOTO_TYPE"),
+                )
+                perm_poi_photos_ = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=r.get("REL_TYPE"),
+                    image_=r.get("PERM_POI_DATA"),
+                    img_format=r.get("PERM_POI_IMAGE_TYPE"),
+                )
+                corres_poi_photos_ = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=r.get("REL_TYPE"),
+                    image_=r.get("CORRES_POI_DATA"),
+                    img_format=r.get("CORRES_POI_IMAGE_TYPE"),
+                )
+                user_kyc.append(
+                    "related_person_details",
+                    {
+                        "sequence_no": r.get("SEQUENCE_NO"),
+                        "rel_type": r.get("REL_TYPE"),
+                        "add_del_flag": r.get("ADD_DEL_FLAG"),
+                        "ckyc_no": r.get("CKYC_NO"),
+                        "prefix": r.get("PREFIX"),
+                        "fname": r.get("FNAME"),
+                        "mname": r.get("MNAME"),
+                        "lname": r.get("LNAME"),
+                        "maiden_prefix": r.get("MAIDEN_PREFIX"),
+                        "maiden_fname": r.get("MAIDEN_FNAME"),
+                        "maiden_mname": r.get("MAIDEN_MNAME"),
+                        "maiden_lname": r.get("MAIDEN_LNAME"),
+                        "fatherspouse_flag": r.get("FATHERSPOUSE_FLAG"),
+                        "father_prefix": r.get("FATHER_PREFIX"),
+                        "father_fname": r.get("FATHER_FNAME"),
+                        "father_mname": r.get("FATHER_MNAME"),
+                        "father_lname": r.get("FATHER_LNAME"),
+                        "mother_prefix": r.get("MOTHER_PREFIX"),
+                        "mother_fname": r.get("MOTHER_FNAME"),
+                        "mother_mname": r.get("MOTHER_MNAME"),
+                        "mother_lname": r.get("MOTHER_LNAME"),
+                        "gender": r.get("GENDER"),
+                        "dob": r.get("DOB"),
+                        "nationality": r.get("NATIONALITY"),
+                        "pan": r.get("PAN"),
+                        "form_60": r.get("FORM_60"),
+                        "add_line1": r.get("Add_LINE1"),
+                        "add_line2": r.get("Add_LINE2"),
+                        "add_line3": r.get("Add_LINE3"),
+                        "add_city": r.get("Add_CITY"),
+                        "add_dist": r.get("Add_DIST"),
+                        "add_state": r.get("Add_STATE"),
+                        "add_country": r.get("Add_COUNTRY"),
+                        "add_pin": r.get("Add_PIN"),
+                        "perm_poi_type": r.get("PERM_POI_TYPE"),
+                        "same_as_perm_flag": r.get("SAME_AS_PERM_FLAG"),
+                        "corres_add_line1": r.get("CORRES_ADD_LINE1"),
+                        "corres_add_line2": r.get("CORRES_ADD_LINE2"),
+                        "corres_add_line3": r.get("CORRES_ADD_LINE3"),
+                        "corres_add_city": r.get("CORRES_ADD_CITY"),
+                        "corres_add_dist": r.get("CORRES_ADD_DIST"),
+                        "corres_add_state": r.get("CORRES_ADD_STATE"),
+                        "corres_add_country": r.get("CORRES_ADD_COUNTRY"),
+                        "corres_add_pin": r.get("CORRES_ADD_PIN"),
+                        "corres_poi_type": r.get("CORRES_POI_TYPE"),
+                        "resi_std_code": r.get("RESI_STD_CODE"),
+                        "resi_tel_num": r.get("RESI_TEL_NUM"),
+                        "off_std_code": r.get("OFF_STD_CODE"),
+                        "off_tel_num": r.get("OFF_TEL_NUM"),
+                        "mob_code": r.get("MOB_CODE"),
+                        "mob_num": r.get("MOB_NUM"),
+                        "email": r.get("EMAIL"),
+                        "remarks": r.get("REMARKS"),
+                        "dec_date": r.get("DEC_DATE"),
+                        "dec_place": r.get("DEC_PLACE"),
+                        "kyc_date": r.get("KYC_DATE"),
+                        "doc_sub": r.get("DOC_SUB"),
+                        "kyc_name": r.get("KYC_NAME"),
+                        "kyc_designation": r.get("KYC_DESIGNATION"),
+                        "kyc_branch": r.get("KYC_BRANCH"),
+                        "kyc_empcode": r.get("KYC_EMPCODE"),
+                        "org_name": r.get("ORG_NAME"),
+                        "org_code": r.get("ORG_CODE"),
+                        "photo_type": r.get("PHOTO_TYPE"),
+                        "photo": photos_,
+                        "perm_poi_image_type": r.get("PERM_POI_IMAGE_TYPE"),
+                        "perm_poi": perm_poi_photos_,
+                        "corres_poi_image_type": r.get("CORRES_POI_IMAGE_TYPE"),
+                        "corres_poi": corres_poi_photos_,
+                        "proof_of_possession_of_aadhaar": r.get(
+                            "PROOF_OF_POSSESSION_OF_AADHAAR"
+                        ),
+                        "voter_id": r.get("VOTER_ID"),
+                        "nrega": r.get("NREGA"),
+                        "passport": r.get("PASSPORT"),
+                        "driving_licence": r.get("DRIVING_LICENCE"),
+                        "national_poplation_reg_letter": r.get(
+                            "NATIONAL_POPLATION_REG_LETTER"
+                        ),
+                        "offline_verification_aadhaar": r.get(
+                            "OFFLINE_VERIFICATION_AADHAAR"
+                        ),
+                        "e_kyc_authentication": r.get("E_KYC_AUTHENTICATION"),
+                    },
+                )
+
+    if image_details:
+        image_ = image_details.get("IMAGE")
+        if image_:
+            if type(image_) != list:
+                image_ = [image_]
+
+            for im in image_:
+                image_data = upload_image_to_doctype(
+                    customer=customer,
+                    seq_no=im.get("SEQUENCE_NO"),
+                    image_=im.get("IMAGE_DATA"),
+                    img_format=im.get("IMAGE_TYPE"),
+                )
+                user_kyc.append(
+                    "image_details",
+                    {
+                        "sequence_no": im.get("SEQUENCE_NO"),
+                        "image_type": im.get("IMAGE_TYPE"),
+                        "image_code": im.get("IMAGE_CODE"),
+                        "global_flag": im.get("GLOBAL_FLAG"),
+                        "branch_code": im.get("BRANCH_CODE"),
+                        "image_name": frappe.db.get_value(
+                            "Document Master",
+                            {"name": im.get("IMAGE_CODE")},
+                            "document_name",
+                        ),
+                        "image": image_data,
+                    },
+                )
+
+    user_kyc.insert(ignore_permissions=True)
+    frappe.db.commit()
+    return user_kyc
+
+
+def redirect_to_url(url=""):
+    try:
+        if not url:
+            url = "http://143.110.250.220:9123"
+        frappe.local.response["type"] = "redirect"
+        frappe.local.response["location"] = url
+    except Exception:
+        frappe.log_error(
+            title="Redirect to URL API",
+            message=frappe.get_traceback() + "\n\n" + frappe.local.form_dict,
         )
 
 
@@ -3617,10 +4031,6 @@ def charges_for_apr(lender, sanction_limit):
     charges["documentation_charges"] = documentation_charges
     total = processing_fees + stamp_duty + documentation_charges
     charges["total"] = total
-    frappe.log_error(
-        title="Charge calculate",
-        message=str(charges),
-    )
     return charges
 
 
@@ -3642,124 +4052,74 @@ def compress_image(input_image_path, user, quality=100):
 
 
 def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
-    try:
-        # print("akash")
-        # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
-        registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
-        # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
+    registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
 
-        # packet = io.BytesIO()
-        # can = canvas.Canvas(packet, pagesize=letter)
-        # current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
-        # can.setFont("Calibri-Bold", 10)
-        # can.drawString(80, 790, current_time)
-        # can.save()
-        # packet.seek(0)
+    lfile_name = esigned_doc.split("files/", 1)
+    l_file = lfile_name[1]
+    pdf_file_path = frappe.utils.get_files_path(
+        l_file,
+    )
+    # read your existing PDF
+    pdf_path = pdf_file_path  # for u its ur original pdf
+    existing_pdf = PdfReader(open(pdf_file_path, "rb"))
+    reader = PdfReader(pdf_path)
+    num_of_page = len(existing_pdf.pages)
+    output = PdfWriter()
+    for i in range(30):
+        page = reader.pages[i]
+        output.add_page(page)
 
-        # new_pdf = PdfReader(packet)
-        lfile_name = esigned_doc.split("files/", 1)
-        l_file = lfile_name[1]
-        pdf_file_path = frappe.utils.get_files_path(
-            l_file,
-        )
-        # read your existing PDF
-        pdf_path = pdf_file_path  # for u its ur original pdf
-        existing_pdf = PdfReader(open(pdf_file_path, "rb"))
-        reader = PdfReader(pdf_path)
-        num_of_page = len(existing_pdf.pages)
-        output = PdfWriter()
-        for i in range(30):
-            page = reader.pages[i]
-            output.add_page(page)
+    current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    can.drawString(80, 765, current_time)
+    if loan_name:
+        can.drawString(89, 753, loan_name)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page21 = reader.pages[30]
+    page21.merge_page(watermark)
+    output.add_page(page21)
 
-        current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
-        packet = io.BytesIO()
-        can = canvas.Canvas(packet, pagesize=letter)
-        can.setFont("Calibri-Bold", 10)
-        can.drawString(80, 765, current_time)
-        if loan_name:
-            can.drawString(89, 753, loan_name)
-        can.save()
-        packet.seek(0)
-        watermark = PdfReader(packet).pages[0]
-        page21 = reader.pages[30]
-        page21.merge_page(watermark)
-        output.add_page(page21)
+    for i in range(31, 36):
+        page = reader.pages[i]
+        output.add_page(page)
 
-        for i in range(31, 36):
-            page = reader.pages[i]
-            output.add_page(page)
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    if loan_name:
+        can.drawString(118, 767, current_time)
+    else:
+        can.drawString(118, 767, current_time)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page25 = reader.pages[36]
+    page25.merge_page(watermark)
+    output.add_page(page25)
 
-        packet = io.BytesIO()
-        can = canvas.Canvas(packet, pagesize=letter)
-        can.setFont("Calibri-Bold", 10)
-        if loan_name:
-            can.drawString(118, 767, current_time)
-        else:
-            can.drawString(118, 767, current_time)
-        can.save()
-        packet.seek(0)
-        watermark = PdfReader(packet).pages[0]
-        page25 = reader.pages[36]
-        page25.merge_page(watermark)
-        output.add_page(page25)
+    for i in range(37, num_of_page):
+        page = reader.pages[i]
+        output.add_page(page)
+    # finally, write "output" to a real file
+    sanction_letter_esign = "{}_{}.pdf".format(
+        loan_application_name, frappe.utils.now_datetime().strftime("%Y-%m-%d")
+    )
+    sanction_letter_esign_path = frappe.utils.get_files_path(sanction_letter_esign)
+    sanction_letter_esign_doc = frappe.utils.get_url(
+        "files/{}".format(sanction_letter_esign)
+    )
+    if os.path.exists(sanction_letter_esign_path):
+        os.remove(sanction_letter_esign_path)
 
-        # add the "watermark" (which is the new pdf) on the existing page
-        # page = existing_pdf.pages[21]
-        # page.merge_page(new_pdf.pages[0])
-        # output.add_page(page)
-        # page = existing_pdf.pages[25]
-        # page.merge_page(new_pdf.pages[0])
-        # output.add_page(page)
-        for i in range(37, num_of_page):
-            page = reader.pages[i]
-            output.add_page(page)
-        # finally, write "output" to a real file
-        sanction_letter_esign = "{}_{}.pdf".format(
-            loan_application_name, frappe.utils.now_datetime().strftime("%Y-%m-%d")
-        )
-        sanction_letter_esign_path = frappe.utils.get_files_path(sanction_letter_esign)
-        sanction_letter_esign_doc = frappe.utils.get_url(
-            "files/{}".format(sanction_letter_esign)
-        )
-        if os.path.exists(sanction_letter_esign_path):
-            os.remove(sanction_letter_esign_path)
-
-        sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
-        output_stream = open(sanction_letter_esign, "wb")
-        output.write(output_stream)
-        output_stream.close()
-        return sanction_letter_esign_doc
-    except:
-        frappe.log_error(
-            message=frappe.get_traceback() + "\n",
-            title="PDF Editor",
-        )
-
-    #####nes#######
-    # merger = PdfWriter()
-    # input1 = open(pdf_file_path, "rb")
-    # input2 = open(sanction_letter_esign, "rb")
-    # merger.append(input1, pages=(0, 21))
-    # merger.append(input2, pages=[0])
-    # merger.append(input1, pages=(22, 25))
-    # merger.append(input2, pages=[1])
-    # merger.append(input1, pages=(26, num_of_page))
-    # # merger.append(input1, pages=[3])
-    # lender_esigned_doc_final = "Loan_Agreement_{}_{}.pdf".format(loan_application_name,frappe.utils.now_datetime().strftime("%Y-%m-%d"))
-    # lender_esigned_doc_final_path = frappe.utils.get_files_path(
-    #     lender_esigned_doc_final
-    # )
-    # if os.path.exists(lender_esigned_doc_final_path):
-    #     os.remove(lender_esigned_doc_final_path)
-    # lender_esigned_doc_final_document = frappe.utils.get_url(
-    #     "files/{}".format(lender_esigned_doc_final)
-    # )
-    # lender_esigned_doc_final = frappe.utils.get_files_path(lender_esigned_doc_final)
-    # with open(lender_esigned_doc_final, "wb") as mp:
-    #     merger.write(mp)
-    # print("lender_esigned_doc_final_document", lender_esigned_doc_final_document)
-    # print("lender_esigned_doc_final", lender_esigned_doc_final)
+    sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+    output_stream = open(sanction_letter_esign, "wb")
+    output.write(output_stream)
+    output_stream.close()
+    return sanction_letter_esign_doc
 
 
 PDF_CONTENT_ERRORS = [
@@ -3915,7 +4275,7 @@ def read_options_from_html(html):
             match = pattern.findall(html)
             if match:
                 options[attr] = str(match[-1][3]).strip()
-        except:
+        except Exception:
             pass
 
     return str(soup), options
@@ -3994,3 +4354,54 @@ def toggle_visible_pdf(soup):
     for tag in soup.find_all(attrs={"class": "hidden-pdf"}):
         # remove tag from html
         tag.extract()
+
+
+def personalized_cheque_log(name, image_, img_format):
+    try:
+        name = name + "_" + str(frappe.utils.now_datetime())
+
+        picture_file = "{}.{}".format(name, img_format).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
+        image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/{}.{}".format(name, img_format).replace(" ", "-")
+        )
+        create_log({"url": ckyc_image_file_url}, "personalized_cheque_log")
+
+        return ckyc_image_file_url
+    except Exception:
+        frappe.log_error(
+            title="Personalized cheque Error",
+            message=frappe.get_traceback() + "\n\nUser:{}".format(frappe.session.user),
+        )
+
+
+def send_sms_notification(customer, msg, token_type=None):
+    try:
+        if token_type:
+            receiver_list = [str(customer)]
+        else:
+            customer = frappe.get_doc("Loan Customer", customer)
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+        receiver_list = list(set(receiver_list))
+        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nCustomer name -\n{}\n\nMessage details -\n{}".format(
+                customer, str(msg)
+            ),
+            title="Send SMS Notification Error",
+        )

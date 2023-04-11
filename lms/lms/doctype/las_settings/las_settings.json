@@ -99,6 +99,7 @@
   "pennydrop_days_passed",
   "column_break_91",
   "penny_secret_key",
+  "penny_name_mismatch_percentage",
   "onboarding_screen_section",
   "onboarding_screen"
  ],
@@ -599,11 +600,16 @@
    "label": "CKYC Request ID",
    "length": 5,
    "read_only": 1
+  },
+  {
+   "fieldname": "penny_name_mismatch_percentage",
+   "fieldtype": "Percent",
+   "label": "Penny Name Mismatch Percentage"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2023-02-16 19:00:18.766581",
+ "modified": "2023-03-08 15:53:39.252921",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

@@ -6,4 +6,8 @@ from frappe.model.document import Document
 
 
 class SanctionLetterandCIALLog(Document):
-    pass
+    def validate(self):
+        for i, item in enumerate(
+            sorted(self.interest_letter_table, key=lambda item: item.creation), start=1
+        ):
+            item.idx = i

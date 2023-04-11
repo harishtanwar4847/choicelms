@@ -22,7 +22,9 @@
   "column_break_14",
   "customer_mobile",
   "customer_email",
+  "mycams_email_id",
   "customer_remarks",
+  "customer_name",
   "ckyc_details_section",
   "pan_no",
   "dob",
@@ -30,6 +32,7 @@
   "column_break_20",
   "ckyc_no",
   "ckyc_status",
+  "user_kyc_name",
   "bank_details_section",
   "bank",
   "branch",
@@ -41,7 +44,8 @@
   "account_holder_name",
   "bank_address",
   "account_type",
-  "bank_status"
+  "bank_status",
+  "kyc_name"
  ],
  "fields": [
   {
@@ -78,7 +82,6 @@
   {
    "fieldname": "user_status",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "User Status",
    "options": "Pending\nSuccess\nFailure",
    "read_only": 1,
@@ -189,10 +192,10 @@
    "reqd": 1
   },
   {
+   "fetch_from": "ifsc.branch",
    "fieldname": "branch",
    "fieldtype": "Data",
-   "label": "Branch",
-   "reqd": 1
+   "label": "Branch"
   },
   {
    "fieldname": "account_no",
@@ -202,11 +205,13 @@
   },
   {
    "fieldname": "ifsc",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "IFSC",
+   "options": "Spark Bank Branch",
    "reqd": 1
   },
   {
+   "fetch_from": "ifsc.city",
    "fieldname": "city",
    "fieldtype": "Data",
    "label": "City"
@@ -222,6 +227,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "ifsc.address",
    "fieldname": "bank_address",
    "fieldtype": "Small Text",
    "label": "Bank Address"
@@ -229,8 +235,7 @@
   {
    "fieldname": "account_type",
    "fieldtype": "Data",
-   "label": "Account Type",
-   "reqd": 1
+   "label": "Account Type"
   },
   {
    "fieldname": "bank_status",
@@ -263,11 +268,35 @@
    "fieldtype": "Small Text",
    "label": "Bank Remarks",
    "read_only": 1
+  },
+  {
+   "fieldname": "mycams_email_id",
+   "fieldtype": "Data",
+   "label": "MyCams Email ID"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer Name",
+   "options": "Loan Customer"
+  },
+  {
+   "fieldname": "user_kyc_name",
+   "fieldtype": "Link",
+   "label": "User KYC name",
+   "options": "User KYC"
+  },
+  {
+   "fieldname": "kyc_name",
+   "fieldtype": "Link",
+   "label": "User KYC name",
+   "options": "User KYC"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-17 13:04:10.594380",
+ "modified": "2023-03-09 19:01:10.969767",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",

@@ -122,13 +122,13 @@
   {
    "fetch_from": "security_category.category_name",
    "fieldname": "category_name",
-   "fieldtype": "Data",
+   "fieldtype": "Read Only",
    "label": "Category Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-15 12:02:06.581576",
+ "modified": "2023-03-30 19:06:02.874145",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",

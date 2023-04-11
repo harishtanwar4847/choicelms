@@ -73,12 +73,65 @@ class Cart(Document):
             )
 
             application_type = "New Loan"
+            base_interest = ""
+            rebate_interest = ""
+            is_default = ""
             if self.loan and not self.loan_margin_shortfall:
                 application_type = "Increase Loan"
+                loan = frappe.get_doc("Loan", self.loan)
+                if loan.is_default == 0:
+                    base_interest = loan.base_interest
+                    rebate_interest = loan.rebate_interest
+                    is_default = loan.is_default
+                else:
+                    interest_config = frappe.get_value(
+                        "Interest Configuration",
+                        {
+                            "to_amount": [
+                                ">=",
+                                lms.validate_rupees(self.increased_sanctioned_limit),
+                            ],
+                        },
+                        order_by="to_amount asc",
+                    )
+                    int_config = frappe.get_doc(
+                        "Interest Configuration", interest_config
+                    )
+                    base_interest = int_config.base_interest
+                    rebate_interest = int_config.rebait_interest
+                    is_default = loan.is_default
+
             elif self.loan and self.loan_margin_shortfall:
                 application_type = "Margin Shortfall"
+                loan = frappe.get_doc("Loan", self.loan)
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+                is_default = loan.is_default
+
             if not approved_tnc and self.loan and not self.loan_margin_shortfall:
                 application_type = "Pledge More"
+                loan = frappe.get_doc("Loan", self.loan)
+                if loan.is_default == 0:
+                    base_interest = loan.base_interest
+                    rebate_interest = loan.rebate_interest
+                    is_default = loan.is_default
+                else:
+                    interest_config = frappe.get_value(
+                        "Interest Configuration",
+                        {
+                            "to_amount": [
+                                ">=",
+                                lms.validate_rupees(self.increased_sanctioned_limit),
+                            ],
+                        },
+                        order_by="to_amount asc",
+                    )
+                    int_config = frappe.get_doc(
+                        "Interest Configuration", interest_config
+                    )
+                    base_interest = int_config.base_interest
+                    rebate_interest = int_config.rebait_interest
+                    is_default = loan.is_default
 
             items = []
             for item in self.items:
@@ -114,7 +167,7 @@ class Cart(Document):
                     "drawing_power": self.eligible_loan,
                     "lender": self.lender,
                     "expiry_date": expiry,
-                    "allowable_ltv": self.allowable_ltv,
+                    # "allowable_ltv": self.allowable_ltv,
                     "customer": self.customer,
                     "customer_name": self.customer_name,
                     "pledgor_boid": self.pledgor_boid,
@@ -126,6 +179,11 @@ class Cart(Document):
                     "increased_sanctioned_limit": self.increased_sanctioned_limit,
                     "instrument_type": self.instrument_type,
                     "scheme_type": self.scheme_type,
+                    "base_interest": base_interest,
+                    "rebate_interest": rebate_interest,
+                    "is_default": is_default,
+                    "custom_base_interest": base_interest,
+                    "custom_rebate_interest": rebate_interest,
                 }
             ).insert(ignore_permissions=True)
 
@@ -347,8 +405,11 @@ class Cart(Document):
             #     * self.allowable_ltv
             #     / 100
             # )
+            actual_dp = lms.round_down_amount_to_nearest_thousand(
+                loan.actual_drawing_power
+            )
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                loan.drawing_power + self.eligible_loan
+                actual_dp + self.eligible_loan
             )
             self.increased_sanctioned_limit = (
                 increased_sanctioned_limit
@@ -439,8 +500,20 @@ class Cart(Document):
             },
             order_by="to_amount asc",
         )
+        if self.loan:
+            if loan.is_default == 0:
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+            else:
+                int_config = frappe.get_doc("Interest Configuration", interest_config)
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+        else:
+            int_config = frappe.get_doc("Interest Configuration", interest_config)
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
         int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
+        roi_ = round((base_interest * 12), 2)
         interest_charges_in_amount = int(
             lms.validate_rupees(
                 float(
@@ -504,12 +577,15 @@ class Cart(Document):
             ).title(),
             "roi": roi_,
             "default_interest": annual_default_interest,
-            "rebate_interest": int_config.rebait_interest,
+            "rebate_interest": rebate_interest,
             "rebait_threshold": lender.rebait_threshold,
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
             "apr": apr,
+            "penal_charges": lender.renewal_penal_interest
+            if lender.renewal_penal_interest
+            else "",
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
             ),
@@ -679,18 +755,12 @@ class Cart(Document):
         if not self.is_processed:
             lender = self.get_lender()
             self.total_collateral_value = 0
-            allowable_ltv = 0
             eligible_loan = 0
             for item in self.items:
                 self.total_collateral_value += item.amount
-                allowable_ltv += item.eligible_percentage
 
             self.total_collateral_value = round(self.total_collateral_value, 2)
-            # if self.instrument_type == "Shares":
-            #     self.allowable_ltv = float(allowable_ltv) / len(self.items)
-            #     eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
 
-            # else:
             for i in self.items:
                 eligible_loan += i.eligible_amount
 

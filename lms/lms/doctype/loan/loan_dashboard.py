@@ -7,6 +7,7 @@ def get_data():
                     "Loan Transaction",
                     "Loan Margin Shortfall",
                     "Lender Ledger",
+                    "Spark Loan Renewal Application",
                 ]
             },
             {

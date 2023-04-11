@@ -9,7 +9,7 @@ lms.patches.update_sms_settings
 lms.patches.update_contact_us_settings
 lms.patches.import_faq
 lms.patches.create_consents
-lms.patches.update_las_settings ##
+lms.patches.update_las_settings
 lms.patches.import_interest_configuration
 lms.patches.import_workflows #20.04.2022
 lms.patches.set_hostname_config
@@ -52,5 +52,11 @@ lms.patches.update_spark_app_version
 lms.patches.update_workflow ###CKYC
 lms.patches.update_psn ####
 lms.patches.update_dlt_links 
+lms.patches.update_workflow_loan_renewal
+lms.patches.update_consent
+lms.patches.update_spark_fcm_notification 
+lms.patches.create_loan_renewal_application 
 lms.patches.au_bank_penny
-lms.patches.update_category_in_allowed_security 
+lms.patches.update_category_in_allowed_security
+lms.patches.update_url_of_agreement_in_loan
+lms.patches.custom_roi_patch 

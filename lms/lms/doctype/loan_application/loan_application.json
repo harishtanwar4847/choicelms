@@ -29,6 +29,7 @@
   "pledgee_boid",
   "instrument_type",
   "scheme_type",
+  "notification_sent",
   "items_section",
   "items",
   "section_break_23",
@@ -36,7 +37,17 @@
   "application_type",
   "column_break_25",
   "maximum_sanctioned_limit",
-  "increased_sanctioned_limit"
+  "increased_sanctioned_limit",
+  "interest_details_section",
+  "base_interest",
+  "column_break_34",
+  "rebate_interest",
+  "custom_interest_details_section",
+  "is_default",
+  "custom_base_interest",
+  "column_break_35",
+  "custom_rebate_interest",
+  "is_offline_loan"
  ],
  "fields": [
   {
@@ -46,7 +57,9 @@
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
-   "label": "Expiry Date"
+   "label": "Expiry Date",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
+   "reqd": 1
   },
   {
    "fieldname": "items_section",
@@ -57,6 +70,7 @@
    "fieldtype": "Table",
    "label": "Item",
    "options": "Loan Application Item",
+   "read_only_depends_on": "eval:[\"Pledge accepted by Lender\",\"Esign Done\",\"Ready for Approval\",\"Approved\",\"Rejected\",\"Pledge Failure\"].includes(doc.status);",
    "reqd": 1
   },
   {
@@ -129,6 +143,7 @@
    "fieldtype": "Select",
    "label": "Pledge Status",
    "options": "Pending\nSuccess\nPartial Success\nFailure",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -168,21 +183,25 @@
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
    "label": "Pledgor BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
   },
   {
    "depends_on": "eval:doc.instrument_type==\"Shares\";",
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
   },
   {
    "default": "Shares",
    "fieldname": "instrument_type",
    "fieldtype": "Select",
    "label": "Instrument Type",
-   "options": "Shares\nMutual Fund"
+   "options": "Shares\nMutual Fund",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
+   "reqd": 1
   },
   {
    "depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
@@ -195,7 +214,9 @@
    "fieldname": "application_type",
    "fieldtype": "Select",
    "label": "Application Type",
-   "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall"
+   "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
+   "reqd": 1
   },
   {
    "fieldname": "minimum_sanctioned_limit",
@@ -231,14 +252,84 @@
    "read_only": 1
   },
   {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default",
+   "read_only_depends_on": "eval:doc.status!=\"Pledge executed\" || doc.application_type != \"New Loan\"; "
+  },
+  {
+   "fieldname": "column_break_35",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "custom_interest_details_section",
+   "fieldtype": "Section Break",
+   "label": "Custom Interest Details"
+  },
+  {
+   "fieldname": "interest_details_section",
+   "fieldtype": "Section Break",
+   "label": "Interest Details"
+  },
+  {
+   "fieldname": "custom_base_interest",
+   "fieldtype": "Float",
+   "label": "Custom Base Interest (Per Month)",
+   "read_only_depends_on": "eval:doc.is_default == 1 || doc.status!=\"Pledge executed\" ||  doc.application_type != \"New Loan\"; "
+  },
+  {
+   "fieldname": "custom_rebate_interest",
+   "fieldtype": "Float",
+   "label": "Custom Rebate Interest",
+   "read_only_depends_on": "eval:doc.is_default == 1 || doc.status!=\"Pledge executed\" || doc.application_type != \"New Loan\"; "
+  },
+  {
+   "fieldname": "column_break_34",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "notification sent"
+  },
+  {
    "fieldname": "sl_entries",
    "fieldtype": "Link",
    "label": "SL Entries",
    "options": "Sanction Letter and CIAL Log"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_offline_loan",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Offline Loan"
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "notification sent"
   }
  ],
  "links": [],
- "modified": "2023-02-07 18:32:20.740022",
+ "modified": "2023-04-10 12:26:50.105442",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

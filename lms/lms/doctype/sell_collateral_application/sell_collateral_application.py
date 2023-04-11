@@ -37,7 +37,7 @@ class SellCollateralApplication(Document):
             i.security_category = security.security_category
         self.process_items()
         self.process_sell_items()
-        if self.status == "Rejected":
+        if self.status == "Rejected" and not self.processed:
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request rejected", fields=["*"]
             )
@@ -144,7 +144,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
             )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
@@ -195,6 +195,8 @@ class SellCollateralApplication(Document):
                 )
 
     def before_submit(self):
+        if not self.processed:
+            frappe.throw("Please check the Processed Checkbox")
         # check if all securities are sold
         sell_quantity_map = {
             "{}{}{}".format(
@@ -211,7 +213,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
             )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
@@ -259,13 +261,22 @@ class SellCollateralApplication(Document):
         las_settings = frappe.get_single("LAS Settings")
 
         if self.status == "Rejected":
+            if self.processed:
+                frappe.throw("Please uncheck the Processed Checkbox")
             if self.instrument_type == "Mutual Fund":
+                # msg = frappe.get_doc(
+                #     "Spark SMS Notification", "Invoke request"
+                # ).message.format(link=las_settings.my_securities)
                 msg = "Dear Customer,\nSorry! Your invoke request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
                     link=las_settings.my_securities
                 )
 
             else:
-                msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+                # msg = frappe.get_doc(
+                #     "Spark SMS Notification", "Sell Request Turn Down"
+                # ).message
+
+                msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
             receiver_list = [str(self.get_customer().phone)]
             if self.get_customer().get_kyc().mob_num:
@@ -276,6 +287,13 @@ class SellCollateralApplication(Document):
             receiver_list = list(set(receiver_list))
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            # msg = frappe.get_doc("Spark SMS Notification","TopUp rejected").message
+
+            # lms.send_sms_notification(customer=self.get_customer(),msg=msg)
+            # msg = "Dear Customer,\nSorry! Your {} request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
+            #     msg_type
+            # )
 
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(
@@ -452,21 +470,21 @@ class SellCollateralApplication(Document):
         if loan.instrument_type == "Mutual Fund":
             email_subject = "MF Sale Triggered Completion"
             application_type = "invoke"
+        msg_type = "sell collateral"
+        if loan.instrument_type == "Mutual Fund":
+            msg_type = "invoke"
 
         if "Loan customer" not in user_roles and self.loan_margin_shortfall:
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["sell_triggered_completion"] = {"loan": self.loan}
 
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            if loan.instrument_type == "Mutual Fund":
-                msg = "Dear Customer,\nInvoke initiated by the lending partner for your loan account  {} is now completed .The invoke proceeds have been credited to your loan account and collateral value updated. Please check the app for details - {link} -Spark Loans".format(
-                    self.loan, link=las_settings.my_loans
-                )
-            else:
-                msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account  {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
-                    self.loan
-                )
-
+            # msg = frappe.get_doc(
+            #     "Spark SMS Notification", "Sale triggerred completed"
+            # ).message.format(msg_type[0], self.loan, msg_type[1])
+            msg = "Dear Customer,\n{} initiated by the lending partner for your loan account  {} is now completed .The {} proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
+                msg_type[0], self.loan, msg_type[1]
+            )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sale triggerred completed", fields=["*"]
             )
@@ -478,14 +496,12 @@ class SellCollateralApplication(Document):
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke triggerred completed "
         else:
-            if loan.instrument_type == "Mutual Fund":
-                msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details - {link} -Spark Loans".format(
-                    application_type, link=las_settings.my_loans
-                )
-            else:
-                msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans".format(
-                    application_type
-                )
+            # msg = frappe.get_doc(
+            #     "Spark SMS Notification", "Sell request executed"
+            # ).message.format(application_type)
+            msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans".format(
+                application_type
+            )
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request executed", fields=["*"]
@@ -496,6 +512,7 @@ class SellCollateralApplication(Document):
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke request executed"
         if msg:
+            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
             receiver_list = [str(self.get_customer().phone)]
             if self.get_customer().get_kyc().mob_num:
                 receiver_list.append(str(self.get_customer().get_kyc().mob_num))
@@ -544,7 +561,13 @@ def get_collateral_details(sell_collateral_application_name):
     )
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
-    psn = lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+    psn = (
+        "and cl.psn IN {}".format(
+            lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+        )
+        if doc.instrument_type == "Mutual Fund"
+        else ""
+    )
     folio_clause = (
         " and cl.folio IN {}".format(
             lms.convert_list_to_tuple_string([i.folio for i in doc.items])
@@ -554,7 +577,7 @@ def get_collateral_details(sell_collateral_application_name):
     )
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}{} and cl.psn IN {psn}".format(
+        where_clause="and cl.isin IN {}{}{psn}".format(
             lms.convert_list_to_tuple_string(isin_list),
             folio_clause,
             psn=psn,

@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
-from isort import code
 from num2words import num2words
 
 import lms
@@ -468,6 +467,7 @@ class Loan(Document):
             self.check_for_shortfall(on_approval=True)
 
     # def on_update(self):
+    #     self.notify_customer_roi()
     #     frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
 
     def get_transaction_summary(self):
@@ -502,37 +502,36 @@ class Loan(Document):
         )
 
     def fill_items(self):
-        self.total_collateral_value = 0
-        drawing_power = 0
-        # if self.instrument_type == "Shares":
-        #     for i in self.items:
-        #         i.amount = i.price * i.pledged_quantity
-        #         self.total_collateral_value += i.amount
+        try:
+            self.total_collateral_value = 0
+            drawing_power = 0
 
-        #     drawing_power = round(
-        #         (self.total_collateral_value * (self.allowable_ltv / 100)), 2
-        #     )
-        # else:  # for Drawing power Calculation
-        for i in self.items:
-            i.amount = i.price * i.pledged_quantity
-            i.eligible_amount = (i.eligible_percentage / 100) * i.amount
-            self.total_collateral_value += i.amount
-            drawing_power += i.eligible_amount
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
+                self.total_collateral_value += i.amount
+                drawing_power += i.eligible_amount
 
-        drawing_power = round(
-            drawing_power,
-            2,
-        )
-        self.drawing_power = (
-            drawing_power
-            if drawing_power <= self.sanctioned_limit
-            else self.sanctioned_limit
-        )
-        # Updating actual drawing power
-        self.actual_drawing_power = round(
-            (drawing_power),
-            2,
-        )
+            drawing_power = round(
+                drawing_power,
+                2,
+            )
+            self.drawing_power = (
+                drawing_power
+                if drawing_power <= self.sanctioned_limit
+                else self.sanctioned_limit
+            )
+            # Updating actual drawing power
+            self.actual_drawing_power = round(
+                (drawing_power),
+                2,
+            )
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\n\nScheme details-\n{}".format(str(self.name)),
+                title="Fill Items",
+            )
 
     def get_collateral_list(
         self, group_by_psn=False, where_clause="", having_clause=""
@@ -540,7 +539,7 @@ class Loan(Document):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid , cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
+				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
 				s.price, s.security_name,als.eligible_percentage,
                 als.category_name as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
@@ -600,29 +599,8 @@ class Loan(Document):
         return frappe.db.sql(sql, as_dict=1)
 
     def update_items(self):
-        check = False
-
-        collateral_list = self.get_collateral_list()
-        collateral_list_map = {
-            "{}{}".format(
-                i.isin,
-                i.folio if i.folio else "",
-            ): i
-            for i in collateral_list
-        }
-        # updating existing and
-        # setting check flag
-        for i in self.items:
-            isin_folio_combo = "{}{}".format(
-                i.isin,
-                i.folio if i.folio else "",
-            )
-            curr = collateral_list_map.get(isin_folio_combo)
-            # curr = collateral_list_map.get(i.isin)
-            # print(check, i.price, curr.price, not check or i.price != curr.price)
-            if (not check or i.price != curr.price) and i.pledged_quantity > 0:
-                check = True
-                self.update_collateral_ledger(curr.price, curr.isin)
+        try:
+            check = False
 
             collateral_list = self.get_collateral_list()
             collateral_list_map = {
@@ -635,7 +613,6 @@ class Loan(Document):
                 isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
                 curr = collateral_list_map.get(isin_folio_combo)
                 # curr = collateral_list_map.get(i.isin)
-                # print(check, i.price, curr.price, not check or i.price != curr.price)
                 if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                     check = True
                     self.update_collateral_ledger(curr.price, curr.isin)
@@ -655,28 +632,19 @@ class Loan(Document):
                         "security_category": i.security_category,
                         "pledged_quantity": i.quantity,
                         "price": i.price,
+                        "eligible_percentage": i.eligible_percentage,
                     }
                 )
 
                 self.append("items", loan_item)
-
-        # adding new items if any
-        for i in collateral_list_map.values():
-            loan_item = frappe.get_doc(
-                {
-                    "doctype": "Loan Item",
-                    "isin": i.isin,
-                    "security_name": i.security_name,
-                    "security_category": i.security_category,
-                    "pledged_quantity": i.quantity,
-                    "price": i.price,
-                    "eligible_percentage": i.eligible_percentage,
-                    "folio": i.folio,
-                }
+            # update_ltv function merge with this
+            return check
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\n\nScheme details-\n{}".format(str(self.name)),
+                title="Update Items",
             )
-            self.append("items", loan_item)
-
-        return check
 
     def update_items_old(self):
         check = False
@@ -687,7 +655,6 @@ class Loan(Document):
         # setting check flag
         for i in self.items:
             curr = collateral_list_map.get(i.isin)
-            # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                 check = True
                 self.update_collateral_ledger(curr.price, curr.isin)
@@ -730,17 +697,12 @@ class Loan(Document):
             check = False
             old_total_collateral_value = self.total_collateral_value
 
-            securities_price_map = lms.get_security_prices([i.isin for i in self.items])
             check = self.update_items()
             if on_approval == False:
                 self.update_ltv()
-
-            msg_type = ["A sale", "sell"]
-            if self.instrument_type == "Mutual Fund":
-                msg_type = ["An invoke", "invoke"]
-
             if check:
                 self.fill_items()
+                self.available_topup_amt = self.max_topup_amount()
                 self.save(ignore_permissions=True)
 
                 loan_margin_shortfall = self.get_margin_shortfall()
@@ -770,66 +732,12 @@ class Loan(Document):
                     if loan_margin_shortfall.is_new():
                         if loan_margin_shortfall.shortfall_percentage > 0:
                             loan_margin_shortfall.insert(ignore_permissions=True)
-                            # if (
-                            #     frappe.utils.now_datetime()
-                            #     > loan_margin_shortfall.deadline
-                            # ):
-                            #     loan_margin_shortfall.status = "Sell Triggered"
-                            #     loan_margin_shortfall.save(ignore_permissions=True)
                     else:
                         if loan_margin_shortfall.shortfall_percentage == 0:
                             loan_margin_shortfall.status = "Resolved"
                             loan_margin_shortfall.action_time = (
                                 frappe.utils.now_datetime()
                             )
-                            # if (
-                            #     loan_margin_shortfall.shortfall_percentage > 0
-                            #     and frappe.utils.now_datetime()
-                            #     > loan_margin_shortfall.deadline
-                            # ):
-                            #     loan_margin_shortfall.status = "Sell Triggered"
-                            #     mess = "Dear Customer,\nURGENT NOTICE. {} has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                            #         msg_type[0], self.name, msg_type[1]
-                            #     )
-                            #     fcm_notification = frappe.get_doc(
-                            #         "Spark Push Notification",
-                            #         "Sale triggerred inaction",
-                            #         fields=["*"],
-                            #     )
-                            #     message = fcm_notification.message.format(
-                            #         sale="sale", loan=self.name
-                            #     )
-                            #     if self.instrument_type == "Mutual Fund":
-                            #         message = fcm_notification.message.format(
-                            #             sale="invoke", loan=self.name
-                            #         )
-                            #         fcm_notification = fcm_notification.as_dict()
-                            #         fcm_notification["title"] = "Invoke triggerred"
-                            #     # message = fcm_notification.message.format(loan=self.name)
-                            #     doc = frappe.get_doc(
-                            #         "User KYC", self.get_customer().choice_kyc
-                            #     ).as_dict()
-                            #     doc["loan_margin_shortfall"] = {"loan": self.name}
-                            #     email_subject = "Sale Triggered Cross Deadline"
-                            #     if self.instrument_type == "Mutual Fund":
-                            #         email_subject = "MF Sale Triggered Cross Deadline"
-                            #     frappe.enqueue_doc(
-                            #         "Notification",
-                            #         email_subject,
-                            #         method="send",
-                            #         doc=doc,
-                            #     )
-                            #     frappe.enqueue(
-                            #         method=send_sms,
-                            #         receiver_list=[self.get_customer().phone],
-                            #         msg=mess,
-                            #     )
-                            #     lms.send_spark_push_notification(
-                            #         fcm_notification=fcm_notification,
-                            #         message=message,
-                            #         loan=self.name,
-                            #         customer=self.get_customer(),
-                            #     )
                             loan_margin_shortfall.save(ignore_permissions=True)
 
                 if (
@@ -949,6 +857,9 @@ class Loan(Document):
                 fields=["*"],
             )
             message = fcm_notification.message.format(loan=self.name)
+            # msg = frappe.get_doc(
+            #     "Spark SMS Notification", "Margin shortfall - timer resumed"
+            # ).message.format(loan=self.name)
             msg = "Dear Customer,The margin shortfall timer has been resumed on your loan account {loan} Please check the app and take appropriate action. -Spark Loans".format(
                 loan=self.name
             )
@@ -961,6 +872,7 @@ class Loan(Document):
             )
 
         if message and msg:
+            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
             frappe.enqueue(
                 method=send_sms, receiver_list=[self.get_customer().phone], msg=msg
             )
@@ -1150,23 +1062,26 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
-            a = frappe.utils.now_datetime()
             if input_date:
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
             else:
                 input_date = frappe.utils.now_datetime()
 
+            wef_current_date = input_date.date()
+
             if self.balance > 0:
-                interest_configuration = frappe.db.get_value(
-                    "Interest Configuration",
-                    {
-                        "lender": self.lender,
-                        "from_amount": ["<=", self.balance],
-                        "to_amount": [">=", self.balance],
-                    },
-                    ["name", "base_interest", "rebait_interest"],
-                    as_dict=1,
-                )
+                if self.is_default == 1:
+                    interest_configuration = frappe.db.get_value(
+                        "Interest Configuration",
+                        {
+                            "lender": self.lender,
+                            "from_amount": ["<=", self.balance],
+                            "to_amount": [">=", self.balance],
+                        },
+                        "name",
+                    )
+                else:
+                    interest_configuration = ""
 
                 input_date -= timedelta(days=1)
 
@@ -1177,13 +1092,11 @@ class Loan(Document):
                 virtual_interest_doc_list = frappe.get_all(
                     "Virtual Interest",
                     filters={"loan": self.name, "lender": self.lender},
-                    fields=["time"],
+                    pluck="time",
                 )
 
                 # Check if entry exists for particular date
-                if not input_date in [
-                    fields["time"] for fields in virtual_interest_doc_list
-                ]:
+                if input_date not in virtual_interest_doc_list:
                     # get no of days in month
                     num_of_days_in_month = (
                         (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
@@ -1191,15 +1104,21 @@ class Loan(Document):
                     ).day
 
                     # calculate daily base interest
-                    base_interest_daily = (
-                        interest_configuration["base_interest"] / num_of_days_in_month
+                    base_interest = (
+                        self.old_interest
+                        if self.wef_date >= wef_current_date
+                        else self.base_interest
                     )
+                    base_interest_daily = base_interest / num_of_days_in_month
                     base_amount = self.balance * base_interest_daily / 100
 
                     # calculate daily rebate interest
-                    rebate_interest_daily = (
-                        interest_configuration["rebait_interest"] / num_of_days_in_month
+                    rebate_interest = (
+                        self.old_rebate_interest
+                        if self.wef_date >= wef_current_date
+                        else self.rebate_interest
                     )
+                    rebate_interest_daily = rebate_interest / num_of_days_in_month
                     rebate_amount = self.balance * rebate_interest_daily / 100
 
                     virtual_interest_doc = frappe.get_doc(
@@ -1208,22 +1127,19 @@ class Loan(Document):
                             "lender": self.lender,
                             "loan": self.name,
                             "time": input_date,
-                            "base_interest": interest_configuration["base_interest"],
-                            "rebate_interest": interest_configuration[
-                                "rebait_interest"
-                            ],
+                            "base_interest": base_interest,
+                            "rebate_interest": rebate_interest,
                             "base_amount": base_amount,
                             "rebate_amount": rebate_amount,
                             "loan_balance": self.balance,
-                            "interest_configuration": interest_configuration["name"],
+                            "interest_configuration": interest_configuration,
                             "customer_name": self.customer_name,
                         }
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
-                    # return virtual_interest_doc.as_dict()
 
                     if frappe.utils.now_datetime().day == 1:
-                        interest_calculation = frappe.get_doc(
+                        frappe.get_doc(
                             dict(
                                 doctype="Interest Calculation",
                                 loan_no=self.name,
@@ -1243,11 +1159,6 @@ class Loan(Document):
             self.map_loan_summary_values()
             self.save(ignore_permissions=True)
             frappe.db.commit()
-            frappe.logger().info(str(frappe.utils.now_datetime()))
-            frappe.logger().info(
-                "Total time took - add_virtual_interest"
-                + str((frappe.utils.now_datetime() - a).total_seconds())
-            )
 
         except Exception:
             frappe.log_error(
@@ -1278,12 +1189,9 @@ class Loan(Document):
                     "lender": self.lender,
                     "transaction_type": "Additional Interest",
                 },
-                fields=["time"],
+                pluck="time",
             )
 
-            # job_date = (current_date - timedelta(days=1)).replace(
-            #     hour=23, minute=59, second=59, microsecond=999999
-            # )
             last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
             prev_month = last_day_of_prev_month.month
             prev_month_year = last_day_of_prev_month.year
@@ -1304,12 +1212,13 @@ class Loan(Document):
                         days=rebate_threshold
                     )
 
-                    if current_date > transaction_time and not transaction_time.replace(
-                        hour=23, minute=59, second=59, microsecond=999999
-                    ) in [
-                        fields["time"]
-                        for fields in additional_interest_transaction_list
-                    ]:
+                    if (
+                        current_date > transaction_time
+                        and transaction_time.replace(
+                            hour=23, minute=59, second=59, microsecond=999999
+                        )
+                        not in additional_interest_transaction_list
+                    ):
                         # Sum of rebate amounts
                         rebate_interest_sum = frappe.db.sql(
                             "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and lender = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
@@ -1380,6 +1289,12 @@ class Loan(Document):
                             "Notification", "Interest Due", method="send", doc=doc
                         )
 
+                        # msg = frappe.get_doc(
+                        #     "Spark SMS Notification", "Rebate reversed"
+                        # ).message.format(
+                        #     round(additional_interest_transaction.unpaid_interest, 2),
+                        #     self.name,
+                        # )
                         msg = "Dear Customer,\nRebate of Rs.  {}  was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details - Spark Loans".format(
                             round(additional_interest_transaction.unpaid_interest, 2),
                             self.name,
@@ -1395,6 +1310,7 @@ class Loan(Document):
                         )
 
                         if msg:
+                            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
                             receiver_list = [str(self.get_customer().phone)]
                             if doc.mob_num:
                                 receiver_list.append(str(doc.mob_num))
@@ -1443,19 +1359,19 @@ class Loan(Document):
                     "lender": self.lender,
                     "transaction_type": "Interest",
                 },
-                fields=["time"],
+                pluck="time",
             )
 
             job_date = (current_date - timedelta(days=1)).replace(
                 hour=23, minute=59, second=59, microsecond=999999
             )
 
-            if current_date.day == 1 and not job_date in [
-                fields["time"] for fields in booked_interest_transaction_list
-            ]:
+            if (
+                current_date.day == 1
+                and job_date not in booked_interest_transaction_list
+            ):
                 prev_month = job_date.month
                 prev_month_year = job_date.year
-                # return [job_date, prev_month, prev_month_year]
 
                 check_if_exist = frappe.db.sql(
                     "select count(name) as total_count from `tabLoan Transaction` where loan = '{}' and lender = '{}' and transaction_type = 'Interest' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
@@ -1505,7 +1421,7 @@ class Loan(Document):
                         self.day_past_due = self.calculate_day_past_due(current_date)
                         self.save(ignore_permissions=True)
                         frappe.db.commit()
-                        interest_calculation = frappe.get_doc(
+                        frappe.get_doc(
                             dict(
                                 doctype="Interest Calculation",
                                 loan_no=self.name,
@@ -1532,6 +1448,11 @@ class Loan(Document):
                             "Notification", "Interest Due", method="send", doc=doc
                         )
 
+                        # msg = frappe.get_doc(
+                        #     "Spark SMS Notification", "Interest Due"
+                        # ).message.format(
+                        #     round(loan_transaction.unpaid_interest, 2), self.name
+                        # )
                         msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
                             round(loan_transaction.unpaid_interest, 2), self.name
                         )
@@ -1544,6 +1465,7 @@ class Loan(Document):
                             loan=self.name,
                         )
                         if msg:
+                            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
                             receiver_list = [str(self.get_customer().phone)]
                             if doc.mob_num:
                                 receiver_list.append(str(doc.mob_num))
@@ -1675,6 +1597,12 @@ class Loan(Document):
                             frappe.enqueue_doc(
                                 "Notification", "Interest Due", method="send", doc=doc
                             )
+                            # msg = frappe.get_doc(
+                            #     "Spark SMS Notification", "Penal interest charged"
+                            # ).message.format(
+                            #     round(penal_interest_transaction.unpaid_interest, 2),
+                            #     self.name,
+                            # )
                             msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
                                 round(penal_interest_transaction.unpaid_interest, 2),
                                 self.name,
@@ -1692,6 +1620,7 @@ class Loan(Document):
                             )
 
                             if msg:
+                                # lms.send_sms_notification(customer=self.get_customer,msg=msg)
                                 receiver_list = [str(self.get_customer().phone)]
                                 if doc.mob_num:
                                     receiver_list.append(str(doc.mob_num))
@@ -1771,7 +1700,7 @@ class Loan(Document):
                         days=default_threshold
                     )
                     # check if interest booked time is more than default threshold
-                    if current_date > transaction_time and not current_date.date() in [
+                    if current_date > transaction_time and current_date.date() not in [
                         fields["time"].date()
                         for fields in penal_interest_transaction_list
                     ]:
@@ -1822,6 +1751,12 @@ class Loan(Document):
                             frappe.enqueue_doc(
                                 "Notification", "Interest Due", method="send", doc=doc
                             )
+                            # msg = frappe.get_doc(
+                            #     "Spark SMS Notification", "Penal interest charged"
+                            # ).message.format(
+                            #     round(penal_interest_transaction.unpaid_interest, 2),
+                            #     self.name,
+                            # )
                             msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
                                 round(penal_interest_transaction.unpaid_interest, 2),
                                 self.name,
@@ -1839,6 +1774,7 @@ class Loan(Document):
                             )
 
                             if msg:
+                                # lms.send_sms_notification(customer=self.get_customer,msg=msg)
                                 receiver_list = [str(self.get_customer().phone)]
                                 if doc.mob_num:
                                     receiver_list.append(str(doc.mob_num))
@@ -1908,11 +1844,102 @@ class Loan(Document):
                     fields=["amc_image"],
                 )
 
-            if image[0].amc_image:
+            if image and image[0].amc_image:
                 amc_image = frappe.utils.get_url(image[0].amc_image)
                 items.amc_image = amc_image
             if code:
                 items.amc_code = code[0].amc_code
+
+        if (
+            self.custom_base_interest <= float(0)
+            or self.custom_rebate_interest <= float(0)
+        ) and self.is_default == 0:
+            frappe.throw("Base interest and Rebate Interest should be greater than 0")
+
+        if type(self.wef_date) == str:
+            exp = datetime.strptime(self.wef_date, "%Y-%m-%d").date()
+        else:
+            exp = self.wef_date
+
+        # if exp: #live changes
+        #     if exp < frappe.utils.now_datetime().date():
+        #         frappe.throw("W.e.f date should be Current date or Future date")
+        if exp and exp < frappe.utils.now_datetime().date():
+            frappe.throw("W.e.f date should be Current date or Future date")
+
+        if self.balance:
+            if self.balance > 0:
+                interest_configuration = frappe.db.get_value(
+                    "Interest Configuration",
+                    {
+                        "lender": self.lender,
+                        "from_amount": ["<=", self.balance],
+                        "to_amount": [">=", self.balance],
+                    },
+                    ["name", "base_interest", "rebait_interest"],
+                    as_dict=1,
+                )
+                if self.is_default == 1:
+                    self.custom_base_interest = interest_configuration["base_interest"]
+                    self.custom_rebate_interest = interest_configuration[
+                        "rebait_interest"
+                    ]
+
+                if (
+                    self.custom_base_interest != self.base_interest
+                    or self.custom_rebate_interest != self.rebate_interest
+                ):
+                    loan_app = frappe.get_all(
+                        "Loan Application",
+                        filters={
+                            "status": [
+                                "IN",
+                                [
+                                    "Waiting to be pledged",
+                                    "Executing pledge",
+                                    "Pledge executed",
+                                    "Pledge accepted by Lender",
+                                    "Esign Done",
+                                    "Pledge Failure",
+                                    "Ready for Approval",
+                                ],
+                            ],
+                            "loan": self.name,
+                        },
+                        fields=["name"],
+                    )
+
+                    top_up = frappe.get_all(
+                        "Top up Application",
+                        filters={
+                            "status": ["IN", ["Pending", "Esign Done"]],
+                            "loan": self.name,
+                        },
+                        fields=["name"],
+                    )
+
+                    if loan_app:
+                        frappe.throw(
+                            (
+                                "Please Approve or Reject Loan Application {}".format(
+                                    loan_app[0].name
+                                )
+                            )
+                        )
+                    elif top_up:
+                        frappe.throw(
+                            (
+                                "Please Approve or Reject Loan Application {}".format(
+                                    top_up[0].name
+                                )
+                            )
+                        )
+                    else:
+                        self.old_interest = self.base_interest
+                        self.old_rebate_interest = self.rebate_interest
+                        self.base_interest = self.custom_base_interest
+                        self.rebate_interest = self.custom_rebate_interest
+                        self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
@@ -1952,7 +1979,7 @@ class Loan(Document):
             # ) - self.sanctioned_limit
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
-                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
                 total_collateral_value += i.amount
                 actual_drawing_power += i.eligible_amount
 
@@ -2160,8 +2187,13 @@ class Loan(Document):
             },
             order_by="to_amount asc",
         )
-        int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
+        if self.is_default == 0:
+            base_interest = self.base_interest
+            rebate_interest = self.rebate_interest
+        else:
+            base_interest = self.base_interest
+            rebate_interest = self.rebate_interest
+        roi_ = round((base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(topup_amount))
         )
@@ -2207,8 +2239,8 @@ class Loan(Document):
                 float(increased_sanction_limit) + charges.get("total") + interest_amount
             ),
             "loan_application_no": "",
-            "rate_of_interest": lender.rate_of_interest,
-            "rebate_interest": int_config.rebait_interest,
+            "rate_of_interest": base_interest,
+            "rebate_interest": rebate_interest,
             "sanctioned_amount": frappe.utils.fmt_money(
                 float(increased_sanction_limit)
             ),
@@ -2223,6 +2255,9 @@ class Loan(Document):
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": annual_default_interest,
+            "penal_charges": lender.renewal_penal_interest
+            if lender.renewal_penal_interest
+            else "",
             "rebait_threshold": lender.rebait_threshold,
             "interest_charges_in_amount": frappe.utils.fmt_money(interest_amount),
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
@@ -2359,6 +2394,229 @@ class Loan(Document):
             as_dict=1,
         )[0]["amount"]
 
+    def notify_customer_roi(self):
+        try:
+            customer = self.get_customer()
+            user_kyc = customer.get_kyc()
+            lender = self.get_lender()
+            interest_letter_template = lender.get_interest_letter_template()
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
+            if user_kyc.address_details:
+                address_details = frappe.get_doc(
+                    "Customer Address Details", user_kyc.address_details
+                )
+
+                line1 = str(address_details.perm_line1)
+                if line1:
+                    addline1 = "{},<br/>".format(line1)
+                else:
+                    addline1 = ""
+
+                line2 = str(address_details.perm_line2)
+                if line2:
+                    addline2 = "{},<br/>".format(line2)
+                else:
+                    addline2 = ""
+
+                line3 = str(address_details.perm_line3)
+                if line3:
+                    addline3 = "{},<br/>".format(line3)
+                else:
+                    addline3 = ""
+
+                perm_city = str(address_details.perm_city)
+                perm_dist = str(address_details.perm_dist)
+                perm_state = str(address_details.perm_state)
+                perm_pin = str(address_details.perm_pin)
+
+            doc = frappe.get_doc("Loan", self.name).as_dict()
+            doc["current_date"] = datetime.strptime(
+                str(frappe.utils.now_datetime().date()), "%Y-%m-%d"
+            ).strftime("%d/%m/%Y")
+            doc["sanctioned_amount"] = frappe.utils.fmt_money(
+                float(self.sanctioned_limit)
+            )
+            doc["fullname"] = user_kyc.fullname
+            doc["addline1"] = addline1
+            doc["addline2"] = addline2
+            doc["addline3"] = addline3
+            doc["city"] = perm_city
+            doc["district"] = perm_dist
+            doc["state"] = perm_state
+            doc["pincode"] = perm_pin
+            doc["base_interest"] = self.custom_base_interest
+            doc["old_interest_1"] = self.old_interest
+            doc["wef_date"] = datetime.strptime(
+                str(self.wef_date), "%Y-%m-%d"
+            ).strftime("%d/%m/%Y")
+            doc["logo_file_path_1"] = (
+                logo_file_path_1.file_url if logo_file_path_1 else ""
+            )
+            doc["logo_file_path_2"] = (
+                logo_file_path_2.file_url if logo_file_path_2 else ""
+            )
+
+            interest_letter_pdf_file = "{}-{}-interest_letter.pdf".format(
+                self.name, frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S")
+            ).replace(" ", "-")
+
+            interest_letter_pdf_file_path = frappe.utils.get_files_path(
+                interest_letter_pdf_file
+            )
+
+            agreement = frappe.render_template(
+                interest_letter_template.get_content(), {"doc": doc}
+            )
+
+            pdf_file = open(interest_letter_pdf_file_path, "wb")
+
+            # from frappe.utils.pdf import get_pdf
+
+            pdf = lms.get_pdf(
+                agreement,
+                options={
+                    "margin-right": "1mm",
+                    "margin-left": "1mm",
+                    "page-size": "A4",
+                },
+            )
+            pdf_file.write(pdf)
+            pdf_file.close()
+
+            interest_letter_pdf = frappe.utils.get_url(
+                "files/{}".format(interest_letter_pdf_file)
+            )
+
+            attachments = [{"fname": interest_letter_pdf_file, "fcontent": pdf}]
+
+            interest_change_notification = frappe.db.sql(
+                "select message from `tabNotification` where name='Change Of Interest';"
+            )[0][0]
+            interest_change_notification = interest_change_notification.replace(
+                "full_name", user_kyc.fullname
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "loan_name",
+                self.name,
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "old_interest",
+                str(self.old_interest),
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "new_interest",
+                str(self.custom_base_interest),
+            )
+            interest_change_notification = interest_change_notification.replace(
+                "wef_date",
+                datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime("%d/%m/%Y"),
+            )
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "ROI Change", fields=["*"]
+            )
+            # fcm_message = fcm_notification.message
+            # fcm_message.replace("wef_date", (str(self.wef_date)))
+            message = fcm_notification.message.format(
+                wef_date=(
+                    datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime(
+                        "%d/%m/%Y"
+                    )
+                )
+            )
+
+            sanction_letter = frappe.db.get_value(
+                "Sanction Letter and CIAL Log",
+                {"loan": self.name},
+                "name",
+            )
+            sanction_letter_doc = frappe.get_doc(
+                "Sanction Letter and CIAL Log", sanction_letter
+            )
+            if sanction_letter_doc and not self.sl_cial_entries:
+                interest_letter = frappe.get_doc(
+                    {
+                        "doctype": "Interest Letter",
+                        "parent": sanction_letter_doc,
+                        "parentfield": "interest_letter_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "interest_letter": interest_letter_pdf,
+                        "date_of_acceptance": datetime.strptime(
+                            str(self.wef_date), "%Y-%m-%d"
+                        ).strftime("%d/%m/%Y"),
+                        "base_interest": self.custom_base_interest,
+                        "rebate_interest": self.custom_rebate_interest,
+                    }
+                )
+                sanction_letter_doc.append("interest_letter_table", interest_letter)
+                sanction_letter_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+                self.db_set("sl_cial_entries", sanction_letter_doc.name)
+
+            elif self.sl_cial_entries:
+                interest_letter = frappe.get_doc(
+                    {
+                        "doctype": "Interest Letter",
+                        "parent": sanction_letter_doc,
+                        "parentfield": "interest_letter_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "interest_letter": interest_letter_pdf,
+                        "date_of_acceptance": datetime.strptime(
+                            str(self.wef_date), "%Y-%m-%d"
+                        ).strftime("%d/%m/%Y"),
+                        "base_interest": self.custom_base_interest,
+                        "rebate_interest": self.custom_rebate_interest,
+                    }
+                )
+                sanction_letter_doc.append("interest_letter_table", interest_letter)
+                sanction_letter_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
+            else:
+                sanction_letter_doc = frappe.get_doc(
+                    {"doctype": "Sanction Letter and CIAL Log", "loan": self.name}
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+                interest_letter = frappe.get_doc(
+                    {
+                        "doctype": "Interest Letter",
+                        "parent": sanction_letter_doc.name,
+                        "parentfield": "interest_letter_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "interest_letter": interest_letter_pdf,
+                        "date_of_acceptance": datetime.strptime(
+                            str(self.wef_date), "%Y-%m-%d"
+                        ).strftime("%d/%m/%Y"),
+                        "base_interest": self.custom_base_interest,
+                        "rebate_interest": self.custom_rebate_interest,
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+                self.db_set("sl_cial_entries", sanction_letter_doc.name)
+
+            if fcm_notification:
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=message,
+                    loan=self.name,
+                    customer=self.get_customer(),
+                )
+
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[customer.user],
+                sender=None,
+                subject="Interest Letter for Loan Account No. {}".format(self.name),
+                message=interest_change_notification,
+                attachments=attachments,
+            )
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback() + "\nLoan : {}".format(self.name),
+                title="Notify Customer failed in Loan",
+            )
+
     def update_ltv(self):
         for i in self.items:
             i.eligible_percentage = frappe.db.get_value(
@@ -2369,14 +2627,38 @@ class Loan(Document):
         return
 
 
+@frappe.whitelist()
+def check_for_topup_increase_loan(loan_name):
+    loan = frappe.get_doc("Loan", loan_name)
+    app = ""
+    top_up = frappe.get_value(
+        "Top up Application",
+        {"loan": loan.name, "status": ["in", ["Pending", "Esign Done"]]},
+        "name",
+    )
+    increase_loan = frappe.get_value(
+        "Loan Application",
+        {
+            "loan": loan.name,
+            "status": ["in", ["Pending", "Esign Done"]],
+            "application_type": "Increase Loan",
+        },
+        "name",
+    )
+
+    if top_up:
+        app = top_up
+    elif increase_loan:
+        app = increase_loan
+
+    return app
+
+
 def check_loans_for_shortfall(loans):
-    counter = 0
     for loan_name in loans:
-        queue = "default"
-        if (counter % 2) == 0:
-            queue = "short"
+        l_name = int(loan_name[2:])
+        queue = "default" if (l_name % 2) == 0 else "short"
         frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall", queue=queue)
-        counter += 1
 
 
 @frappe.whitelist()
@@ -2425,28 +2707,39 @@ def daily_virtual_job(loan_name, input_date=None):
 
 @frappe.whitelist()
 def daily_penal_job(loan_name, input_date=None):
+    l_name = int(loan_name[2:])
+    queue = "default" if (l_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
         method="add_penal_interest",
         input_date=input_date,
+        queue=queue,
     )
 
 
 @frappe.whitelist()
 def additional_interest_job(loan_name, input_date=None):
+    l_name = int(loan_name[2:])
+    queue = "default" if (l_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
         method="check_for_additional_interest",
         input_date=input_date,
+        queue=queue,
     )
 
 
 def add_loans_virtual_interest(loans):
     for loan in loans:
-        loan = frappe.get_doc("Loan", loan)
-        loan.add_virtual_interest()
+        l_name = int(loan.name[2:])
+        queue = "default" if (l_name % 2) == 0 else "short"
+        # loan = frappe.get_doc("Loan", loan)
+        # loan.add_virtual_interest()
+        frappe.enqueue_doc(
+            "Loan", loan.name, method="add_virtual_interest", queue=queue
+        )
 
 
 @frappe.whitelist()
@@ -2456,7 +2749,7 @@ def add_all_loans_virtual_interest():
     las_settings.save(ignore_permissions=True)
     frappe.db.commit()
 
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(
@@ -2465,7 +2758,7 @@ def add_all_loans_virtual_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_virtual_interest",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 
@@ -2478,7 +2771,7 @@ def check_for_loans_additional_interest(loans):
 
 @frappe.whitelist()
 def check_for_all_loans_additional_interest():
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(
@@ -2487,7 +2780,7 @@ def check_for_all_loans_additional_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.check_for_loans_additional_interest",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 
@@ -2500,7 +2793,7 @@ def add_loans_penal_interest(loans):
 
 @frappe.whitelist()
 def add_all_loans_penal_interest():
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(
@@ -2509,18 +2802,21 @@ def add_all_loans_penal_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_penal_interest",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 
 
 @frappe.whitelist()
 def book_virtual_interest_for_month(loan_name, input_date=None):
+    l_name = int(loan_name[2:])
+    queue = "default" if (l_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
         method="book_virtual_interest_for_month",
         input_date=input_date,
+        queue=queue,
     )
 
 
@@ -2532,7 +2828,7 @@ def book_loans_virtual_interest_for_month(loans):
 
 @frappe.whitelist()
 def book_all_loans_virtual_interest_for_month():
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(
@@ -2541,7 +2837,7 @@ def book_all_loans_virtual_interest_for_month():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.book_loans_virtual_interest_for_month",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 

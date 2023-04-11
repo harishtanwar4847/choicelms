@@ -2,12 +2,54 @@
 
 ## [Unreleased]
 
-## [v5.13.4] - 2023-02-13
+## [v5.15.0] - 2023-03-30
+
+## Added
+
+- [SPRK-128 - Ltv for Shares and Shares Eligibility](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/581)
+
+## [v5.14.1] - 2023-03-23
+
+## Added
+
+- [SPRK-122 - Read Only fields updated in loan application, pan no and dob in user kyc doctype mark read only only on prod](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/578)
+
+## [v5.14.0] - 2023-03-13
+
+## Added
+
+- [SPRK-122 - Offline Loan, Au penny name matching, Optional Update for mobile app](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/576)
+
+## [v5.13.8] - 2023-03-06
+
+## Added
+
+- [SPRK 176 - Code and Cron optimization - Process Pledge cron(CDSL pledge setup)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/574)
+
+## [v5.13.7] - 2023-03-03
+
+## Added
+
+- [SPRK-156 - Update Razorpay webhook function and increase background workers for cron jobs execution](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/573)
+
+## [v5.13.6] - 2023-02-28
+
+## Added
+
+- [SPRK-60/SPRK-107 Pledge Application Creation/Workflow state change issue](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/commit/8a00079de52bfd903d5641398a58f32c34728369)
+
+## [v5.13.5] - 2023-02-27
+
+## Added
+
+- [SPRK-144 - if last name or middle name field is empty then 1st name to be considered as full for name matching with penny retrieved name](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/commit/ecb49130440c7872ccdece26041c513b2f14558a)
+
+## [v5.13.4] - 2023-02-22
 
 ## Fixed
 
 - [Feat : Sanction letter and onboarding Screen](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/572)
-- [Feat : Onboarding screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/572)
+- [Feat : Onboarding screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/571)
 
 ## [v5.13.3] - 2023-02-13
 

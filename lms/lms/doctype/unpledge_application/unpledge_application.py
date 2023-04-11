@@ -147,7 +147,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
             )
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(
@@ -215,7 +215,7 @@ class UnpledgeApplication(Document):
                 isin_folio_combo = "{}{}{}".format(
                     i.isin,
                     "{}".format("-" + str(i.folio) if i.folio else ""),
-                    i.psn if i.psn else "",
+                    i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
                 )
                 unpledge_quantity_map[isin_folio_combo] = (
                     unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
@@ -354,6 +354,10 @@ class UnpledgeApplication(Document):
             doc["unpledge_application"] = {"status": self.status}
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
             if self.status == "Approved":
+                # mutual fund sms changes
+                # msg = frappe.get_doc(
+                #     "Spark SMS Notification", "Unpledge application accepted"
+                # ).message.format(msg_type)
                 msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed. Kindly check the app now. -Spark Loans".format(
                     msg_type
                 )
@@ -369,11 +373,19 @@ class UnpledgeApplication(Document):
                     fcm_notification["title"] = "Revoke application accepted"
             elif self.status == "Rejected":
                 if check == True:
+                    # msg = frappe.get_doc(
+                    #     "Spark SMS Notification", "Rejected"
+                    # ).message.format(msg_type=msg_type)
                     msg = """Your {msg_type} request was rejected. There is a margin shortfall. You can send another {msg_type} request when there is no margin shortfall.""".format(
                         msg_type=msg_type
                     )
                 else:
+                    # mutual fund sms changes
                     if self.instrument_type == "Mutual Fund":
+                        # msg = (
+                        #     "Spark SMS Notification",
+                        #     "Unpledge application rejected",
+                        # ).message.format(msg_type, link=las_settings.my_securities)
                         msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
                             msg_type, link=las_settings.my_securities
                         )
@@ -448,8 +460,12 @@ def get_collateral_details(unpledge_application_name):
         if doc.instrument_type == "Mutual Fund"
         else ""
     )
-    psn = "and cl.psn IN {}".format(
-        lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+    psn = (
+        " and cl.psn IN {}".format(
+            lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+        )
+        if doc.instrument_type == "Mutual Fund"
+        else ""
     )
     return loan.get_collateral_list(
         group_by_psn=True,

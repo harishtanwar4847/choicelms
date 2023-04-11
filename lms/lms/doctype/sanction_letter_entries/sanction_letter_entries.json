@@ -10,7 +10,8 @@
   "base_interest",
   "rebate_interest",
   "loan_application_no",
-  "topup_application_no"
+  "topup_application_no",
+  "renewal_application"
  ],
  "fields": [
   {
@@ -41,18 +42,27 @@
    "fieldname": "loan_application_no",
    "fieldtype": "Link",
    "label": "Loan Application No",
-   "options": "Loan Application"
+   "options": "Loan Application",
+   "read_only": 1
   },
   {
    "fieldname": "topup_application_no",
    "fieldtype": "Data",
-   "label": "Topup Application No"
+   "label": "Topup Application No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "renewal_application",
+   "fieldtype": "Link",
+   "label": "Renewal Application No",
+   "options": "Spark Loan Renewal Application",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-02-07 21:52:00.711899",
+ "modified": "2023-03-14 14:31:29.685843",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sanction Letter Entries",

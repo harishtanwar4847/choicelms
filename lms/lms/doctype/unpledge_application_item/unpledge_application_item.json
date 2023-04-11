@@ -59,7 +59,8 @@
   {
    "fieldname": "folio",
    "fieldtype": "Data",
-   "label": "Folio"
+   "label": "Folio",
+   "read_only": 1
   },
   {
    "fieldname": "psn",

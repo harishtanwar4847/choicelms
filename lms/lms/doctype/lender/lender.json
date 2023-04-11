@@ -126,6 +126,8 @@
   "igst_on_lien_charges",
   "igst_on_invocation_charges",
   "igst_on_revocation_charges",
+  "loan_renewal_penal_interest_section",
+  "renewal_penal_interest",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -142,6 +144,14 @@
   "column_break_78",
   "pledged_security_statement_template",
   "sanction_letter",
+  "interest_letter",
+  "letterhead_section_section",
+  "lender_logo",
+  "lender_address",
+  "or_column",
+  "is_html",
+  "lender_header",
+  "lender_footer",
   "image_section_section",
   "logo_file_1",
   "website_section_section",
@@ -906,6 +916,64 @@
    "precision": "2"
   },
   {
+   "fieldname": "sanction_letter",
+   "fieldtype": "Attach",
+   "label": "Sanction Letter"
+  },
+  {
+   "fieldname": "interest_letter",
+   "fieldtype": "Attach",
+   "label": "Interest Letter"
+  },
+  {
+   "fieldname": "letterhead_section_section",
+   "fieldtype": "Section Break",
+   "label": "Letterhead Section"
+  },
+  {
+   "fieldname": "lender_logo",
+   "fieldtype": "Attach Image",
+   "label": "Lender Logo"
+  },
+  {
+   "fieldname": "lender_address",
+   "fieldtype": "Attach Image",
+   "label": "Lender Address"
+  },
+  {
+   "fieldname": "or_column",
+   "fieldtype": "Column Break",
+   "label": "Or"
+  },
+  {
+   "depends_on": "eval:doc.is_html == 1;",
+   "fieldname": "lender_header",
+   "fieldtype": "HTML Editor",
+   "label": "Lender header"
+  },
+  {
+   "depends_on": "eval:doc.is_html == 1;",
+   "fieldname": "lender_footer",
+   "fieldtype": "HTML Editor",
+   "label": "Lender footer"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_html",
+   "fieldtype": "Check",
+   "label": "Is html"
+  },
+  {
+   "fieldname": "loan_renewal_penal_interest_section",
+   "fieldtype": "Section Break",
+   "label": "Loan Renewal Penal Interest Section"
+  },
+  {
+   "fieldname": "renewal_penal_interest",
+   "fieldtype": "Float",
+   "label": "Renewal Penal Interest"
+  },
+  {
    "fieldname": "requestor_name",
    "fieldtype": "Data",
    "label": "Requestor Name"
@@ -924,17 +992,10 @@
    "fieldname": "pledgee_client_id",
    "fieldtype": "Data",
    "label": "Pledgee client id"
-  },
-  {
- "links": [],
- "modified": "2022-12-15 17:53:12.668751",
-   "fieldname": "sanction_letter",
-   "fieldtype": "Attach",
-   "label": "Sanction Letter"
   }
- ],
+],
  "links": [],
- "modified": "2023-02-07 18:46:42.999372",
+ "modified": "2023-03-30 18:10:47.530238",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

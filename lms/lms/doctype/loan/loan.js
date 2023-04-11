@@ -2,6 +2,35 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Loan", {
+  is_default: function (frm) {
+    console.log("akash");
+    if (frm.doc.is_default == 0) {
+      frm.set_value("custom_base_interest", 0);
+      frm.set_value("custom_rebate_interest", 0);
+    } else {
+      frm.set_df_property("custom_base_interest", "read_only", 1);
+      frm.set_df_property("custom_rebate_interest", "read_only", 1);
+    }
+  },
+
+  on_load: function (frm) {
+    frappe.call({
+      method: "lms.lms.doctype.loan.loan.check_for_topup_increase_loan",
+      freeze: true,
+      args: {
+        loan_name: frm.doc.name,
+      },
+      callback: (res) => {
+        if (res.message) {
+          frm.set_df_property("is_default", "read_only", 1);
+          frm.set_df_property("custom_base_interest", "read_only", 1);
+          frm.set_df_property("custom_rebate_interest", "read_only", 1);
+          frm.set_df_property("wef_date", "read_only", 1);
+        }
+      },
+    });
+  },
+
   refresh: function (frm) {
     frm.set_df_property("items", "read_only", 1);
     frm.attachments.parent.hide();

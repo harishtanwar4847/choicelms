@@ -2,28 +2,40 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Loan Application", {
-  refresh: function (frm) {
-    var is_true = frappe.user_roles.find((role) => role === "Loan Customer");
-    if (!is_true || frappe.session.user == "Administrator") {
-      if (["Approved", "Rejected"].includes(frm.doc.status)) {
-        frm.set_df_property("items", "read_only", 1);
-        frm.set_df_property("expiry_date", "read_only", 1);
-        frm.set_df_property("pledge_status", "read_only", 1);
-        frm.set_df_property("instrument_type", "read_only", 1);
-        frm.set_df_property("scheme_type", "read_only", 1);
-        frm.set_df_property("pledgor_boid", "read_only", 1);
-        frm.set_df_property("pledgee_boid", "read_only", 1);
-        frm.set_df_property("application_type", "read_only", 1);
-      }
+  is_default: function (frm) {
+    if (frm.doc.is_default == 0) {
+      frm.set_value("custom_base_interest", 0);
+      frm.set_value("custom_rebate_interest", 0);
     } else {
-      if (frm.doc.status != "Pledge executed") {
-        frm.set_df_property("items", "read_only", 1);
-      } else {
-        frm.get_field("items").grid.only_sortable();
-        $(".grid-add-row").hide();
-        $(".grid-remove-rows").hide();
-        $(".grid-remove-all-rows").hide();
-      }
+      frm.set_df_property("custom_base_interest", "read_only", 1);
+      frm.set_df_property("custom_rebate_interest", "read_only", 1);
+    }
+  },
+
+  on_load: function (frm) {
+    frappe.call({
+      method:
+        "lms.lms.doctype.loan_application.loan_application.check_for_pledge_failure",
+      freeze: true,
+      args: {
+        la_name: frm.doc.name,
+      },
+      callback: (res) => {
+        if (res.message == "Pledge Failure") {
+          frm.set_df_property("is_default", "read_only", 1);
+          frm.set_df_property("custom_base_interest", "read_only", 1);
+          frm.set_df_property("custom_rebate_interest", "read_only", 1);
+        }
+      },
+    });
+  },
+
+  refresh: function (frm) {
+    if (frm.doc.status != "Waiting to be pledged") {
+      frm.get_field("items").grid.only_sortable();
+      $(".grid-add-row").hide();
+      $(".grid-remove-rows").hide();
+      $(".grid-remove-all-rows").hide();
     }
 
     // enable/disable file inputs
@@ -44,22 +56,22 @@ frappe.ui.form.on("Loan Application", {
     }
 
     // enable/disable custom process pledge btn
-    frappe.db.get_single_value("LAS Settings", "debug_mode").then((res) => {
-      if (res) {
-        if (frm.doc.status == "Waiting to be pledged") {
-          frm.add_custom_button(__("Process Pledge"), function () {
-            frappe.call({
-              method:
-                "lms.lms.doctype.loan_application.loan_application.process_pledge",
-              freeze: true,
-              args: {
-                loan_application_name: frm.doc.name,
-              },
-            });
-          });
-        }
-      }
-    });
+    // frappe.db.get_single_value("LAS Settings", "debug_mode").then((res) => {
+    //   if (res) {
+    //     if (frm.doc.status == "Waiting to be pledged") {
+    //       frm.add_custom_button(__("Process Pledge"), function () {
+    //         frappe.call({
+    //           method:
+    //             "lms.lms.doctype.loan_application.loan_application.process_pledge",
+    //           freeze: true,
+    //           args: {
+    //             loan_application_name: frm.doc.name,
+    //           },
+    //         });
+    //       });
+    //     }
+    //   }
+    // });
     // enable/disable lender_approval_status field in LA items
     if (
       frm.doc.workflow_state == "Approved" ||
