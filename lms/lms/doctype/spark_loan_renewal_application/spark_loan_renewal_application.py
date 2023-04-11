@@ -395,8 +395,7 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                 },
             )
             msg = """Dear Customer,
-            Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans
-            """.format(
+Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans""".format(
                 link=las_settings.app_login_dashboard
             )
             fcm_notification = frappe.get_doc(
