@@ -271,8 +271,19 @@ class TopupApplication(Document):
             },
             order_by="to_amount asc",
         )
-        int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = round((int_config.base_interest * 12), 2)
+        if self.loan:
+            if loan.is_default == 0:
+                base_interest = loan.base_interest
+                rebate_interest = loan.rebate_interest
+            else:
+                int_config = frappe.get_doc("Interest Configuration", interest_config)
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+        else:
+            int_config = frappe.get_doc("Interest Configuration", interest_config)
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
+        roi_ = round((base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(self.top_up_amount))
         )
@@ -332,7 +343,7 @@ class TopupApplication(Document):
             ),
             "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
-            "rebate_interest": int_config.rebait_interest,
+            "rebate_interest": rebate_interest,
             "default_interest": annual_default_interest,
             "penal_charges": lender.renewal_penal_interest
             if lender.renewal_penal_interest
@@ -705,8 +716,21 @@ class TopupApplication(Document):
                 },
                 order_by="to_amount asc",
             )
-            int_config = frappe.get_doc("Interest Configuration", interest_config)
-            roi_ = round((int_config.base_interest * 12), 2)
+            if self.loan:
+                if loan.is_default == 0:
+                    base_interest = loan.base_interest
+                    rebate_interest = loan.rebate_interest
+                else:
+                    int_config = frappe.get_doc(
+                        "Interest Configuration", interest_config
+                    )
+                    base_interest = int_config.base_interest
+                    rebate_interest = int_config.rebait_interest
+            else:
+                int_config = frappe.get_doc("Interest Configuration", interest_config)
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
+            roi_ = round((base_interest * 12), 2)
             charges = lms.charges_for_apr(
                 lender.name, lms.validate_rupees(float(self.top_up_amount))
             )
@@ -762,7 +786,7 @@ class TopupApplication(Document):
                 ),
                 "loan_application_no": self.name,
                 "rate_of_interest": lender.rate_of_interest,
-                "rebate_interest": int_config.rebait_interest,
+                "rebate_interest": rebate_interest,
                 "default_interest": annual_default_interest,
                 "penal_charges": lender.renewal_penal_interest
                 if lender.renewal_penal_interest

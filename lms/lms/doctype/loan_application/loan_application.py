@@ -229,7 +229,7 @@ class LoanApplication(Document):
                     + interest_charges_in_amount
                 ),
                 "loan_application_no": self.name,
-                "rate_of_interest": self.base_interest,
+                "rate_of_interest": lender.rate_of_interest,
                 "rebate_interest": self.rebate_interest,
                 "default_interest": annual_default_interest,
                 "rebait_threshold": lender.rebait_threshold,
@@ -2227,7 +2227,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         + interest_charges_in_amount
                     ),
                     "loan_application_no": self.name,
-                    "rate_of_interest": self.base_interest,
+                    "rate_of_interest": lender.rate_of_interest,
                     "rebate_interest": self.rebate_interest,
                     "default_interest": annual_default_interest,
                     "rebait_threshold": lender.rebait_threshold,

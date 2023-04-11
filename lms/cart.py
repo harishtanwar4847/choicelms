@@ -954,7 +954,7 @@ def get_tnc(**kwargs):
                 base_interest = int_config.base_interest
                 rebate_interest = int_config.rebait_interest
         elif data.get("loan_name") and data.get("topup_amount"):
-            loan = frappe.get_doc("Loan", renewal.loan)
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
             if loan.is_default == 0:
                 base_interest = loan.base_interest
                 rebate_interest = loan.rebate_interest
