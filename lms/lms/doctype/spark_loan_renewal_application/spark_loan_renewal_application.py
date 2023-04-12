@@ -2378,7 +2378,7 @@ def renewal_doc_for_selected_customer():
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
                 str_exp = datetime.strptime(
-                    str(frappe.utils.now_datetime().date() + timedelta(7)), "%Y-%m-%d"
+                    str(frappe.utils.now_datetime().date() + timedelta(6)), "%Y-%m-%d"
                 ).strftime("%d/%m/%Y")
                 email_expiry = frappe.db.sql(
                     "select message from `tabNotification` where name='Loan Renewal Reminder';"
