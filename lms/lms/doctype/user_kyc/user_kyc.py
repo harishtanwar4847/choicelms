@@ -243,13 +243,22 @@ class UserKYC(Document):
             item.idx = i
 
     def before_save(self):
-        if self.kyc_status == "Approved" and self.address_details:
+        cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
+        loan_customer = frappe.get_doc("Loan Customer", cust_name)
+        if (
+            self.consent_given == 1
+            and self.kyc_status == "Approved"
+            and loan_customer.offline_customer
+            and self.address_details
+        ):
             cust_add = frappe.get_doc("Customer Address Details", self.address_details)
-            if not cust_add.perm_image or not cust_add.corres_poa_image:
+            if not cust_add.perm_image:
+                frappe.throw("POA missing in address details doctype")
+            elif not cust_add.corres_poa_image:
                 frappe.throw("POA missing in address details doctype")
 
-        cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
-        customer = frappe.get_doc("Loan Customer", cust_name)
+        # cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
+        # customer = frappe.get_doc("Loan Customer", cust_name)
         loan_name = frappe.db.get_value("Loan", {"customer": cust_name}, "name")
         if loan_name:
             loan = frappe.get_doc("Loan", loan_name)
