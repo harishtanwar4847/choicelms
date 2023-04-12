@@ -1861,10 +1861,17 @@ class Loan(Document):
         else:
             exp = self.wef_date
 
+        if type(self.wef_date) == str:
+            old_wef_date = datetime.strptime(self.old_wef_date, "%Y-%m-%d").date()
+        else:
+            old_wef_date = self.old_wef_date
+
         # if exp: #live changes
         #     if exp < frappe.utils.now_datetime().date():
         #         frappe.throw("W.e.f date should be Current date or Future date")
-        if exp and exp < frappe.utils.now_datetime().date():
+        # if exp and exp < frappe.utils.now_datetime().date():
+
+        if exp != old_wef_date and exp < frappe.utils.now_datetime().date():
             frappe.throw("W.e.f date should be Current date or Future date")
 
         if self.balance:
@@ -1939,6 +1946,7 @@ class Loan(Document):
                         self.old_rebate_interest = self.rebate_interest
                         self.base_interest = self.custom_base_interest
                         self.rebate_interest = self.custom_rebate_interest
+                        self.old_wef_date = self.wef_date
                         self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
