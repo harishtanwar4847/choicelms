@@ -219,30 +219,6 @@ class Cart(Document):
                 }
             ).insert(ignore_permissions=True)
 
-            loan_application = frappe.get_doc(
-                {
-                    "doctype": "Loan Application",
-                    "total_collateral_value": self.total_collateral_value,
-                    "pledged_total_collateral_value": self.total_collateral_value,
-                    "loan_margin_shortfall": self.loan_margin_shortfall,
-                    "drawing_power": self.eligible_loan,
-                    "lender": self.lender,
-                    "expiry_date": expiry,
-                    # "allowable_ltv": self.allowable_ltv,
-                    "customer": self.customer,
-                    "customer_name": self.customer_name,
-                    "pledgor_boid": self.pledgor_boid,
-                    "pledgee_boid": self.pledgee_boid,
-                    "loan": self.loan,
-                    "workflow_state": "Waiting to be pledged",
-                    "items": items,
-                    "application_type": application_type,
-                    "increased_sanctioned_limit": self.increased_sanctioned_limit,
-                    "instrument_type": self.instrument_type,
-                    "scheme_type": self.scheme_type,
-                }
-            ).insert(ignore_permissions=True)
-
             # mark cart as processed
             self.is_processed = 1
             self.save()
