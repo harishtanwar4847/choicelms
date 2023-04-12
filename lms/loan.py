@@ -1380,15 +1380,18 @@ def loan_details(**kwargs):
             fields=["*"],
         )
         collateral_ledger_list = []
-        for i in collateral_ledger:
-            sql = frappe.db.sql(
-                """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
-            - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
-            - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and psn = '{psn}' and loan = '{loan}'""".format(
-                    isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
-                ),
-            )
-            collateral_ledger_list.append(sql)
+        if loan.instrument_type == "Mutual Fund":
+            for i in collateral_ledger:
+                sql = frappe.db.sql(
+                    """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and psn = '{psn}' and loan = '{loan}'""".format(
+                        isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
+                    ),
+                    as_dict=1,
+                    debug=True,
+                )
+                collateral_ledger_list.append(sql)
 
         res = {
             "loan": loan,
