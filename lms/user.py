@@ -846,6 +846,7 @@ def my_pledge_securities(**kwargs):
         res = {
             "loan_name": loan.name,
             "instrument_type": loan.instrument_type,
+            "scheme_type": loan.scheme_type if loan.scheme_type else "",
             "total_value": loan.total_collateral_value,
             "drawing_power": loan.drawing_power,
             "balance": loan.balance,
@@ -2239,20 +2240,28 @@ def loan_summary_dashboard(**kwargs):
             version_details = ["No Record found"]
 
         instrument_type = ""
+        scheme_type = ""
         if under_process_la:
             instrument_type = frappe.get_doc(
                 "Loan Application", under_process_la[0].name
             ).instrument_type
+            if instrument_type == "Mutual Fund":
+                scheme_type = frappe.get_doc(
+                    "Loan Application", under_process_la[0].name
+                ).scheme_type
             for la in under_process_la:
                 la_doc = frappe.get_doc("Loan Application", la.name)
                 if (
                     la_doc.instrument_type == "Mutual Fund"
                     and "pledge" in la_doc.status.lower()
                 ):
+                    scheme_type = la_doc.scheme_type
                     la.status = la_doc.status.lower().replace("pledge", "Lien")
 
         elif all_loans:
             instrument_type = frappe.get_doc("Loan", all_loans[0].name).instrument_type
+            if instrument_type == "Mutual Fund":
+                scheme_type = frappe.get_doc("Loan", all_loans[0].name).scheme_type
 
         loan_renewal_doc_list = []
         sl_letter = ""
@@ -2409,6 +2418,7 @@ def loan_summary_dashboard(**kwargs):
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
             "instrument_type": instrument_type,
+            "scheme_type": scheme_type,
             "loan_renewal_application": loan_renewal_doc_list,
             "sanctioned_letter": sl_letter,
             "version_details": version_details[0],
