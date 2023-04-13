@@ -1767,7 +1767,7 @@ def loan_payment_log_permission_query(user):
 
 
 @frappe.whitelist(allow_guest=True)
-def decrypt_lien_marking_response():
+def decrypt_mycams_response():
     try:
         data = frappe.local.form_dict
         las_settings = frappe.get_single("LAS Settings")
