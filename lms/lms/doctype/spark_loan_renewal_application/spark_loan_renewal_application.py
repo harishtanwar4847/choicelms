@@ -1499,8 +1499,7 @@ def renewal_penal_interest(loan_name):
                         > frappe.utils.now_datetime().date()
                         and doc.status == "Pending"
                     )
-                    and (loan.name not in ["SL000004", "SL000026"])
-                )
+                ) and (loan.name not in ["SL000004", "SL000026"])
                 lms.create_log(
                     {
                         "alo": lms.get_linenumber(),
@@ -1524,8 +1523,7 @@ def renewal_penal_interest(loan_name):
                         > frappe.utils.now_datetime().date()
                         and doc.status == "Pending"
                     )
-                    and (loan.name not in ["SL000004", "SL000026"])
-                ):
+                ) and (loan.name not in ["SL000004", "SL000026"]):
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
