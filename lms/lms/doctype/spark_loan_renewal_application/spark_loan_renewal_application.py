@@ -1499,8 +1499,7 @@ def renewal_penal_interest(loan_name):
                         > frappe.utils.now_datetime().date()
                         and doc.status == "Pending"
                     )
-                    and (loan.name not in ["SL000004", "SL000026"])
-                )
+                ) and (loan.name not in ["SL000004", "SL000026"])
                 lms.create_log(
                     {
                         "alo": lms.get_linenumber(),
@@ -1524,8 +1523,7 @@ def renewal_penal_interest(loan_name):
                         > frappe.utils.now_datetime().date()
                         and doc.status == "Pending"
                     )
-                    and (loan.name not in ["SL000004", "SL000026"])
-                ):
+                ) and (loan.name not in ["SL000004", "SL000026"]):
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
@@ -2377,9 +2375,7 @@ def renewal_doc_for_selected_customer():
                     )
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-                str_exp = datetime.strptime(
-                    str(frappe.utils.now_datetime().date() + timedelta(6)), "%Y-%m-%d"
-                ).strftime("%d/%m/%Y")
+                str_exp = "18/04/2023"
                 email_expiry = frappe.db.sql(
                     "select message from `tabNotification` where name='Loan Renewal Reminder';"
                 )[0][0]
