@@ -2656,14 +2656,28 @@ def loan_unpledge_details(**kwargs):
             filters={"request_type": "Pledge", "loan": loan.name},
             fields=["*"],
         )
+        collateral_ledger_list = []
+        if loan.instrument_type == "Mutual Fund":
+            for i in collateral_ledger:
+                sql = frappe.db.sql(
+                    """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and psn = '{psn}' and loan = '{loan}'""".format(
+                        isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
+                    ),
+                    as_dict=1,
+                    debug=True,
+                )
+                collateral_ledger_list.extend(sql)
+
         res = {
             "loan": loan,
             "revoke_charge_details": revoke_initiate_charges
             if loan.instrument_type == "Mutual Fund"
             else {},
-            "collateral_ledger": collateral_ledger
+            "collateral_ledger": collateral_ledger_list
             if loan.instrument_type == "Mutual Fund"
-            else {},
+            else [],
         }
 
         loan_margin_shortfall = loan.get_margin_shortfall()
