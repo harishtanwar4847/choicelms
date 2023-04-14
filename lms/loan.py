@@ -3323,7 +3323,9 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 securities_valid = False
                 message = frappe._("folio not present")
                 break
-            duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
+            duplicate_securities_list.append(
+                "{}{}{}".format(i["isin"], i["folio"], i["psn"])
+            )
             folio_list.append(i["folio"])
 
     if folio_list:
