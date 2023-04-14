@@ -192,7 +192,7 @@ def esign(**kwargs):
                 raise lms.exceptions.ForbiddenException(
                     _("Please use yor own Loan Renewal Application")
                 )
-            esign_request = loan_renewal_application.esign_request()
+            esign_request = loan_renewal_application.esign_request(increase_loan=1)
             application = loan_renewal_application
 
         user = lms.__user()
