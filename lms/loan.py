@@ -1391,7 +1391,7 @@ def loan_details(**kwargs):
                     as_dict=1,
                     debug=True,
                 )
-                collateral_ledger_list.append(sql)
+                collateral_ledger_list.extend(sql)
 
         res = {
             "loan": loan,
