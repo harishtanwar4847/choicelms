@@ -156,6 +156,13 @@ class SellCollateralApplication(Document):
                     )
                 )
             if self.instrument_type == "Mutual Fund":
+                frappe.log_error(
+                    "{}{}{}".format(
+                        str(sell_requested_quantity_map),
+                        str(sell_requested_quantity_map.get(isin_folio_combo)),
+                        str(i.sell_quantity),
+                    )
+                )
                 if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:
                     frappe.throw(
                         "You need to {} all {} of isin {}{}".format(
