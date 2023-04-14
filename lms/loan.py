@@ -326,7 +326,7 @@ def esign_done(**kwargs):
         elif (
             not data.get("loan_application_name")
             and not data.get("topup_application_name")
-            and data.get("loan_renewal_application_name")
+            and not data.get("loan_renewal_application_name")
         ):
             # return utils.respondForbidden(
             #     "Loan Application and Top up Application not found. Please use atleast one."
