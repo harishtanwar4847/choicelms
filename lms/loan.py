@@ -192,7 +192,7 @@ def esign(**kwargs):
                 raise lms.exceptions.ForbiddenException(
                     _("Please use yor own Loan Renewal Application")
                 )
-            esign_request = loan_renewal_application.esign_request()
+            esign_request = loan_renewal_application.esign_request(increase_loan=1)
             application = loan_renewal_application
 
         user = lms.__user()
@@ -326,7 +326,7 @@ def esign_done(**kwargs):
         elif (
             not data.get("loan_application_name")
             and not data.get("topup_application_name")
-            and data.get("loan_renewal_application_name")
+            and not data.get("loan_renewal_application_name")
         ):
             # return utils.respondForbidden(
             #     "Loan Application and Top up Application not found. Please use atleast one."
