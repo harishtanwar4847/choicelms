@@ -605,7 +605,6 @@ def my_loans():
                 customer.name
             ),
             as_dict=1,
-            debug=True,
         )
 
         data = {"loans": loans}
@@ -1013,7 +1012,6 @@ def loan_details(**kwargs):
             #             loan=loan.name,
             #         ),
             #         as_dict=True,
-            #         # debug=True,
             #     )
             #     print("psn_no",psn_no)
             # i["psn"] = psn_no
@@ -1389,7 +1387,6 @@ def loan_details(**kwargs):
                         isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
                     ),
                     as_dict=1,
-                    debug=True,
                 )
                 collateral_ledger_list.extend(sql)
 
@@ -2666,7 +2663,6 @@ def loan_unpledge_details(**kwargs):
                         isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
                     ),
                     as_dict=1,
-                    debug=True,
                 )
                 collateral_ledger_list.extend(sql)
 
