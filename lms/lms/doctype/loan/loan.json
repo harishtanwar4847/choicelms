@@ -58,6 +58,7 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
+   "read_only": 1,
    "reqd": 1
   },
   {
