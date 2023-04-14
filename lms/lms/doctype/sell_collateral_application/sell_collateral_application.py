@@ -162,18 +162,18 @@ class SellCollateralApplication(Document):
                         str(sell_requested_quantity_map.get(isin_folio_combo)),
                         str(i.sell_quantity),
                         str(isin_folio_combo),
-                        str(i.as_dict()),
+                        str(i.psn),
                     )
                 )
-                if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:
-                    frappe.throw(
-                        "You need to {} all {} of isin {}{}".format(
-                            applicaton_type,
-                            sell_requested_quantity_map.get(isin_folio_combo),
-                            i.isin,
-                            "{}".format("-" + str(i.folio) if i.folio else ""),
-                        )
-                    )
+                # if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:
+                #     frappe.throw(
+                #         "You need to {} all {} of isin {}{}".format(
+                #             applicaton_type,
+                #             sell_requested_quantity_map.get(isin_folio_combo),
+                #             i.isin,
+                #             "{}".format("-" + str(i.folio) if i.folio else ""),
+                #         )
+                #     )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
             )
