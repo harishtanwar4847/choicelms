@@ -162,7 +162,7 @@ class SellCollateralApplication(Document):
                         str(sell_requested_quantity_map.get(isin_folio_combo)),
                         str(i.sell_quantity),
                         str(isin_folio_combo),
-                        str(i),
+                        str(i.as_dict()),
                     )
                 )
                 if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:
