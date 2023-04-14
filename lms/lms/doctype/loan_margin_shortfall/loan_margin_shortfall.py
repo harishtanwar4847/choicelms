@@ -40,7 +40,7 @@ class LoanMarginShortfall(Document):
             self.ltv = (
                 (self.loan_balance / self.total_collateral_value) * 100
                 if self.total_collateral_value > 0
-                else None
+                else 0
             )
 
             self.surplus_margin = 100 - self.ltv
