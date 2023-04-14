@@ -476,7 +476,12 @@ class LoanApplication(Document):
 
         else:
             if self.instrument_type == "Mutual Fund":
-                if self.drawing_power < self.minimum_sanctioned_limit:
+                drawing_power_mf = (
+                    self.increased_sanctioned_limit
+                    if self.application_type == "Increase Loan"
+                    else self.drawing_power
+                )
+                if drawing_power_mf < self.minimum_sanctioned_limit:
                     self.remarks = "Rejected due to min/max range"
                     self.status = "Rejected"
                     self.workflow_state = "Rejected"
@@ -524,7 +529,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         customer=self.get_customer(),
                     )
 
-                elif self.drawing_power >= self.minimum_sanctioned_limit:
+                elif drawing_power_mf >= self.minimum_sanctioned_limit:
                     customer = self.get_customer()
                     frappe.session.user = "Administrator"
                     user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -654,6 +659,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             )
                             if isin_folio_combo in isin_details:
                                 cur = isin_details.get(isin_folio_combo)
+                                frappe.log_error(
+                                    "{}\n{}".format(str(isin_folio_combo), str(cur))
+                                )
                                 i.pledge_executed = 1
                                 i.pledge_status = (
                                     "Success"
