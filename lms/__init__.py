@@ -786,6 +786,7 @@ def create_log(log, file_name):
                 logs = f.read()
             f.close()
         logs = json.loads(logs or "[]")
+        log["req_time"] = str(frappe.utils.now_datetime())
         logs.append(log)
         with open(log_file, "w") as f:
             f.write(json.dumps(logs))
@@ -3610,7 +3611,7 @@ def au_pennydrop_api(data, kyc_full_name):
 
 
 def truncate_float_to_decimals(number, digits):
-    return math.floor(number * 10 ** digits) / 10 ** digits
+    return math.floor(number * 10**digits) / 10**digits
 
 
 def name_matching(user_kyc, bank_acc_full_name):

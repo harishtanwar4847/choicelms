@@ -1278,10 +1278,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "base_interest": self.base_interest,
                 "rebate_interest": self.rebate_interest,
                 "sl_cial_entries": self.sl_entries,
-                # "old_interest": self.base_interest,
+                "old_interest": self.base_interest,
+                "old_rebate_interest": self.rebate_interest,
                 "custom_base_interest": self.base_interest,
                 "custom_rebate_interest": self.rebate_interest,
                 "wef_date": frappe.utils.now_datetime().date(),
+                "old_wef_date": frappe.utils.now_datetime().date(),
             }
         )
         loan.insert(ignore_permissions=True)
@@ -1938,16 +1940,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         ):
             msg, fcm_title = (
                 (
-                    frappe.get_doc(
-                        "Spark SMS Notification", "Increase loan application approved"
-                    ).message,
-                    # "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    # frappe.get_doc(
+                    #     "Spark SMS Notification", "Increase loan application approved"
+                    # ).message,
+                    "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
                     "Increase loan application approved",
                 )
                 if self.loan and not self.loan_margin_shortfall
                 else (
-                    frappe.get_doc("Spark SMS Notification", "Loan approved").message,
-                    # "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    # frappe.get_doc("Spark SMS Notification", "Loan approved").message,
+                    "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
                     "Loan approved",
                 )
             )

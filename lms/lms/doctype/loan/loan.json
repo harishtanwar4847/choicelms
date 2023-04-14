@@ -50,13 +50,15 @@
   "is_default",
   "column_break_40",
   "custom_rebate_interest",
-  "old_rebate_interest"
+  "old_rebate_interest",
+  "old_wef_date"
  ],
  "fields": [
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -327,11 +329,17 @@
    "fieldtype": "Float",
    "label": "Old Rebate Interest",
    "read_only": 1
+  },
+  {
+   "fieldname": "old_wef_date",
+   "fieldtype": "Date",
+   "label": "Old w.e.f date",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-11 11:24:34.049248",
+ "modified": "2023-04-12 10:58:12.425845",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

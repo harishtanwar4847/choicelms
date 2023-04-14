@@ -391,15 +391,15 @@ class LoanMarginShortfall(Document):
             #     max_threshold=hrs_sell_off[0].max_threshold
             # )
         elif margin_shortfall_action.sell_off_after_hours:
-            mess = frappe.get_doc(
-                "Spark SMS Notification",
-                "Margin shortfall – Action required after hours",
-            ).message.format(
-                hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
-            )
-            # mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else {} will be triggered. Spark Loans".format(
-            #     self.loan, margin_shortfall_action.sell_off_after_hours, msg_type[0]
+            # mess = frappe.get_doc(
+            #     "Spark SMS Notification",
+            #     "Margin shortfall – Action required after hours",
+            # ).message.format(
+            #     hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
             # )
+            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else {} will be triggered. Spark Loans".format(
+                self.loan, margin_shortfall_action.sell_off_after_hours, msg_type[0]
+            )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
                 "Margin shortfall – Action required after hours",
@@ -437,15 +437,15 @@ class LoanMarginShortfall(Document):
                     str(margin_shortfall_action.sell_off_deadline_eod), "%H"
                 ).strftime("%I:%M%P")
 
-            mess = frappe.get_doc(
-                "Spark SMS Notification", "Margin shortfall - Action required at eod"
-            ).message.format(
-                self.loan, eod_sell_off[0].max_threshold, eod_time, msg_type[0]
-            )
-
-            # mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else {} will be triggered. Spark Loans".format(
+            # mess = frappe.get_doc(
+            #     "Spark SMS Notification", "Margin shortfall - Action required at eod"
+            # ).message.format(
             #     self.loan, eod_sell_off[0].max_threshold, eod_time, msg_type[0]
             # )
+
+            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else {} will be triggered. Spark Loans".format(
+                self.loan, eod_sell_off[0].max_threshold, eod_time, msg_type[0]
+            )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
                 "Margin shortfall – Action required at eod",

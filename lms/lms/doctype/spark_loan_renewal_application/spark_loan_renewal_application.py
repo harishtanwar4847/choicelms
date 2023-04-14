@@ -454,25 +454,25 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 #     * self.allowable_ltv
                 #     / 100
                 # )
-                actual_dp = lms.round_down_amount_to_nearest_thousand(
-                    loan.actual_drawing_power
-                )
-                increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    actual_dp + self.drawing_power
-                )
-                new_increased_sanctioned_limit = (
-                    increased_sanctioned_limit
-                    if increased_sanctioned_limit < lender.maximum_sanctioned_limit
-                    else lender.maximum_sanctioned_limit
-                )
-                frappe.db.set_value(
-                    self.doctype,
-                    self.name,
-                    "increased_sanctioned_limit",
-                    new_increased_sanctioned_limit,
-                    update_modified=False,
-                )
-                diff = new_increased_sanctioned_limit - loan.sanctioned_limit
+                # actual_dp = lms.round_down_amount_to_nearest_thousand(
+                #     loan.actual_drawing_power
+                # )
+                # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                #     actual_dp + self.drawing_power
+                # )
+                # new_increased_sanctioned_limit = (
+                #     increased_sanctioned_limit
+                #     if increased_sanctioned_limit < lender.maximum_sanctioned_limit
+                #     else lender.maximum_sanctioned_limit
+                # )
+                # frappe.db.set_value(
+                #     self.doctype,
+                #     self.name,
+                #     "increased_sanctioned_limit",
+                #     new_increased_sanctioned_limit,
+                #     update_modified=False,
+                # )
+                diff = self.sanctioned_limit
 
             if user_kyc.address_details:
                 address_details = frappe.get_doc(
@@ -543,13 +543,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 {
                     "to_amount": [
                         ">=",
-                        lms.validate_rupees(
-                            float(
-                                new_increased_sanctioned_limit
-                                if self.loan and not self.loan_margin_shortfall
-                                else self.drawing_power
-                            )
-                        ),
+                        lms.validate_rupees(float(self.sanctioned_limit)),
                     ],
                 },
                 order_by="to_amount asc",
@@ -565,31 +559,17 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 self.name,
                 roi_,
                 12,
-                int(
-                    lms.validate_rupees(
-                        float(
-                            new_increased_sanctioned_limit
-                            if self.loan and not self.loan_margin_shortfall
-                            else self.drawing_power
-                        )
-                    )
-                ),
+                int(lms.validate_rupees(float(self.sanctioned_limit))),
                 charges.get("total"),
             )
             annual_default_interest = lender.default_interest * 12
-            sanctionlimit = (
-                new_increased_sanctioned_limit
-                if self.loan and not self.loan_margin_shortfall
-                else self.drawing_power
-            )
+            # sanctionlimit = (
+            #     new_increased_sanctioned_limit
+            #     if self.loan and not self.loan_margin_shortfall
+            #     else self.drawing_power
+            # )
             interest_charges_in_amount = int(
-                lms.validate_rupees(
-                    float(
-                        new_increased_sanctioned_limit
-                        if self.loan and not self.loan_margin_shortfall
-                        else self.drawing_power
-                    )
-                )
+                lms.validate_rupees(float(self.sanctioned_limit))
             ) * (roi_ / 100)
             doc = {
                 "esign_date": "",
@@ -606,20 +586,10 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 "pincode": perm_pin,
                 # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
                 "sanctioned_amount": frappe.utils.fmt_money(
-                    float(
-                        new_increased_sanctioned_limit
-                        if self.loan and not self.loan_margin_shortfall
-                        else self.drawing_power
-                    )
+                    float(self.sanctioned_limit)
                 ),
                 "sanctioned_amount_in_words": lms.number_to_word(
-                    lms.validate_rupees(
-                        float(
-                            new_increased_sanctioned_limit
-                            if self.loan and not self.loan_margin_shortfall
-                            else self.drawing_power,
-                        )
-                    )
+                    lms.validate_rupees(float(self.sanctioned_limit))
                 ).title(),
                 "roi": roi_,
                 "apr": apr,
@@ -630,10 +600,10 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                     charges.get("processing_fees")
                 ),
                 "net_disbursed_amount": frappe.utils.fmt_money(
-                    float(sanctionlimit) - charges.get("total")
+                    float(self.sanctioned_limit) - charges.get("total")
                 ),
                 "total_amount_to_be_paid": frappe.utils.fmt_money(
-                    float(sanctionlimit)
+                    float(self.sanctioned_limit)
                     + charges.get("total")
                     + interest_charges_in_amount
                 ),
@@ -841,11 +811,11 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             if self.loan:
                 loan = self.get_loan()
                 increased_sanctioned_limit = loan.sanctioned_limit
-                new_increased_sanctioned_limit = (
-                    increased_sanctioned_limit
-                    if increased_sanctioned_limit < lender.maximum_sanctioned_limit
-                    else lender.maximum_sanctioned_limit
-                )
+                # new_increased_sanctioned_limit = (
+                #     increased_sanctioned_limit
+                #     if increased_sanctioned_limit < lender.maximum_sanctioned_limit
+                #     else lender.maximum_sanctioned_limit
+                # )
                 diff = loan.sanctioned_limit
             interest_config = frappe.get_value(
                 "Interest Configuration",
@@ -1319,7 +1289,6 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 @frappe.whitelist()
 def all_loans_renewal_update_doc():
     try:
-        return
         loans = frappe.get_all("Loan", fields=["name"])
         for loan_name in loans:
             frappe.enqueue(
@@ -1500,8 +1469,7 @@ def renewal_penal_interest(loan_name):
                         > frappe.utils.now_datetime().date()
                         and doc.status == "Pending"
                     )
-                    and (loan.name not in ["SL000004", "SL000026"])
-                )
+                ) and (loan.name not in ["SL000004", "SL000026"])
                 lms.create_log(
                     {
                         "alo": lms.get_linenumber(),
@@ -1525,8 +1493,7 @@ def renewal_penal_interest(loan_name):
                         > frappe.utils.now_datetime().date()
                         and doc.status == "Pending"
                     )
-                    and (loan.name not in ["SL000004", "SL000026"])
-                ):
+                ) and (loan.name not in ["SL000004", "SL000026"]):
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
@@ -2378,9 +2345,7 @@ def renewal_doc_for_selected_customer():
                     )
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-                str_exp = datetime.strptime(
-                    str(frappe.utils.now_datetime().date() + timedelta(7)), "%Y-%m-%d"
-                ).strftime("%d/%m/%Y")
+                str_exp = "18/04/2023"
                 email_expiry = frappe.db.sql(
                     "select message from `tabNotification` where name='Loan Renewal Reminder';"
                 )[0][0]
