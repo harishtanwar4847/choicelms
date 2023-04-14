@@ -642,7 +642,11 @@ def validate_revoc(unpledge_application_name):
                             )
                             print(type(token_dict))
                             print("token_dict", token_dict)
-                            unpledge_application_doc.refno = str(token_dict)
+                            unpledge_application_doc.refno = (
+                                dict_decrypted_response.get("revocvalidate").get(
+                                    "revoctoken"
+                                )
+                            )
                             if "Failure" not in success:
                                 print("abcd")
                                 unpledge_application_doc.is_validated = True
@@ -745,7 +749,7 @@ def initiate_revoc(unpledge_application_name):
                         data = {
                             "revocinitiate": {
                                 "reqrefno": prf[0].name,
-                                "revoctoken": i.revoc_token,
+                                "revoctoken": i.refno,
                                 "lienrefno": i.prf,
                                 "pan": user_kyc.pan_no,
                                 "regemailid": customer.mycams_email_id,
