@@ -1,16 +1,15 @@
-import json
-import re
-from dataclasses import fields
-from datetime import datetime
-from random import choice, randint
+def execute_():
+    import json
+    import re
+    from dataclasses import fields
+    from datetime import datetime
+    from random import choice, randint
 
-import frappe
-import requests
+    import frappe
+    import requests
 
-import lms
+    import lms
 
-
-def execute():
     try:
         all_kyc = []
         frappe.reload_doc("Lms", "DocType", "CKYC API Response", force=True)
@@ -22,18 +21,20 @@ def execute():
         frappe.reload_doc("Lms", "DocType", "CKYC Identity Details", force=True)
 
         if frappe.utils.get_url() == "https://spark.loans":
-            user_kyc = frappe.get_all(
-                "User KYC",
-                filters={"consent_given": 0},
-                fields=["*"],
-            )
+            user_kyc = [
+                frappe.get_doc(
+                    "User KYC",
+                    "USR-KYC-08-2021-00439",
+                    fields=["*"],
+                )
+            ]
         else:
             user_kyc = frappe.get_all(
                 "User KYC",
                 filters={"consent_given": 0, "pan_no": "CEFPC3206R"},
                 fields=["*"],
             )
-
+        print("kay re", user_kyc)
         for kyc in user_kyc:
             cust = frappe.db.get_value("Loan Customer", {"user": kyc.user}, "name")
             customer = frappe.get_doc("Loan Customer", cust)
@@ -46,6 +47,7 @@ def execute():
                 "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
                 + str(abs(randint(0, 9999) - randint(1, 99))),
             }
+            print("hi1")
 
             las_settings = frappe.get_single("LAS Settings")
             headers = {"Content-Type": "application/json"}
@@ -69,16 +71,30 @@ def execute():
             frappe.db.commit()
             log["response"] = res_json
             lms.create_log(log, "ckyc_search_patch")
+            print("hi2")
             if res_json.get("status") == 200 and not res_json.get("error"):
+                pid_data = (
+                    json.loads(res_json.get("data"))
+                    .get("PID_DATA")
+                    .get("SearchResponsePID")
+                )
+                if type(pid_data) != list:
+                    pid_data = [pid_data]
+                ckyc_no_ = ",".join(
+                    [
+                        "".join(filter(str.isdigit, pid.get("CKYC_NO")))
+                        for pid in pid_data
+                        if not pid.get("CONSTITUTION_TYPE")
+                    ]
+                )
+
                 req_data.update(
                     {
                         "dob": kyc.date_of_birth.strftime("%d-%m-%Y"),
-                        "ckycNumber": json.loads(res_json.get("data"))
-                        .get("PID_DATA")
-                        .get("SearchResponsePID")
-                        .get("CKYC_NO"),
+                        "ckycNumber": ckyc_no_,
                     }
                 )
+                print("hi3")
 
                 url = las_settings.ckyc_download_api
 
@@ -102,6 +118,7 @@ def execute():
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
                 log["response"] = res_json
+                print("hi4")
 
                 lms.create_log(log, "ckyc_download_patch")
 
@@ -244,6 +261,7 @@ def execute():
                                     },
                                 )
 
+                    print("hi5")
                     if related_person_details:
                         related_person = related_person_details.get("RELATED_PERSON")
                         if related_person:
@@ -432,28 +450,29 @@ def execute():
                     user_kyc.save(ignore_permissions=True)
                     frappe.db.commit()
                     all_kyc.append(user_kyc.name)
+                    print("hi6")
                     loan_doc = frappe.get_all(
                         "Loan Customer",
                         filters={"user": user_kyc.user},
                         fields=["loan_open", "bank_update"],
                     )
-                    bank_doc = frappe.get_all(
-                        "User Bank Account",
-                        filters={"parent": user_kyc.name, "is_default": 1},
-                        fields=["*"],
-                    )
-                    if loan_doc[0].loan_open == 1:
-                        if len(bank_doc) != 0:
-                            frappe.db.sql(
-                                "update `tabUser Bank Account` set bank_status='Approved',notification_sent=1 where name = '{}'".format(
-                                    (bank_doc[0].name)
-                                )
-                            )
-                            frappe.db.sql(
-                                "update `tabLoan Customer` set bank_update=1 where user = '{}'".format(
-                                    (user_kyc.user)
-                                )
-                            )
+                    # bank_doc = frappe.get_all(
+                    #     "User Bank Account",
+                    #     filters={"parent": user_kyc.name, "is_default": 1},
+                    #     fields=["*"],
+                    # )
+                    # if loan_doc[0].loan_open == 1:
+                    #     if len(bank_doc) != 0:
+                    #         frappe.db.sql(
+                    #             "update `tabUser Bank Account` set bank_status='Approved',notification_sent=1 where name = '{}'".format(
+                    #                 (bank_doc[0].name)
+                    #             )
+                    #         )
+                    #         frappe.db.sql(
+                    #             "update `tabLoan Customer` set bank_update=1 where user = '{}'".format(
+                    #                 (user_kyc.user)
+                    #             )
+                    #         )
 
                 else:
                     frappe.db.rollback()
@@ -474,10 +493,12 @@ def execute():
                     ),
                     title="ckyc download",
                 )
-        frappe.db.sql(
-            "update `tabUser KYC` set kyc_status='Approved',notification_sent=1, consent_given=1 where name in {}".format(
-                lms.convert_list_to_tuple_string(all_kyc)
-            )
-        )
+        # frappe.db.sql(
+        #     "update `tabUser KYC` set kyc_status='Approved',notification_sent=1, consent_given=1 where name in {}".format(
+        #         lms.convert_list_to_tuple_string(all_kyc)
+        #     )
+        print("bye")
+        # )
     except Exception as e:
+        print()
         lms.log_api_error(str(e.args))

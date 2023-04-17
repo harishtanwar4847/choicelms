@@ -72,7 +72,7 @@ class UserToken(Document):
                     email_otp = email_otp.replace("investor_name", doc[0].full_name)
                     email_otp = email_otp.replace("token_type", token_type)
                     email_otp = email_otp.replace("token", self.token)
-                    if self.token_type != "Withdraw OTP":
+                    if self.token_type not in ["Withdraw OTP", "Sell Collateral OTP"]:
                         frappe.enqueue(
                             method=frappe.sendmail,
                             recipients=[doc[0].email],
@@ -125,6 +125,7 @@ class UserToken(Document):
                     token=self.token,
                     otp_hash=las_settings.app_identification_hash_string,
                 )
+                mess = ""
             if self.token_type == "Lien OTP":
                 mess = """<#> Dear customer, use the Lien OTP {token} to complete your process of pledging the Mutual Fund holdings.
 
