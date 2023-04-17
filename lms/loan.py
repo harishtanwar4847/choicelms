@@ -1610,7 +1610,6 @@ def loan_withdraw_request(**kwargs):
                     default_bank = i.name
                     break
             data["bank_account_name"] = default_bank
-        print(data.get("bank_account_name"), "data.get(bank_account_name")
         bank_account = frappe.get_doc(
             "User Bank Account", data.get("bank_account_name")
         )

@@ -157,13 +157,11 @@ def send_otp(entity):
 
 
 def verify_user_token(entity, token, token_type):
-    print("hi")
     filters = {"entity": entity, "token": token, "token_type": token_type, "used": 0}
 
     token_name = frappe.db.get_value("User Token", filters, "name")
 
     if not token_name:
-        print("hi exception")
         raise InvalidUserTokenException("Invalid {}".format(token_type))
 
     return frappe.get_doc("User Token", token_name)
@@ -694,9 +692,9 @@ def random_token(length=10, is_numeric=False):
         sample_str = "".join(
             (random.choice(string.ascii_letters) for i in range(letters_count))
         )
-        # sample_str += "".join(
-        #     (random.choice(string.digits) for i in range(digits_count))
-        # )
+        sample_str += "".join(
+            (random.choice(string.digits) for i in range(digits_count))
+        )
 
     # Convert string to list and shuffle it to mix letters and digits
     sample_list = list(sample_str)
@@ -4408,17 +4406,3 @@ def send_sms_notification(customer, msg, token_type=None):
             ),
             title="Send SMS Notification Error",
         )
-
-
-@frappe.whitelist(allow_guest=True)
-def asach(data):
-    try:
-        url = "http://localhost:8000/api/method/lms.auth.register"
-        headers = {"Accept": "application/json", "Content-Type": "application/json"}
-        requests.post(url, headers=headers, data=json.dumps(data))
-        # user = lms.create_user(**data)
-        # customer = lms.create_customer(user)
-        # frappe.db.commit()
-        # data_list.append(data)
-    except Exception:
-        frappe.log_error()
