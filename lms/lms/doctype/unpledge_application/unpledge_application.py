@@ -750,7 +750,7 @@ def initiate_revoc(unpledge_application_name):
                         data = {
                             "revocinitiate": {
                                 "reqrefno": i.revoc_ref_no,
-                                "revoctoken": i.revoctoken,
+                                "revoctoken": i.revoc_token,
                                 "lienrefno": i.prf,
                                 "pan": user_kyc.pan_no,
                                 "regemailid": customer.mycams_email_id,
