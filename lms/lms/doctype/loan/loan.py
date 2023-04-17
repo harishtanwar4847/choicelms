@@ -624,6 +624,7 @@ class Loan(Document):
 
             # adding new items if any
             for i in collateral_list_map.values():
+                print("collateral_list_map.values()", collateral_list_map.values())
                 loan_item = frappe.get_doc(
                     {
                         "doctype": "Loan Item",
@@ -633,6 +634,7 @@ class Loan(Document):
                         "pledged_quantity": i.quantity,
                         "price": i.price,
                         "eligible_percentage": i.eligible_percentage,
+                        "folio": i.folio,
                     }
                 )
 
