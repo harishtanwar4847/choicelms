@@ -141,10 +141,15 @@ class SellCollateralApplication(Document):
         )
 
         for i in self.sell_items:
+            psn = frappe.db.sql(
+                """select psn from `tabSell Collateral Application Sell Item` where name = '{name}' and isin = '{isin}' and folio = '{folio}'""".format(
+                    name=i.name, isin=i.isin, folio=i.folio
+                )
+            )[0][0]
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                psn if psn else "",
             )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
@@ -157,12 +162,16 @@ class SellCollateralApplication(Document):
                 )
             if self.instrument_type == "Mutual Fund":
                 frappe.log_error(
-                    "{}\n{}\n{}\n{}\n{}".format(
-                        str(sell_requested_quantity_map),
-                        str(sell_requested_quantity_map.get(isin_folio_combo)),
-                        str(i.sell_quantity),
-                        str(isin_folio_combo),
-                        str(i.psn),
+                    "sell_requested_quantity_map : {}".format(
+                        str(sell_requested_quantity_map)
+                        + "\n(sell_requested_quantity_map.get(isin_folio_combo)) : {}".format(
+                            str(sell_requested_quantity_map.get(isin_folio_combo)),
+                        )
+                        + "\n i.sell_quantity) :{}".format(str(i.sell_quantity))
+                        + "\n (isin_folio_combo{}".format(
+                            str(isin_folio_combo),
+                        )
+                        + "\nstr(i.psn) :{}".format(str(i.psn))
                     )
                 )
                 if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:

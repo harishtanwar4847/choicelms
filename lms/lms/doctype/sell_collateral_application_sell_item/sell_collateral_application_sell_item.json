@@ -8,12 +8,12 @@
   "isin",
   "security_name",
   "security_category",
-  "psn",
   "quantity",
   "sell_quantity",
   "price",
   "pledgor_boid",
   "pledgee_boid",
+  "psn",
   "column_break_10",
   "date_of_pledge",
   "prf",
@@ -39,13 +39,6 @@
    "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Security/Scheme Name",
-   "read_only": 1
-  },
-  {
-   "fieldname": "psn",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "PSN/Lien Mark Number",
    "read_only": 1
   },
   {
@@ -134,11 +127,16 @@
    "fieldname": "date_of_pledge",
    "fieldtype": "Data",
    "label": "Date of Pledge"
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-09-29 11:43:41.140066",
+ "modified": "2023-04-17 10:50:16.415231",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",

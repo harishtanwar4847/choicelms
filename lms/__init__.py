@@ -3611,7 +3611,7 @@ def au_pennydrop_api(data, kyc_full_name):
 
 
 def truncate_float_to_decimals(number, digits):
-    return math.floor(number * 10**digits) / 10**digits
+    return math.floor(number * 10 ** digits) / 10 ** digits
 
 
 def name_matching(user_kyc, bank_acc_full_name):
