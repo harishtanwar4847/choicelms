@@ -72,16 +72,17 @@ class UserToken(Document):
                     email_otp = email_otp.replace("investor_name", doc[0].full_name)
                     email_otp = email_otp.replace("token_type", token_type)
                     email_otp = email_otp.replace("token", self.token)
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[doc[0].email],
-                        sender=None,
-                        subject="OTP for Spark Loans",
-                        message=email_otp,
-                        queue="short",
-                        delayed=False,
-                        job_name="Spark OTP on Email",
-                    )
+                    if self.token_type != "Withdraw OTP":
+                        frappe.enqueue(
+                            method=frappe.sendmail,
+                            recipients=[doc[0].email],
+                            sender=None,
+                            subject="OTP for Spark Loans",
+                            message=email_otp,
+                            queue="short",
+                            delayed=False,
+                            job_name="Spark OTP on Email",
+                        )
 
             if self.token_type == "OTP":
                 mess = """<#> Dear customer, your login OTP is {token}. Thank you for choosing Spark Loans. Do not share OTP for security reasons. Valid for 10 mins
@@ -107,6 +108,7 @@ class UserToken(Document):
                     token=self.token,
                     otp_hash=las_settings.app_identification_hash_string,
                 )
+                mess = ""
             if self.token_type == "Unpledge OTP":
                 mess = """<#> Dear customer, use OTP {token} for un-pledging securities at Spark Loans. Keep it confidential and enter to complete the request. Valid for 10 mins
 
