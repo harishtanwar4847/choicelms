@@ -145,13 +145,12 @@ class SellCollateralApplication(Document):
                 """select psn from `tabSell Collateral Application Sell Item` where name = '{name}' and isin = '{isin}' and folio = '{folio}'""".format(
                     name=i.name, isin=i.isin, folio=i.folio
                 )
-            )[0][0]
+            )
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                psn if psn else "",
+                psn[0][0] if psn else "",
             )
-            print("isin_folio_combo", isin_folio_combo)
             if i.sell_quantity > i.quantity:
                 frappe.throw(
                     msg.format(
