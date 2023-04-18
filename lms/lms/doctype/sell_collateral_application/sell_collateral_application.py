@@ -141,15 +141,17 @@ class SellCollateralApplication(Document):
         )
 
         for i in self.sell_items:
-            psn = frappe.db.sql(
-                """select psn from `tabSell Collateral Application Sell Item` where name = '{name}' and isin = '{isin}' and folio = '{folio}'""".format(
-                    name=i.name, isin=i.isin, folio=i.folio
-                )
-            )
+            # psn = frappe.db.sql(
+            #     """select psn from `tabSell Collateral Application Sell Item` where name = '{name}' and isin = '{isin}' and folio = '{folio}'""".format(
+            #         name=i.name, isin=i.isin, folio=i.folio
+            #     )
+            # )
+            print("psn", i.psn)
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                psn[0][0] if psn else "",
+                i.psn if i.psn else "",
+                # psn[0][0] if psn else "",
             )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
