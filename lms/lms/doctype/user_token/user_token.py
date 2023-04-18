@@ -111,7 +111,6 @@ class UserToken(Document):
                 mess = ""
             if self.token_type == "Unpledge OTP":
                 mess = """<#> Dear customer, use OTP {token} for un-pledging securities at Spark Loans. Keep it confidential and enter to complete the request. Valid for 10 mins
-
 {otp_hash}
 - Spark Loans""".format(
                     token=self.token,
