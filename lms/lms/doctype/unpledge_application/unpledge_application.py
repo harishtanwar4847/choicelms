@@ -608,15 +608,24 @@ def validate_revoc(unpledge_application_name):
                                     # i.revoke_validate_remarks = isin_details.get(
                                     #     isin_folio_combo
                                     # ).get("remarks")
-                                    frappe.db.set_value(
-                                        "Unpledge Application Unpledged Item",
-                                        i.name,
-                                        {
-                                            "revoke_validate_remarks": isin_details.get(
+                                    frappe.db.sql(
+                                        """update `tabUnpledge Application Unpledged Item` set revoke_validate_remarks = {message} where name = {name}""".format(
+                                            message=isin_details.get(
                                                 isin_folio_combo
                                             ).get("remarks"),
-                                        },
+                                            name=i.name,
+                                        )
                                     )
+                                    frappe.db.commit()
+                                    # frappe.db.set_value(
+                                    #     "Unpledge Application Unpledged Item",
+                                    #     i.name,
+                                    #     {
+                                    #         "revoke_validate_remarks": isin_details.get(
+                                    #             isin_folio_combo
+                                    #         ).get("remarks"),
+                                    #     },
+                                    # )
 
                             # success.append(dict_decrypted_response.get("revocvalidate").get("message"))
                             # if (
@@ -671,10 +680,18 @@ def validate_revoc(unpledge_application_name):
                                 )
 
                         else:
-                            unpledge_application_doc.validate_message = (
-                                dict_decrypted_response.get("status")[0].get("error")
+                            frappe.db.sql(
+                                """update `tabUnpledge Application` set validate_message = '{message}' where name ='{name}'""".format(
+                                    message=dict_decrypted_response.get("status")[
+                                        0
+                                    ].get("error"),
+                                    name=unpledge_application_doc.name,
+                                )
                             )
-                            unpledge_application_doc.save(ignore_permissions=True)
+                            # unpledge_application_doc.validate_message = (
+                            #     dict_decrypted_response.get("status")[0].get("error")
+                            # )
+                            # unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
 
                         prf_list.append(prf[0].prf)
