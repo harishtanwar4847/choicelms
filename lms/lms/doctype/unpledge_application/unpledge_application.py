@@ -604,10 +604,19 @@ def validate_revoc(unpledge_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
+                                frappe.log_error(
+                                    "isin_details : {}".format(
+                                        str(isin_details)
+                                        + "\n (isin_folio_combo{}".format(
+                                            str(isin_folio_combo)
+                                        )
+                                    )
+                                )
                                 if isin_folio_combo in isin_details:
                                     # i.revoke_validate_remarks = isin_details.get(
                                     #     isin_folio_combo
                                     # ).get("remarks")
+
                                     frappe.db.sql(
                                         """update `tabUnpledge Application Unpledged Item` set revoke_validate_remarks = {message} where name = {name}""".format(
                                             message=isin_details.get(
