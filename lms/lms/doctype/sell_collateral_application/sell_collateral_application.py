@@ -735,8 +735,11 @@ def validate_invoc(sell_collateral_application_name):
 
                             for i in schemedetails_res:
                                 isin_details[
-                                    "{}{}{}".format(i.get("isinno"), i.get("folio")),
-                                    i.get("psn"),
+                                    "{}{}{}".format(
+                                        i.get("isinno"),
+                                        i.get("folio"),
+                                        i.get("lienmarkno"),
+                                    ),
                                 ] = i
 
                             for i in sell_collateral_application_doc.sell_items:
@@ -744,12 +747,13 @@ def validate_invoc(sell_collateral_application_name):
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
                                 frappe.log_error(
-                                    "isin_details : {}".format(
+                                    title="NAcho",
+                                    message="isin_details : {}".format(
                                         str(isin_details)
                                         + "\n (isin_folio_combo{}".format(
                                             str(isin_folio_combo)
                                         )
-                                    )
+                                    ),
                                 )
                                 if isin_folio_combo in isin_details:
                                     # i.invoke_validate_remarks = isin_details.get(

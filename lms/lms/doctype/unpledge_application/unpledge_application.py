@@ -597,7 +597,9 @@ def validate_revoc(unpledge_application_name):
                             for i in schemedetails_res:
                                 isin_details[
                                     "{}{}{}".format(
-                                        i.get("isinno"), i.get("folio"), i.get("psn")
+                                        i.get("isinno"),
+                                        i.get("folio"),
+                                        i.get("lienmarkno"),
                                     )
                                 ] = i
                             for i in unpledge_application_doc.unpledge_items:
