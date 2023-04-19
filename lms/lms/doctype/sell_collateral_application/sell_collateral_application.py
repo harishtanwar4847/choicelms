@@ -756,18 +756,9 @@ def validate_invoc(sell_collateral_application_name):
                                     ),
                                 )
                                 if isin_folio_combo in isin_details:
-                                    # i.invoke_validate_remarks = isin_details.get(
-                                    #     isin_folio_combo
-                                    # ).get("remarks")
-                                    frappe.db.sql(
-                                        """update `tabSell Collateral Application Sell Item` set invoke_validate_remarks = '{message}' where name = '{name}'""".format(
-                                            message=isin_details.get(
-                                                isin_folio_combo
-                                            ).get("remarks"),
-                                            name=i.name,
-                                        )
-                                    )
-                                    frappe.db.commit()
+                                    i.invoke_validate_remarks = isin_details.get(
+                                        isin_folio_combo
+                                    ).get("remarks")
 
                             # if (
                             #     dict_decrypted_response.get("invocvalidate").get("message")
