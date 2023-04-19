@@ -1873,8 +1873,8 @@ class Loan(Document):
         #         frappe.throw("W.e.f date should be Current date or Future date")
         # if exp and exp < frappe.utils.now_datetime().date():
 
-        if exp != old_wef_date and exp < frappe.utils.now_datetime().date():
-            frappe.throw("W.e.f date should be Current date or Future date")
+        # if exp != old_wef_date and exp < frappe.utils.now_datetime().date():
+        #     frappe.throw("W.e.f date should be Current date or Future date")
 
         if self.balance:
             if self.balance > 0:

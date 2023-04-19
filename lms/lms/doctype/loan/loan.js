@@ -2,8 +2,15 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Loan", {
+  validate: function (frm) {
+    if (
+      frm.doc.wef_date != frm.doc.old_wef_date &&
+      frm.doc.wef_date < frappe.datetime.now_date()
+    ) {
+      frappe.throw("W.e.f date should be Current date or Future date");
+    }
+  },
   is_default: function (frm) {
-    console.log("akash");
     if (frm.doc.is_default == 0) {
       frm.set_value("custom_base_interest", 0);
       frm.set_value("custom_rebate_interest", 0);

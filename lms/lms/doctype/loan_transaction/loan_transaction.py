@@ -560,7 +560,7 @@ class LoanTransaction(Document):
                 # mess = frappe.get_doc(
                 #     "Spark SMS Notification", "Withdrawal rejected"
                 # ).message
-                lms.send_sms_notification(customer=customer, msg=mess)
+                # lms.send_sms_notification(customer=customer, msg=mess)
                 mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
