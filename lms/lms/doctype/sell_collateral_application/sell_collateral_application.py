@@ -760,7 +760,7 @@ def validate_invoc(sell_collateral_application_name):
                                     #     isin_folio_combo
                                     # ).get("remarks")
                                     frappe.db.sql(
-                                        """update `tabSell Collateral Application Sell Item` set invoke_validate_remarks = {message} where name = {name}""".format(
+                                        """update `tabSell Collateral Application Sell Item` set invoke_validate_remarks = '{message}' where name = '{name}'""".format(
                                             message=isin_details.get(
                                                 isin_folio_combo
                                             ).get("remarks"),
@@ -815,12 +815,13 @@ def validate_invoc(sell_collateral_application_name):
                                 )
 
                         else:
-                            sell_collateral_application_doc.validate_message = (
-                                dict_decrypted_response.get("status")[0].get("error")
-                            )
-
-                            sell_collateral_application_doc.save(
-                                ignore_permissions=True
+                            frappe.db.sql(
+                                """update `tabSell Collateral Application` set validate_message = '{message}' where name ='{name}'""".format(
+                                    message=dict_decrypted_response.get("status")[
+                                        0
+                                    ].get("error"),
+                                    name=sell_collateral_application_doc.name,
+                                )
                             )
                             frappe.db.commit()
 

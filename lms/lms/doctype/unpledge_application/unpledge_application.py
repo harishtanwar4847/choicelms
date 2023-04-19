@@ -620,7 +620,7 @@ def validate_revoc(unpledge_application_name):
                                     # ).get("remarks")
 
                                     frappe.db.sql(
-                                        """update `tabUnpledge Application Unpledged Item` set revoke_validate_remarks = {message} where name = {name}""".format(
+                                        """update `tabUnpledge Application Unpledged Item` set revoke_validate_remarks = '{message}' where name = '{name}'""".format(
                                             message=isin_details.get(
                                                 isin_folio_combo
                                             ).get("remarks"),
