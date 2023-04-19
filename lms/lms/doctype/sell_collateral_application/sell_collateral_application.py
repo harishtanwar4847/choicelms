@@ -146,7 +146,6 @@ class SellCollateralApplication(Document):
             #         name=i.name, isin=i.isin, folio=i.folio
             #     )
             # )
-            print("psn", i.psn)
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
@@ -633,7 +632,7 @@ def validate_invoc(sell_collateral_application_name):
 
             for i in sell_collateral_application_doc.sell_items:
                 prf = frappe.get_all(
-                    "Unpledge Application Unpledged Item",
+                    "Sell Collateral Application Sell Item",
                     filters={
                         "parent": sell_collateral_application_doc.name,
                         "prf": i.prf,
@@ -773,7 +772,7 @@ def validate_invoc(sell_collateral_application_name):
                                 }
                             )
                             sell_collateral_application_doc.refno = str(token_dict)
-                            if "Failure" not in success:
+                            if "FAILURE" not in success:
                                 sell_collateral_application_doc.is_validated = True
                             sell_collateral_application_doc.save(
                                 ignore_permissions=True
@@ -798,8 +797,10 @@ def validate_invoc(sell_collateral_application_name):
                                 dict_decrypted_response.get("status")[0].get("error")
                             )
 
-                        sell_collateral_application_doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                            sell_collateral_application_doc.save(
+                                ignore_permissions=True
+                            )
+                            frappe.db.commit()
 
                     except requests.RequestException as e:
                         raise utils.exceptions.APIException(str(e))

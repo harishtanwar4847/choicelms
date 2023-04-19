@@ -605,9 +605,18 @@ def validate_revoc(unpledge_application_name):
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
                                 if isin_folio_combo in isin_details:
-                                    i.revoke_validate_remarks = isin_details.get(
-                                        isin_folio_combo
-                                    ).get("remarks")
+                                    # i.revoke_validate_remarks = isin_details.get(
+                                    #     isin_folio_combo
+                                    # ).get("remarks")
+                                    frappe.db.set_value(
+                                        "Unpledge Application Unpledged Item",
+                                        i.name,
+                                        {
+                                            "revoke_validate_remarks": isin_details.get(
+                                                isin_folio_combo
+                                            ).get("remarks"),
+                                        },
+                                    )
 
                             # success.append(dict_decrypted_response.get("revocvalidate").get("message"))
                             # if (
@@ -638,8 +647,13 @@ def validate_revoc(unpledge_application_name):
                                     "revoctoken"
                                 )
                             )
-                            if "Failure" not in success:
+                            if "FAILURE" not in success:
                                 unpledge_application_doc.is_validated = True
+                            elif "FAILURE" in success and "SUCCESS" in success:
+                                unpledge_application_doc.is_validated = True
+                                unpledge_application_doc.validate_message = (
+                                    "Partial Success"
+                                )
                             unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
                             for i in prf:
