@@ -182,7 +182,9 @@ Your E-sign process is completed. You shall soon receive a confirmation of loan 
                 )
 
             elif self.status == "Approved":
-                self.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+                self.expiry_date = (
+                    loan.expiry_date + timedelta(days=no_of_days) - timedelta(days=1)
+                )
                 self.sanction_letter(check=loan.name)
 
             elif self.status == "Rejected":
@@ -281,15 +283,11 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                         fields=["*"],
                     )
                     status_list = [i["status"] for i in renewal_list_expiring]
-                    if status_list.count("Rejected") >= 2 and loan.name not in [
-                        "SL000004",
-                        "SL000026",
-                    ]:
+                    if status_list.count("Rejected") >= 2:
                         self.is_expired = 1
 
                     if (
                         status_list.count("Rejected") >= 2
-                        and loan.name in ["SL000004", "SL000026"]
                         and (self.creation.date() + timedelta(days=7))
                         == frappe.utils.now_datetime().date()
                     ):
@@ -381,7 +379,9 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
             else:
                 no_of_days = 365
 
-            expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+            expiry_date = (
+                loan.expiry_date + timedelta(days=no_of_days) - timedelta(days=1)
+            )
             loan.reload()
             # loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
             # loan.base_interest = self.base_interest
@@ -1308,11 +1308,11 @@ def all_loans_renewal_update_doc():
             queue="long",
             job_name="Renewal Timer",
         )
-        frappe.enqueue(
-            method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_doc_for_selected_customer",
-            queue="long",
-            job_name="Renewal doc for Selected Customer",
-        )
+        # frappe.enqueue(
+        #     method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_doc_for_selected_customer",
+        #     queue="long",
+        #     job_name="Renewal doc for Selected Customer",
+        # )
 
     except Exception as e:
         frappe.log_error(
@@ -1455,45 +1455,19 @@ def renewal_penal_interest(loan_name):
         if pending_renewal_doc_list:
             for renewal_doc in pending_renewal_doc_list:
                 doc = frappe.get_doc("Spark Loan Renewal Application", renewal_doc.name)
-                aala = (
-                    (
-                        not user_kyc
-                        and not user_kyc_approved
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                    )
-                    or (
-                        user_kyc_approved
-                        and not user_kyc
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                        and (is_expired_date + timedelta(days=7))
-                        > frappe.utils.now_datetime().date()
-                        and doc.status == "Pending"
-                    )
-                ) and (loan.name not in ["SL000004", "SL000026"])
-                lms.create_log(
-                    {
-                        "alo": lms.get_linenumber(),
-                        "check": str(aala),
-                        "loan": str(loan.name),
-                    },
-                    "rejected_log",
-                )
 
                 if (
-                    (
-                        not user_kyc
-                        and not user_kyc_approved
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                    )
-                    or (
-                        user_kyc_approved
-                        and not user_kyc
-                        and is_expired_date < frappe.utils.now_datetime().date()
-                        and (is_expired_date + timedelta(days=7))
-                        > frappe.utils.now_datetime().date()
-                        and doc.status == "Pending"
-                    )
-                ) and (loan.name not in ["SL000004", "SL000026"]):
+                    not user_kyc
+                    and not user_kyc_approved
+                    and is_expired_date < frappe.utils.now_datetime().date()
+                ) or (
+                    user_kyc_approved
+                    and not user_kyc
+                    and is_expired_date < frappe.utils.now_datetime().date()
+                    and (is_expired_date + timedelta(days=7))
+                    > frappe.utils.now_datetime().date()
+                    and doc.status == "Pending"
+                ):
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
@@ -1513,14 +1487,6 @@ def renewal_penal_interest(loan_name):
                     and (is_expired_date + timedelta(days=7))
                     < frappe.utils.now_datetime().date()
                 ):
-                    lms.create_log(
-                        {
-                            "alo": lms.get_linenumber(),
-                            "check": str(aala),
-                            "loan": str(loan.name),
-                        },
-                        "rejected_log",
-                    )
                     doc.tnc_show = 1
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
@@ -1609,7 +1575,6 @@ def renewal_timer(loan_renewal_name=None):
                 frappe.utils.now_datetime().date() > exp
                 and frappe.utils.now_datetime().date() <= (exp + timedelta(days=7))
                 and renewal_doc.status not in ["Approved", "Rejected"]
-                and loan.name not in ["SL000004", "SL000026"]
             ):
                 seconds = abs(
                     date_7after_expiry - frappe.utils.now_datetime()
@@ -1629,7 +1594,6 @@ def renewal_timer(loan_renewal_name=None):
                 and frappe.utils.now_datetime().date()
                 < (renewal_doc.creation.date() + timedelta(days=14))
                 and renewal_doc.status not in ["Approved", "Rejected"]
-                and loan.name in ["SL000004", "SL000026"]
             ):
                 date_time = datetime.combine(renewal_doc.creation, time.min)
                 date_7after_expiry = date_time + timedelta(days=14)
@@ -1648,7 +1612,6 @@ def renewal_timer(loan_renewal_name=None):
                 frappe.utils.now_datetime().date() > (exp + timedelta(days=7))
                 and frappe.utils.now_datetime().date() <= (exp + timedelta(days=14))
                 and user_kyc_pending
-                and loan.name not in ["SL000004", "SL000026"]
             ):
                 seconds = abs(
                     (date_7after_expiry + timedelta(days=7))
@@ -1665,11 +1628,7 @@ def renewal_timer(loan_renewal_name=None):
 
             elif renewal_doc and renewal_doc.new_kyc_name:
                 updated_kyc = frappe.get_doc("User KYC", renewal_doc.new_kyc_name)
-                if (
-                    updated_kyc
-                    and updated_kyc.kyc_status == "Approved"
-                    and loan.name not in ["SL000004", "SL000026"]
-                ):
+                if updated_kyc and updated_kyc.kyc_status == "Approved":
                     loan = frappe.get_doc("Loan", renewal_doc.loan)
                     # exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
                     is_expired_date = datetime.strptime(
@@ -1710,17 +1669,14 @@ def renewal_timer(loan_renewal_name=None):
                         )
 
             else:
-                if loan.name not in ["SL000004", "SL000026"]:
-                    seconds = 0
-                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
-                        seconds, is_for_days=True
-                    )
-                    frappe.db.set_value(
-                        "Spark Loan Renewal Application",
-                        renewal_doc.name,
-                        {"time_remaining": renewal_timer, "tnc_show": 1},
-                        update_modified=False,
-                    )
+                seconds = 0
+                renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
+                frappe.db.set_value(
+                    "Spark Loan Renewal Application",
+                    renewal_doc.name,
+                    {"time_remaining": renewal_timer, "tnc_show": 1},
+                    update_modified=False,
+                )
 
         else:
             loans = frappe.get_all("Loan", fields=["*"])
@@ -1888,11 +1844,7 @@ def loan_renewal_update_doc(loan_name):
         for i in renewal_doc_list:
             doc = frappe.get_doc("Spark Loan Renewal Application", i.name)
             exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-            if (
-                exp < frappe.utils.now_datetime().date()
-                and doc.is_expired == 0
-                and loan.name not in ["SL000004", "SL000026"]
-            ):
+            if exp < frappe.utils.now_datetime().date() and doc.is_expired == 0:
                 doc.is_expired = 1
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
@@ -1901,7 +1853,6 @@ def loan_renewal_update_doc(loan_name):
                 doc.creation.date() + timedelta(days=7)
                 == frappe.utils.now_datetime().date()
                 and doc.is_expired == 0
-                and loan.name in ["SL000004", "SL000026"]
             ):
                 doc.is_expired = 1
                 doc.save(ignore_permissions=True)
@@ -2266,228 +2217,228 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
         )
 
 
-def renewal_doc_for_selected_customer():
-    try:
-        loan_name_list = ["SL000004", "SL000026"]
-        las_settings = frappe.get_single("LAS Settings")
-        for i in loan_name_list:
-            loan = frappe.get_doc("Loan", str(i))
-            # las_settings = frappe.get_single("LAS Settings")
-            # str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
-            #     "%d/%m/%Y"
-            # )
-            # renewal_doc_list = frappe.get_all(
-            #     "Spark Loan Renewal Application",
-            #     filters={"loan": loan.name, "status": ["!=", "Rejected"]},
-            #     fields=["name"],
-            # )
-            pending_renewal_doc_list = frappe.get_all(
-                "Spark Loan Renewal Application",
-                filters={"loan": loan.name, "status": "Pending"},
-                fields=["*"],
-            )
-            try:
-                customer = frappe.get_doc("Loan Customer", loan.customer)
-            except Exception:
-                frappe.log_error(
-                    message=frappe.get_traceback(),
-                    title=(_("Loan Customer {} not found".format(loan.customer))),
-                )
-            user_kyc = frappe.get_all(
-                "User KYC",
-                filters={
-                    "user": customer.user,
-                    "updated_kyc": 1,
-                    "kyc_status": "Pending",
-                },
-                fields=["*"],
-            )
-            user_kyc_approved = frappe.get_all(
-                "User KYC",
-                filters={
-                    "user": customer.user,
-                    "updated_kyc": 1,
-                    "kyc_status": "Approved",
-                },
-                fields=["*"],
-            )
-            existing_renewal_doc = frappe.get_all(
-                "Spark Loan Renewal Application", filters={"loan": i}
-            )
-            if not existing_renewal_doc and len(loan.items) > 0:
-                wef_date = loan.wef_date
-                if type(wef_date) is str:
-                    wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-                custom_base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_base_interest
-                )
-                custom_rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_rebate_interest
-                )
-                renewal_doc = frappe.get_doc(
-                    dict(
-                        doctype="Spark Loan Renewal Application",
-                        loan=loan.name,
-                        lender=loan.lender,
-                        old_kyc_name=customer.choice_kyc,
-                        total_collateral_value=loan.total_collateral_value,
-                        sanctioned_limit=loan.sanctioned_limit,
-                        drawing_power=loan.drawing_power,
-                        customer=customer.name,
-                        customer_name=customer.full_name,
-                        custom_base_interest=custom_base_interest,
-                        custom_rebate_interest=custom_rebate_interest,
-                        remarks="",
-                    )
-                ).insert(ignore_permissions=True)
-                frappe.db.commit()
-                str_exp = "18/04/2023"
-                email_expiry = frappe.db.sql(
-                    "select message from `tabNotification` where name='Loan Renewal Reminder';"
-                )[0][0]
-                email_expiry = email_expiry.replace("loan_name", str(loan.name))
-                email_expiry = email_expiry.replace("expiry_date", str_exp)
-                email_expiry = email_expiry.replace(
-                    "dlt_link", str(las_settings.app_login_dashboard)
-                )
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[customer.user],
-                    sender=None,
-                    subject="Loan Renewal Reminder",
-                    message=email_expiry,
-                    queue="short",
-                    delayed=False,
-                    job_name="Loan Renewal Reminder",
-                )
-                msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
-                    loan_name=loan.name,
-                    expiry_date=str_exp,
-                    link=las_settings.app_login_dashboard,
-                )
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification",
-                    "Loan Renewal Reminder",
-                    fields=["*"],
-                )
-                send_spark_push_notification(
-                    fcm_notification=fcm_notification,
-                    loan=loan.name,
-                    customer=customer,
-                )
-                if msg:
-                    receiver_list = [str(customer.phone)]
-                    if customer.get_kyc().mob_num:
-                        receiver_list.append(str(customer.get_kyc().mob_num))
-                    if customer.get_kyc().choice_mob_no:
-                        receiver_list.append(str(customer.get_kyc().choice_mob_no))
+# def renewal_doc_for_selected_customer():
+#     try:
+#         loan_name_list = ["SL000004", "SL000026"]
+#         las_settings = frappe.get_single("LAS Settings")
+#         for i in loan_name_list:
+#             loan = frappe.get_doc("Loan", str(i))
+#             # las_settings = frappe.get_single("LAS Settings")
+#             # str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+#             #     "%d/%m/%Y"
+#             # )
+#             # renewal_doc_list = frappe.get_all(
+#             #     "Spark Loan Renewal Application",
+#             #     filters={"loan": loan.name, "status": ["!=", "Rejected"]},
+#             #     fields=["name"],
+#             # )
+#             pending_renewal_doc_list = frappe.get_all(
+#                 "Spark Loan Renewal Application",
+#                 filters={"loan": loan.name, "status": "Pending"},
+#                 fields=["*"],
+#             )
+#             try:
+#                 customer = frappe.get_doc("Loan Customer", loan.customer)
+#             except Exception:
+#                 frappe.log_error(
+#                     message=frappe.get_traceback(),
+#                     title=(_("Loan Customer {} not found".format(loan.customer))),
+#                 )
+#             user_kyc = frappe.get_all(
+#                 "User KYC",
+#                 filters={
+#                     "user": customer.user,
+#                     "updated_kyc": 1,
+#                     "kyc_status": "Pending",
+#                 },
+#                 fields=["*"],
+#             )
+#             user_kyc_approved = frappe.get_all(
+#                 "User KYC",
+#                 filters={
+#                     "user": customer.user,
+#                     "updated_kyc": 1,
+#                     "kyc_status": "Approved",
+#                 },
+#                 fields=["*"],
+#             )
+#             existing_renewal_doc = frappe.get_all(
+#                 "Spark Loan Renewal Application", filters={"loan": i}
+#             )
+#             if not existing_renewal_doc and len(loan.items) > 0:
+#                 wef_date = loan.wef_date
+#                 if type(wef_date) is str:
+#                     wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+#                 custom_base_interest = (
+#                     loan.old_interest
+#                     if wef_date >= frappe.utils.now_datetime().date()
+#                     else loan.custom_base_interest
+#                 )
+#                 custom_rebate_interest = (
+#                     loan.old_rebate_interest
+#                     if wef_date >= frappe.utils.now_datetime().date()
+#                     else loan.custom_rebate_interest
+#                 )
+#                 renewal_doc = frappe.get_doc(
+#                     dict(
+#                         doctype="Spark Loan Renewal Application",
+#                         loan=loan.name,
+#                         lender=loan.lender,
+#                         old_kyc_name=customer.choice_kyc,
+#                         total_collateral_value=loan.total_collateral_value,
+#                         sanctioned_limit=loan.sanctioned_limit,
+#                         drawing_power=loan.drawing_power,
+#                         customer=customer.name,
+#                         customer_name=customer.full_name,
+#                         custom_base_interest=custom_base_interest,
+#                         custom_rebate_interest=custom_rebate_interest,
+#                         remarks="",
+#                     )
+#                 ).insert(ignore_permissions=True)
+#                 frappe.db.commit()
+#                 str_exp = "18/04/2023"
+#                 email_expiry = frappe.db.sql(
+#                     "select message from `tabNotification` where name='Loan Renewal Reminder';"
+#                 )[0][0]
+#                 email_expiry = email_expiry.replace("loan_name", str(loan.name))
+#                 email_expiry = email_expiry.replace("expiry_date", str_exp)
+#                 email_expiry = email_expiry.replace(
+#                     "dlt_link", str(las_settings.app_login_dashboard)
+#                 )
+#                 frappe.enqueue(
+#                     method=frappe.sendmail,
+#                     recipients=[customer.user],
+#                     sender=None,
+#                     subject="Loan Renewal Reminder",
+#                     message=email_expiry,
+#                     queue="short",
+#                     delayed=False,
+#                     job_name="Loan Renewal Reminder",
+#                 )
+#                 msg = """Dear Customer,
+# Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
+#                     loan_name=loan.name,
+#                     expiry_date=str_exp,
+#                     link=las_settings.app_login_dashboard,
+#                 )
+#                 fcm_notification = frappe.get_doc(
+#                     "Spark Push Notification",
+#                     "Loan Renewal Reminder",
+#                     fields=["*"],
+#                 )
+#                 send_spark_push_notification(
+#                     fcm_notification=fcm_notification,
+#                     loan=loan.name,
+#                     customer=customer,
+#                 )
+#                 if msg:
+#                     receiver_list = [str(customer.phone)]
+#                     if customer.get_kyc().mob_num:
+#                         receiver_list.append(str(customer.get_kyc().mob_num))
+#                     if customer.get_kyc().choice_mob_no:
+#                         receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                    receiver_list = list(set(receiver_list))
+#                     receiver_list = list(set(receiver_list))
 
-                    frappe.enqueue(
-                        method=send_sms,
-                        receiver_list=receiver_list,
-                        msg=msg,
-                    )
+#                     frappe.enqueue(
+#                         method=send_sms,
+#                         receiver_list=receiver_list,
+#                         msg=msg,
+#                     )
 
-            else:
-                renewal_doc = frappe.get_doc(
-                    "Spark Loan Renewal Application", existing_renewal_doc[0].name
-                )
+#             else:
+#                 renewal_doc = frappe.get_doc(
+#                     "Spark Loan Renewal Application", existing_renewal_doc[0].name
+#                 )
 
-            # grace_7days = datetime.strftime(frappe.utils.now_datetime().date(), "%Y-%m-%d")
+#             # grace_7days = datetime.strftime(frappe.utils.now_datetime().date(), "%Y-%m-%d")
 
-            if type(renewal_doc.creation) == str:
-                grace_7th = datetime.strptime(
-                    renewal_doc.creation, "%Y-%m-%d %H:%M:%S.%f"
-                )
-            else:
-                grace_7th = renewal_doc.creation
+#             if type(renewal_doc.creation) == str:
+#                 grace_7th = datetime.strptime(
+#                     renewal_doc.creation, "%Y-%m-%d %H:%M:%S.%f"
+#                 )
+#             else:
+#                 grace_7th = renewal_doc.creation
 
-            current_date = frappe.utils.now_datetime().date()
-            exp = grace_7th.date()
-            greater_than_7 = exp + timedelta(days=7)
-            more_than_7 = greater_than_7 + timedelta(days=7)
-            applications = []
+#             current_date = frappe.utils.now_datetime().date()
+#             exp = grace_7th.date()
+#             greater_than_7 = exp + timedelta(days=7)
+#             more_than_7 = greater_than_7 + timedelta(days=7)
+#             applications = []
 
-            # grace_7th_expiry = datetime.strftime(grace_7th_expiry, "%Y-%m-%d") + timedelta(days=7)
-            if (
-                current_date > greater_than_7
-                and current_date < more_than_7
-                and (
-                    (
-                        pending_renewal_doc_list
-                        and not user_kyc
-                        and not user_kyc_approved
-                    )
-                    or (user_kyc_approved and pending_renewal_doc_list)
-                )
-            ):
-                top_up_application = frappe.get_all(
-                    "Top up Application",
-                    filters={
-                        "loan": loan.name,
-                        "status": ["IN", ["Pending", "Esign Done"]],
-                    },
-                    fields=["name"],
-                )
-                for i in top_up_application:
-                    applications.append(i)
-                loan_application = frappe.get_all(
-                    "Loan Application",
-                    filters={
-                        "loan": loan.name,
-                    },
-                    fields=["name"],
-                )
-                for i in loan_application:
-                    applications.append(i)
-                if not top_up_application and not loan_application:
-                    current_year = frappe.utils.now_datetime().strftime("%Y")
-                    current_year = int(current_year)
-                    if (
-                        (current_year % 400 == 0)
-                        or (current_year % 100 != 0)
-                        and (current_year % 4 == 0)
-                    ):
-                        no_of_days = 366
-                    # Else it is not a leap year
-                    else:
-                        no_of_days = 365
-                    renewal_penal_interest = frappe.get_doc("Lender", loan.lender)
-                    daily_penal_interest = (
-                        float(renewal_penal_interest.renewal_penal_interest)
-                        / no_of_days
-                    )
-                    amount = loan.balance * (daily_penal_interest / 100)
-                    penal_interest_transaction = frappe.get_doc(
-                        {
-                            "doctype": "Loan Transaction",
-                            "loan": loan.name,
-                            "lender": loan.lender,
-                            "transaction_type": "Penal Interest",
-                            "record_type": "DR",
-                            "amount": round(amount, 2),
-                            "unpaid_interest": round(amount, 2),
-                            "time": current_date,
-                        }
-                    )
-                    penal_interest_transaction.insert(ignore_permissions=True)
-                    penal_interest_transaction.transaction_id = (
-                        penal_interest_transaction.name
-                    )
-                    penal_interest_transaction.status = "Approved"
-                    penal_interest_transaction.workflow_state = "Approved"
-                    penal_interest_transaction.docstatus = 1
-                    penal_interest_transaction.save(ignore_permissions=True)
-                    frappe.db.commit()
-    except Exception:
-        frappe.log_error(
-            message=frappe.get_traceback() + "\n loan name : {}".format(str(loan.name)),
-            title=_("Loan Renewal Application - Update Doc"),
-        )
+#             # grace_7th_expiry = datetime.strftime(grace_7th_expiry, "%Y-%m-%d") + timedelta(days=7)
+#             if (
+#                 current_date > greater_than_7
+#                 and current_date < more_than_7
+#                 and (
+#                     (
+#                         pending_renewal_doc_list
+#                         and not user_kyc
+#                         and not user_kyc_approved
+#                     )
+#                     or (user_kyc_approved and pending_renewal_doc_list)
+#                 )
+#             ):
+#                 top_up_application = frappe.get_all(
+#                     "Top up Application",
+#                     filters={
+#                         "loan": loan.name,
+#                         "status": ["IN", ["Pending", "Esign Done"]],
+#                     },
+#                     fields=["name"],
+#                 )
+#                 for i in top_up_application:
+#                     applications.append(i)
+#                 loan_application = frappe.get_all(
+#                     "Loan Application",
+#                     filters={
+#                         "loan": loan.name,
+#                     },
+#                     fields=["name"],
+#                 )
+#                 for i in loan_application:
+#                     applications.append(i)
+#                 if not top_up_application and not loan_application:
+#                     current_year = frappe.utils.now_datetime().strftime("%Y")
+#                     current_year = int(current_year)
+#                     if (
+#                         (current_year % 400 == 0)
+#                         or (current_year % 100 != 0)
+#                         and (current_year % 4 == 0)
+#                     ):
+#                         no_of_days = 366
+#                     # Else it is not a leap year
+#                     else:
+#                         no_of_days = 365
+#                     renewal_penal_interest = frappe.get_doc("Lender", loan.lender)
+#                     daily_penal_interest = (
+#                         float(renewal_penal_interest.renewal_penal_interest)
+#                         / no_of_days
+#                     )
+#                     amount = loan.balance * (daily_penal_interest / 100)
+#                     penal_interest_transaction = frappe.get_doc(
+#                         {
+#                             "doctype": "Loan Transaction",
+#                             "loan": loan.name,
+#                             "lender": loan.lender,
+#                             "transaction_type": "Penal Interest",
+#                             "record_type": "DR",
+#                             "amount": round(amount, 2),
+#                             "unpaid_interest": round(amount, 2),
+#                             "time": current_date,
+#                         }
+#                     )
+#                     penal_interest_transaction.insert(ignore_permissions=True)
+#                     penal_interest_transaction.transaction_id = (
+#                         penal_interest_transaction.name
+#                     )
+#                     penal_interest_transaction.status = "Approved"
+#                     penal_interest_transaction.workflow_state = "Approved"
+#                     penal_interest_transaction.docstatus = 1
+#                     penal_interest_transaction.save(ignore_permissions=True)
+#                     frappe.db.commit()
+#     except Exception:
+#         frappe.log_error(
+#             message=frappe.get_traceback() + "\n loan name : {}".format(str(loan.name)),
+#             title=_("Loan Renewal Application - Update Doc"),
+#         )
