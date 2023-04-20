@@ -975,6 +975,20 @@ def initiate_invoc(sell_collateral_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
+                                frappe.log_error(
+                                    title="Invocation - initate logging",
+                                    message="\nisin_folio_combo :{}".format(
+                                        str(isin_folio_combo)
+                                    )
+                                    + "\nisin_details :{}".format(str(isin_details))
+                                    + "\n new_psn = {}".format(
+                                        str(
+                                            isin_details.get(isin_folio_combo).get(
+                                                "invocrefno"
+                                            )
+                                        )
+                                    ),
+                                )
                                 if (
                                     isin_folio_combo in isin_details
                                     and dict_decrypted_response.get(

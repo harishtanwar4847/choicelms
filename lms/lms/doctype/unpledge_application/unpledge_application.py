@@ -854,6 +854,20 @@ def initiate_revoc(unpledge_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("lienmarkno")
                                 )
+                                frappe.log_error(
+                                    title="Revoc - initate logging",
+                                    message="\nisin_folio_combo :{}".format(
+                                        str(isin_folio_combo)
+                                    )
+                                    + "\nisin_details :{}".format(str(isin_details))
+                                    + "\n new_psn = {}".format(
+                                        str(
+                                            isin_details.get(isin_folio_combo).get(
+                                                "revoc_refno"
+                                            )
+                                        )
+                                    ),
+                                )
                                 if isin_folio_combo in isin_details:
                                     i.revoke_initiate_remarks = isin_details.get(
                                         isin_folio_combo
