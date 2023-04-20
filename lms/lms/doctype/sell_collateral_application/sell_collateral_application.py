@@ -668,21 +668,25 @@ def validate_invoc(sell_collateral_application_name):
                                 "schemedetails": [],
                             }
                         }
-                        schemedetails = (
-                            {
-                                "amccode": i.amc_code,
-                                "folio": i.folio,
-                                "schemecode": i.scheme_code,
-                                "schemename": i.security_name,
-                                "isinno": i.isin,
-                                "schemetype": sell_collateral_application_doc.scheme_type,
-                                "schemecategory": i.security_category,
-                                "lienunit": i.quantity,
-                                "invocationunit": i.sell_quantity,
-                                "lienmarkno": i.psn,
-                            },
-                        )
-                        data["invocvalidate"]["schemedetails"].append(schemedetails[0])
+                        for i in prf:
+                            schemedetails = (
+                                {
+                                    "amccode": i.amc_code,
+                                    "folio": i.folio,
+                                    "schemecode": i.scheme_code,
+                                    "schemename": i.security_name,
+                                    "isinno": i.isin,
+                                    "schemetype": sell_collateral_application_doc.scheme_type,
+                                    "schemecategory": i.security_category,
+                                    "lienunit": i.quantity,
+                                    "invocationunit": i.sell_quantity,
+                                    "lienmarkno": i.psn,
+                                },
+                            )
+                            data["invocvalidate"]["schemedetails"].append(
+                                schemedetails[0]
+                            )
+                        ("data", data)
 
                         lms.create_log(
                             {
