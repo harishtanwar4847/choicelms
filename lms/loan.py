@@ -992,7 +992,6 @@ def loan_details(**kwargs):
                 "transactions_start": "",
             },
         )
-
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
             # return utils.respondWithFailure(
@@ -1388,6 +1387,13 @@ def loan_details(**kwargs):
                     ),
                     as_dict=1,
                 )
+                psn = frappe.db.sql(
+                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge' and isin = '{isin}'""".format(
+                        prf=i.prf, isin=i.isin
+                    ),
+                    as_dict=1,
+                )
+                sql[0]["psn"] = psn[0]["psn"]
                 collateral_ledger_list.extend(sql)
 
         res = {
@@ -2663,6 +2669,13 @@ def loan_unpledge_details(**kwargs):
                     ),
                     as_dict=1,
                 )
+                psn = frappe.db.sql(
+                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge' and isin = '{isin}'""".format(
+                        prf=i.prf, isin=i.isin
+                    ),
+                    as_dict=1,
+                )
+                sql[0]["psn"] = psn[0]["psn"]
                 collateral_ledger_list.extend(sql)
 
         res = {
