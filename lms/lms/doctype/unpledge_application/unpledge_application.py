@@ -852,16 +852,30 @@ def initiate_revoc(unpledge_application_name):
 
                             for i in unpledge_application_doc.unpledge_items:
                                 isin_folio_combo = "{}{}{}".format(
-                                    i.get("isin"), i.get("folio"), i.get("psn")
+                                    i.get("isin"), i.get("folio"), i.get("lienmarkno")
+                                )
+                                frappe.log_error(
+                                    title="Revoc - initate logging",
+                                    message="\nisin_folio_combo :{}".format(
+                                        str(isin_folio_combo)
+                                    )
+                                    + "\nisin_details :{}".format(str(isin_details))
+                                    + "\n new_psn = {}".format(
+                                        str(
+                                            isin_details.get(isin_folio_combo).get(
+                                                "revoc_refno"
+                                            )
+                                        )
+                                    ),
                                 )
                                 if isin_folio_combo in isin_details:
                                     i.revoke_initiate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
                                     old_psn = i.psn
-                                    i.psn = isin_details.get(isin_folio_combo).get(
-                                        "revoc_refno"
-                                    )
+                                    # i.psn = isin_details.get(isin_folio_combo).get(
+                                    # "revoc_refno"
+                                    # )
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "revoc_refno"
                                     )
@@ -870,12 +884,13 @@ def initiate_revoc(unpledge_application_name):
                                             """
                                             update `tabCollateral Ledger`
                                             set psn = '{psn}'
-                                            where loan = '{loan}' and isin = '{isin}' and folio = '{folio}'
+                                            where loan = '{loan}' and isin = '{isin}' and folio = '{folio}' and psn = '{old_psn}'
                                             """.format(
                                                 psn=new_psn,
                                                 isin=i.get("isin"),
                                                 loan=unpledge_application_doc.loan,
                                                 folio=i.get("folio"),
+                                                old_psn=old_psn,
                                             )
                                         )
 

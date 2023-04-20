@@ -972,8 +972,22 @@ def initiate_invoc(sell_collateral_application_name):
                                 ] = i
 
                             for i in sell_collateral_application_doc.sell_items:
-                                isin_folio_combo = "{}{}".format(
+                                isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
+                                )
+                                frappe.log_error(
+                                    title="Invocation - initate logging",
+                                    message="\nisin_folio_combo :{}".format(
+                                        str(isin_folio_combo)
+                                    )
+                                    + "\nisin_details :{}".format(str(isin_details))
+                                    + "\n new_psn = {}".format(
+                                        str(
+                                            isin_details.get(isin_folio_combo).get(
+                                                "invocrefno"
+                                            )
+                                        )
+                                    ),
                                 )
                                 if (
                                     isin_folio_combo in isin_details
@@ -991,32 +1005,32 @@ def initiate_invoc(sell_collateral_application_name):
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "invocrefno"
                                     )
-                                    frappe.db.set_value(
-                                        "Sell Collateral Application Sell Item",
-                                        i.name,
-                                        {
-                                            "invoke_initiate_remarks": isin_details.get(
-                                                isin_folio_combo
-                                            ).get("remarks"),
-                                            "psn": isin_details.get(
-                                                isin_folio_combo
-                                            ).get("invocrefno"),
-                                        },
-                                    )
-                                    frappe.db.sql(
-                                        """
-                                            update `tabSell Collateral Application Item`
-                                            set psn = '{psn}'
-                                            where isin = '{isin}' and folio = '{folio}' and parent = '{parent}' and psn = '{oldpsn}'
-                                            """.format(
-                                            psn=new_psn,
-                                            isin=i.get("isin"),
-                                            folio=i.get("folio"),
-                                            parent=sell_collateral_application_doc.name,
-                                            oldpsn=old_psn,
-                                        ),
-                                        debug=True,
-                                    )
+                                    # frappe.db.set_value(
+                                    #     "Sell Collateral Application Sell Item",
+                                    #     i.name,
+                                    #     {
+                                    #         "invoke_initiate_remarks": isin_details.get(
+                                    #             isin_folio_combo
+                                    #         ).get("remarks"),
+                                    #         "psn": isin_details.get(
+                                    #             isin_folio_combo
+                                    #         ).get("invocrefno"),
+                                    #     },
+                                    # )
+                                    # frappe.db.sql(
+                                    #     """
+                                    #         update `tabSell Collateral Application Item`
+                                    #         set psn = '{psn}'
+                                    #         where isin = '{isin}' and folio = '{folio}' and parent = '{parent}' and psn = '{oldpsn}'
+                                    #         """.format(
+                                    #         psn=new_psn,
+                                    #         isin=i.get("isin"),
+                                    #         folio=i.get("folio"),
+                                    #         parent=sell_collateral_application_doc.name,
+                                    #         oldpsn=old_psn,
+                                    #     ),
+                                    #     debug=True,
+                                    # )
                                     if old_psn != new_psn:
                                         frappe.db.sql(
                                             """
