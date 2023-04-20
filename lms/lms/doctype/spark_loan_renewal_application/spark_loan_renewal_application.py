@@ -1314,7 +1314,7 @@ def all_loans_renewal_update_doc():
         #     job_name="Renewal doc for Selected Customer",
         # )
 
-    except Exception as e:
+    except Exception:
         frappe.log_error(
             message=frappe.get_traceback(),
             title=_("All Loans Renewal Update Doc Error"),
@@ -1471,14 +1471,6 @@ def renewal_penal_interest(loan_name):
                     doc.status = "Rejected"
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
-                    lms.create_log(
-                        {
-                            "alo": lms.get_linenumber(),
-                            "check": str(aala),
-                            "loan": str(loan.name),
-                        },
-                        "rejected_log",
-                    )
                 if (
                     doc.new_kyc_name
                     and doc.kyc_approval_date
@@ -1490,14 +1482,6 @@ def renewal_penal_interest(loan_name):
                     doc.tnc_show = 1
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
-                lms.create_log(
-                    {
-                        "alo": lms.get_linenumber(),
-                        "check": str(aala),
-                        "loan": str(loan.name),
-                    },
-                    "rejected_log",
-                )
 
     except Exception:
         frappe.log_error(
@@ -1517,7 +1501,7 @@ def renewal_timer(loan_renewal_name=None):
             loan = frappe.get_doc("Loan", renewal_doc.loan)
             try:
                 customer = frappe.get_doc("Loan Customer", loan.customer)
-            except Exception as e:
+            except Exception:
                 frappe.log_error(
                     message=frappe.get_traceback(),
                     title=(_("Loan Customer {} not found".format(loan.customer))),
@@ -1528,14 +1512,14 @@ def renewal_timer(loan_renewal_name=None):
                 exp = loan.expiry_date
             loan_expiry = datetime.combine(exp, time.min)
 
-            user_kyc = frappe.get_all(
-                "User KYC",
-                filters={
-                    "user": customer.user,
-                    "updated_kyc": 1,
-                },
-                fields=["*"],
-            )
+            # user_kyc = frappe.get_all(
+            #     "User KYC",
+            #     filters={
+            #         "user": customer.user,
+            #         "updated_kyc": 1,
+            #     },
+            #     fields=["*"],
+            # )
             user_kyc_pending = frappe.get_all(
                 "User KYC",
                 filters={
@@ -1837,19 +1821,16 @@ def loan_renewal_update_doc(loan_name):
         )
         renewal_doc_list = frappe.get_all(
             "Spark Loan Renewal Application",
-            filters={"loan": loan.name, "status": ["!=", "Rejected"]},
+            filters={"loan": loan.name, "status": ["not in", ["Rejected", "Approved"]]},
             fields=["name"],
         )
+        msg = ""
+        fcm_notification = {}
 
         for i in renewal_doc_list:
             doc = frappe.get_doc("Spark Loan Renewal Application", i.name)
             exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-            if exp < frappe.utils.now_datetime().date() and doc.is_expired == 0:
-                doc.is_expired = 1
-                doc.save(ignore_permissions=True)
-                frappe.db.commit()
-
-            if (
+            if (exp < frappe.utils.now_datetime().date() and doc.is_expired == 0) or (
                 doc.creation.date() + timedelta(days=7)
                 == frappe.utils.now_datetime().date()
                 and doc.is_expired == 0
@@ -1866,7 +1847,7 @@ def loan_renewal_update_doc(loan_name):
 
         try:
             customer = frappe.get_doc("Loan Customer", loan.customer)
-        except Exception as e:
+        except Exception:
             customer = ""
             frappe.log_error(
                 message=frappe.get_traceback() + "\nLoan Name : {}".format(loan.name),
@@ -1900,10 +1881,10 @@ def loan_renewal_update_doc(loan_name):
             and (exp + timedelta(days=7)) < frappe.utils.now_datetime().date()
             and frappe.utils.now_datetime().date() < exp + timedelta(days=9)
         ):
-            if frappe.utils.now_datetime().date() < exp + timedelta(days=2):
-                expiry = exp
-            else:
-                expiry = exp + timedelta(days=7)
+            # if frappe.utils.now_datetime().date() < exp + timedelta(days=2):
+            #     expiry = exp
+            # else:
+            #     expiry = exp + timedelta(days=7)
 
             email_expiry = frappe.db.sql(
                 "select message from `tabNotification` where name='Loan Renewal Extension';"
@@ -1932,24 +1913,24 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                 "Loan Renewal Extension",
                 fields=["*"],
             )
-            send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                loan=loan.name,
-                customer=customer,
-            )
-            if msg:
-                receiver_list = [str(customer.phone)]
-                if customer.get_kyc().mob_num:
-                    receiver_list.append(str(customer.get_kyc().mob_num))
-                if customer.get_kyc().choice_mob_no:
-                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
+            # send_spark_push_notification(
+            #     fcm_notification=fcm_notification,
+            #     loan=loan.name,
+            #     customer=customer,
+            # )
+            # if msg:
+            #     receiver_list = [str(customer.phone)]
+            #     if customer.get_kyc().mob_num:
+            #         receiver_list.append(str(customer.get_kyc().mob_num))
+            #     if customer.get_kyc().choice_mob_no:
+            #         receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                receiver_list = list(set(receiver_list))
-                frappe.enqueue(
-                    method=send_sms,
-                    receiver_list=receiver_list,
-                    msg=msg,
-                )
+            #     receiver_list = list(set(receiver_list))
+            #     frappe.enqueue(
+            #         method=send_sms,
+            #         receiver_list=receiver_list,
+            #         msg=msg,
+            #     )
 
         if (
             exp == expiry_date
@@ -2013,203 +1994,224 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
                 "Loan Renewal Reminder",
                 fields=["*"],
             )
-            send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                loan=loan.name,
-                customer=customer,
-            )
-            if msg:
-                receiver_list = [str(customer.phone)]
-                if customer.get_kyc().mob_num:
-                    receiver_list.append(str(customer.get_kyc().mob_num))
-                if customer.get_kyc().choice_mob_no:
-                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
+            # send_spark_push_notification(
+            #     fcm_notification=fcm_notification,
+            #     loan=loan.name,
+            #     customer=customer,
+            # )
+            # if msg:
+            #     receiver_list = [str(customer.phone)]
+            #     if customer.get_kyc().mob_num:
+            #         receiver_list.append(str(customer.get_kyc().mob_num))
+            #     if customer.get_kyc().choice_mob_no:
+            #         receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                receiver_list = list(set(receiver_list))
-                frappe.enqueue(
-                    method=send_sms,
-                    receiver_list=receiver_list,
-                    msg=msg,
-                )
+            #     receiver_list = list(set(receiver_list))
+            #     frappe.enqueue(
+            #         method=send_sms,
+            #         receiver_list=receiver_list,
+            #         msg=msg,
+            #     )
 
             renewal_doc.reminders = 1
             renewal_doc.save(ignore_permissions=True)
             frappe.db.commit()
 
         for doc in existing_renewal_doc_list:
-            if exp == frappe.utils.now_datetime().date() + timedelta(days=19):
+            if (
+                exp == frappe.utils.now_datetime().date() + timedelta(days=19)
+                and doc.reminders == 1
+            ):
                 renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
-                if doc.reminders == 1:
-                    email_expiry = frappe.db.sql(
-                        "select message from `tabNotification` where name='Loan Renewal Reminder';"
-                    )[0][0]
-                    email_expiry = email_expiry.replace("loan_name", str(loan.name))
-                    email_expiry = email_expiry.replace("expiry_date", str_exp)
-                    email_expiry = email_expiry.replace(
-                        "dlt_link", str(las_settings.app_login_dashboard)
-                    )
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[customer.user],
-                        sender=None,
-                        subject="Loan Renewal Reminder",
-                        message=email_expiry,
-                        queue="short",
-                        delayed=False,
-                        job_name="Loan Renewal Reminder",
-                    )
-                    msg = """Dear Customer,
+                email_expiry = frappe.db.sql(
+                    "select message from `tabNotification` where name='Loan Renewal Reminder';"
+                )[0][0]
+                email_expiry = email_expiry.replace("loan_name", str(loan.name))
+                email_expiry = email_expiry.replace("expiry_date", str_exp)
+                email_expiry = email_expiry.replace(
+                    "dlt_link", str(las_settings.app_login_dashboard)
+                )
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject="Loan Renewal Reminder",
+                    message=email_expiry,
+                    queue="short",
+                    delayed=False,
+                    job_name="Loan Renewal Reminder",
+                )
+                msg = """Dear Customer,
 Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
-                        loan_name=loan.name,
-                        expiry_date=str_exp,
-                        link=las_settings.app_login_dashboard,
-                    )
-                    fcm_notification = frappe.get_doc(
-                        "Spark Push Notification",
-                        "Loan Renewal Reminder",
-                        fields=["*"],
-                    )
-                    send_spark_push_notification(
-                        fcm_notification=fcm_notification,
-                        loan=loan.name,
-                        customer=customer,
-                    )
-                    if msg:
-                        receiver_list = [str(customer.phone)]
-                        if customer.get_kyc().mob_num:
-                            receiver_list.append(str(customer.get_kyc().mob_num))
-                        if customer.get_kyc().choice_mob_no:
-                            receiver_list.append(str(customer.get_kyc().choice_mob_no))
+                    loan_name=loan.name,
+                    expiry_date=str_exp,
+                    link=las_settings.app_login_dashboard,
+                )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Loan Renewal Reminder",
+                    fields=["*"],
+                )
+                # send_spark_push_notification(
+                #     fcm_notification=fcm_notification,
+                #     loan=loan.name,
+                #     customer=customer,
+                # )
+                # if msg:
+                #     receiver_list = [str(customer.phone)]
+                #     if customer.get_kyc().mob_num:
+                #         receiver_list.append(str(customer.get_kyc().mob_num))
+                #     if customer.get_kyc().choice_mob_no:
+                #         receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                        receiver_list = list(set(receiver_list))
+                #     receiver_list = list(set(receiver_list))
 
-                        frappe.enqueue(
-                            method=send_sms,
-                            receiver_list=receiver_list,
-                            msg=msg,
-                        )
+                #     frappe.enqueue(
+                #         method=send_sms,
+                #         receiver_list=receiver_list,
+                #         msg=msg,
+                #     )
 
-                    renewal_doc.reminders = 2
-                    renewal_doc.save(ignore_permissions=True)
-                    frappe.db.commit()
+                renewal_doc.reminders = 2
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=9):
-                # for doc in existing_renewal_doc_list:
+            elif (
+                exp == frappe.utils.now_datetime().date() + timedelta(days=9)
+                and doc.reminders == 2
+            ):
                 renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
-                if doc.reminders == 2:
-                    email_expiry = frappe.db.sql(
-                        "select message from `tabNotification` where name='Loan Renewal Reminder';"
-                    )[0][0]
-                    email_expiry = email_expiry.replace("loan_name", str(loan.name))
-                    email_expiry = email_expiry.replace("expiry_date", str_exp)
-                    email_expiry = email_expiry.replace(
-                        "dlt_link", str(las_settings.app_login_dashboard)
-                    )
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[customer.user],
-                        sender=None,
-                        subject="Loan Renewal Reminder",
-                        message=email_expiry,
-                        queue="short",
-                        delayed=False,
-                        job_name="Loan Renewal Reminder",
-                    )
-                    msg = """Dear Customer,
+                email_expiry = frappe.db.sql(
+                    "select message from `tabNotification` where name='Loan Renewal Reminder';"
+                )[0][0]
+                email_expiry = email_expiry.replace("loan_name", str(loan.name))
+                email_expiry = email_expiry.replace("expiry_date", str_exp)
+                email_expiry = email_expiry.replace(
+                    "dlt_link", str(las_settings.app_login_dashboard)
+                )
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject="Loan Renewal Reminder",
+                    message=email_expiry,
+                    queue="short",
+                    delayed=False,
+                    job_name="Loan Renewal Reminder",
+                )
+                msg = """Dear Customer,
 Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
-                        loan_name=loan.name,
-                        expiry_date=str_exp,
-                        link=las_settings.app_login_dashboard,
-                    )
-                    fcm_notification = frappe.get_doc(
-                        "Spark Push Notification",
-                        "Loan Renewal Reminder",
-                        fields=["*"],
-                    )
-                    send_spark_push_notification(
-                        fcm_notification=fcm_notification,
-                        loan=loan.name,
-                        customer=customer,
-                    )
-                    if msg:
-                        receiver_list = [str(customer.phone)]
-                        if customer.get_kyc().mob_num:
-                            receiver_list.append(str(customer.get_kyc().mob_num))
-                        if customer.get_kyc().choice_mob_no:
-                            receiver_list.append(str(customer.get_kyc().choice_mob_no))
+                    loan_name=loan.name,
+                    expiry_date=str_exp,
+                    link=las_settings.app_login_dashboard,
+                )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Loan Renewal Reminder",
+                    fields=["*"],
+                )
+                # send_spark_push_notification(
+                #     fcm_notification=fcm_notification,
+                #     loan=loan.name,
+                #     customer=customer,
+                # )
+                # if msg:
+                #     receiver_list = [str(customer.phone)]
+                #     if customer.get_kyc().mob_num:
+                #         receiver_list.append(str(customer.get_kyc().mob_num))
+                #     if customer.get_kyc().choice_mob_no:
+                #         receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                        receiver_list = list(set(receiver_list))
+                #     receiver_list = list(set(receiver_list))
 
-                        frappe.enqueue(
-                            method=send_sms,
-                            receiver_list=receiver_list,
-                            msg=msg,
-                        )
+                #     frappe.enqueue(
+                #         method=send_sms,
+                #         receiver_list=receiver_list,
+                #         msg=msg,
+                #     )
 
-                    renewal_doc.reminders = 3
-                    renewal_doc.save(ignore_permissions=True)
-                    frappe.db.commit()
+                renewal_doc.reminders = 3
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=2):
-                # for doc in existing_renewal_doc_list:
+            elif (
+                exp == frappe.utils.now_datetime().date() + timedelta(days=2)
+                and doc.reminders == 3
+            ):
                 renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
-                if doc.reminders == 3:
-                    email_expiry = frappe.db.sql(
-                        "select message from `tabNotification` where name='Loan Renewal Reminder';"
-                    )[0][0]
-                    email_expiry = email_expiry.replace("loan_name", str(loan.name))
-                    email_expiry = email_expiry.replace("expiry_date", str_exp)
-                    email_expiry = email_expiry.replace(
-                        "dlt_link", str(las_settings.app_login_dashboard)
-                    )
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[customer.user],
-                        sender=None,
-                        subject="Loan Renewal Reminder",
-                        message=email_expiry,
-                        queue="short",
-                        delayed=False,
-                        job_name="Loan Renewal Reminder",
-                    )
-                    msg = """Dear Customer,
+                email_expiry = frappe.db.sql(
+                    "select message from `tabNotification` where name='Loan Renewal Reminder';"
+                )[0][0]
+                email_expiry = email_expiry.replace("loan_name", str(loan.name))
+                email_expiry = email_expiry.replace("expiry_date", str_exp)
+                email_expiry = email_expiry.replace(
+                    "dlt_link", str(las_settings.app_login_dashboard)
+                )
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject="Loan Renewal Reminder",
+                    message=email_expiry,
+                    queue="short",
+                    delayed=False,
+                    job_name="Loan Renewal Reminder",
+                )
+                msg = """Dear Customer,
 Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
-                        loan_name=loan.name,
-                        expiry_date=str_exp,
-                        link=las_settings.app_login_dashboard,
-                    )
+                    loan_name=loan.name,
+                    expiry_date=str_exp,
+                    link=las_settings.app_login_dashboard,
+                )
 
-                    fcm_notification = frappe.get_doc(
-                        "Spark Push Notification",
-                        "Loan Renewal Reminder",
-                        fields=["*"],
-                    )
-                    send_spark_push_notification(
-                        fcm_notification=fcm_notification,
-                        loan=loan.name,
-                        customer=customer,
-                    )
-                    if msg:
-                        receiver_list = [str(customer.phone)]
-                        if customer.get_kyc().mob_num:
-                            receiver_list.append(str(customer.get_kyc().mob_num))
-                        if customer.get_kyc().choice_mob_no:
-                            receiver_list.append(str(customer.get_kyc().choice_mob_no))
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Loan Renewal Reminder",
+                    fields=["*"],
+                )
+                # send_spark_push_notification(
+                #     fcm_notification=fcm_notification,
+                #     loan=loan.name,
+                #     customer=customer,
+                # )
+                # if msg:
+                #     receiver_list = [str(customer.phone)]
+                #     if customer.get_kyc().mob_num:
+                #         receiver_list.append(str(customer.get_kyc().mob_num))
+                #     if customer.get_kyc().choice_mob_no:
+                #         receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                        receiver_list = list(set(receiver_list))
+                #     receiver_list = list(set(receiver_list))
 
-                        frappe.enqueue(
-                            method=send_sms,
-                            receiver_list=receiver_list,
-                            msg=msg,
-                        )
+                #     frappe.enqueue(
+                #         method=send_sms,
+                #         receiver_list=receiver_list,
+                #         msg=msg,
+                #     )
 
-                    renewal_doc.reminders = 4
-                    renewal_doc.save(ignore_permissions=True)
-                    frappe.db.commit()
-        # else:
-        #     pass
+                renewal_doc.reminders = 4
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
 
+        if fcm_notification and msg:
+            send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                loan=loan.name,
+                customer=customer,
+            )
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
+
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=receiver_list,
+                msg=msg,
+            )
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback() + "Loan Name : {}".format(loan_name),
