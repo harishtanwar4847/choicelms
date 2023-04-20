@@ -1383,8 +1383,8 @@ def loan_details(**kwargs):
                 sql = frappe.db.sql(
                     """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
                 - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
-                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and psn = '{psn}' and loan = '{loan}'""".format(
-                        isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and prf = '{prf}' and loan = '{loan}'""".format(
+                        isin=i.isin, folio=i.folio, prf=i.prf, loan=i.loan
                     ),
                     as_dict=1,
                 )
@@ -2658,8 +2658,8 @@ def loan_unpledge_details(**kwargs):
                 sql = frappe.db.sql(
                     """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
                 - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
-                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and psn = '{psn}' and loan = '{loan}'""".format(
-                        isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and prf = '{prf}' and loan = '{loan}'""".format(
+                        isin=i.isin, folio=i.folio, prf=i.prf, loan=i.loan
                     ),
                     as_dict=1,
                 )
