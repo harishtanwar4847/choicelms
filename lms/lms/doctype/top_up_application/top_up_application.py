@@ -320,7 +320,12 @@ class TopupApplication(Document):
         interest_charges_in_amount = int((float(increased_sanction_limit))) * (
             roi_ / 100
         )
-
+        interest_per_month = frappe.utils.fmt_money(
+            float(interest_charges_in_amount / 12)
+        )
+        final_payment = frappe.utils.fmt_money(
+            float(interest_per_month) + (increased_sanction_limit)
+        )
         doc = {
             "esign_date": "",
             "loan_account_number": self.name,
@@ -371,6 +376,8 @@ class TopupApplication(Document):
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
             ),
+            "interest_per_month": interest_per_month,
+            "final_payment": final_payment,
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
@@ -748,7 +755,12 @@ class TopupApplication(Document):
             interest_charges_in_amount = int(
                 lms.validate_rupees(float(increased_sanction_limit))
             ) * (roi_ / 100)
-
+            interest_per_month = frappe.utils.fmt_money(
+                float(interest_charges_in_amount / 12)
+            )
+            final_payment = frappe.utils.fmt_money(
+                float(interest_per_month) + (increased_sanction_limit)
+            )
             doc = {
                 "esign_date": "",
                 "loan_account_no": loan.name if self.loan else "",
@@ -795,6 +807,8 @@ class TopupApplication(Document):
                 "interest_charges_in_amount": frappe.utils.fmt_money(
                     interest_charges_in_amount
                 ),
+                "interest_per_month": interest_per_month,
+                "final_payment": final_payment,
                 "renewal_charges": lms.validate_rupees(lender.renewal_charges)
                 if lender.renewal_charge_type == "Fix"
                 else lms.validate_percent(lender.renewal_charges),

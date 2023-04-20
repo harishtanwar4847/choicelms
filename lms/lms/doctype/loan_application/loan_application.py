@@ -182,6 +182,17 @@ class LoanApplication(Document):
                     )
                 )
             ) * (roi_ / 100)
+            interest_per_month = frappe.utils.fmt_money(
+                float(interest_charges_in_amount / 12)
+            )
+            final_payment = frappe.utils.fmt_money(
+                float(interest_per_month)
+                + (
+                    new_increased_sanctioned_limit
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.drawing_power
+                )
+            )
             doc = {
                 "esign_date": "",
                 "loan_account_number": loan.name if self.loan else "",
@@ -245,6 +256,8 @@ class LoanApplication(Document):
                 "interest_charges_in_amount": frappe.utils.fmt_money(
                     interest_charges_in_amount
                 ),
+                "interest_per_month": interest_per_month,
+                "final_payment": final_payment,
                 "renewal_charges": lms.validate_rupees(lender.renewal_charges)
                 if lender.renewal_charge_type == "Fix"
                 else lms.validate_percent(lender.renewal_charges),
@@ -2119,12 +2132,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
                     actual_dp + self.drawing_power
                 )
-                self.increased_sanctioned_limit = increased_sanctioned_limit
                 new_increased_sanctioned_limit = (
                     increased_sanctioned_limit
                     if increased_sanctioned_limit < lender.maximum_sanctioned_limit
                     else lender.maximum_sanctioned_limit
                 )
+                self.increased_sanctioned_limit = new_increased_sanctioned_limit
                 diff = self.increased_sanctioned_limit - loan.sanctioned_limit
             interest_config = frappe.get_value(
                 "Interest Configuration",
@@ -2177,6 +2190,17 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                 ),
                 charges.get("total"),
+            )
+            interest_per_month = frappe.utils.fmt_money(
+                float(interest_charges_in_amount / 12)
+            )
+            final_payment = frappe.utils.fmt_money(
+                float(interest_per_month)
+                + (
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                )
             )
             loan_name = ""
             if not check and self.loan:
@@ -2248,6 +2272,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "interest_charges_in_amount": frappe.utils.fmt_money(
                         interest_charges_in_amount
                     ),
+                    "interest_per_month": interest_per_month,
+                    "final_payment": final_payment,
                     "renewal_charges": lms.validate_rupees(lender.renewal_charges)
                     if lender.renewal_charge_type == "Fix"
                     else lms.validate_percent(lender.renewal_charges),
