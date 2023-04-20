@@ -549,6 +549,17 @@ class Cart(Document):
                 )
             )
         ) * (roi_ / 100)
+        interest_per_month = frappe.utils.fmt_money(
+            float(interest_charges_in_amount / 12)
+        )
+        final_payment = frappe.utils.fmt_money(
+            float(interest_per_month)
+            + (
+                self.increased_sanctioned_limit
+                if self.loan and not self.loan_margin_shortfall
+                else self.eligible_loan
+            )
+        )
         charges = lms.charges_for_apr(
             lender.name,
             lms.validate_rupees(diff),
@@ -615,6 +626,8 @@ class Cart(Document):
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
             ),
+            "interest_per_month": interest_per_month,
+            "final_payment": final_payment,
             "renewal_charge_type": lender.renewal_charge_type,
             "renewal_charge_in_words": lms.number_to_word(
                 lms.validate_rupees(lender.renewal_charges)
