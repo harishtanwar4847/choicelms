@@ -612,9 +612,17 @@ def validate_revoc(unpledge_application_name):
                                 )
                                 frappe.log_error(
                                     "isin_details : {}".format(
-                                        str(isin_details)
+                                        str(
+                                            isin_details.get(isin_folio_combo).get(
+                                                "revoc_token"
+                                            )
+                                        )
                                         + "\n (isin_folio_combo{}".format(
-                                            str(isin_folio_combo)
+                                            str(
+                                                isin_details.get(isin_folio_combo).get(
+                                                    "revoc_ref_no"
+                                                )
+                                            )
                                         )
                                     )
                                 )
