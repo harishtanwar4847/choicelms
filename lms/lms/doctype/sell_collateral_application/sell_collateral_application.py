@@ -1016,32 +1016,6 @@ def initiate_invoc(sell_collateral_application_name):
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "invocrefno"
                                     )
-                                    # frappe.db.set_value(
-                                    #     "Sell Collateral Application Sell Item",
-                                    #     i.name,
-                                    #     {
-                                    #         "invoke_initiate_remarks": isin_details.get(
-                                    #             isin_folio_combo
-                                    #         ).get("remarks"),
-                                    #         "psn": isin_details.get(
-                                    #             isin_folio_combo
-                                    #         ).get("invocrefno"),
-                                    #     },
-                                    # )
-                                    # frappe.db.sql(
-                                    #     """
-                                    #         update `tabSell Collateral Application Item`
-                                    #         set psn = '{psn}'
-                                    #         where isin = '{isin}' and folio = '{folio}' and parent = '{parent}' and psn = '{oldpsn}'
-                                    #         """.format(
-                                    #         psn=new_psn,
-                                    #         isin=i.get("isin"),
-                                    #         folio=i.get("folio"),
-                                    #         parent=sell_collateral_application_doc.name,
-                                    #         oldpsn=old_psn,
-                                    #     ),
-                                    #     debug=True,
-                                    # )
                                     if old_psn != new_psn:
                                         frappe.db.sql(
                                             """
@@ -1076,8 +1050,8 @@ def initiate_invoc(sell_collateral_application_name):
                                 dict_decrypted_response.get("status")[0].get("error")
                             )
 
-                        # sell_collateral_application_doc.save(ignore_permissions=True)
-                        # frappe.db.commit()
+                        sell_collateral_application_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
 
                         prf_list.append(prf[0].prf)
 
