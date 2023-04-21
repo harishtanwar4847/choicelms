@@ -666,6 +666,39 @@ def validate_revoc(unpledge_application_name):
                             ).get("schemedetails")
                             isin_details_ = {}
                             for i in schemedetails_res_res:
+
+                                frappe.log_error(
+                                    title="PSN LISt",
+                                    message=+"\n\nrevoc_response_list:{}".format(
+                                        str(
+                                            isin_details_[
+                                                "{}{}{}".format(
+                                                    i.get("isinno"),
+                                                    i.get("folio"),
+                                                    i.get("lienmarkno"),
+                                                )
+                                            ]
+                                        )
+                                    )
+                                    + "\nValidate Details:{}".format(
+                                        str(
+                                            {
+                                                "revoc_token": dict_decrypted_response.get(
+                                                    "revocvalidate"
+                                                ).get(
+                                                    "revoctoken"
+                                                ),
+                                                "revoc_ref_no": dict_decrypted_response.get(
+                                                    "revocvalidate"
+                                                ).get(
+                                                    "reqrefno"
+                                                ),
+                                            }
+                                        )
+                                    )
+                                    + str(unpledge_application_name),
+                                )
+
                                 revoc_response_list.append(
                                     {
                                         isin_details_[
