@@ -610,21 +610,17 @@ def validate_revoc(unpledge_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
-                                frappe.log_error(
-                                    "isin_details : {}".format(
-                                        str(
-                                            isin_details.get(isin_folio_combo).get(
-                                                "revoc_token"
-                                            )
-                                        )
-                                        + "\n (isin_folio_combo{}".format(
-                                            str(
-                                                isin_details.get(isin_folio_combo).get(
-                                                    "revoc_ref_no"
-                                                )
-                                            )
-                                        )
-                                    )
+                                lms.create_log(
+                                    {
+                                        "isin_details": isin_details,
+                                    },
+                                    "asach",
+                                )
+                                lms.create_log(
+                                    {
+                                        "isin_folio_combo": isin_folio_combo,
+                                    },
+                                    "asach",
                                 )
                                 if isin_folio_combo in isin_details:
                                     i.revoke_validate_remarks = isin_details.get(
