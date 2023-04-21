@@ -636,7 +636,6 @@ def validate_invoc(sell_collateral_application_name):
                     filters={
                         "parent": sell_collateral_application_doc.name,
                         "prf": i.prf,
-                        "revoke_validate_remarks": ["!=", "SUCCESS"],
                     },
                     fields=["*"],
                 )
@@ -868,7 +867,6 @@ def initiate_invoc(sell_collateral_application_name):
                         "parent": sell_collateral_application_doc.name,
                         "prf": i.prf,
                         "invoke_validate_remarks": "SUCCESS",
-                        "invoke_initiate_remarks": ["!=", "SUCCESS"],
                     },
                     fields=["*"],
                 )

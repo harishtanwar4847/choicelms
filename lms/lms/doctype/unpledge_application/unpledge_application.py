@@ -507,10 +507,6 @@ def validate_revoc(unpledge_application_name):
                     filters={
                         "parent": unpledge_application_doc.name,
                         "prf": i.prf,
-                        "revoke_validate_remarks": [
-                            "!=",
-                            "SUCCESS",
-                        ],
                     },
                     fields=["*"],
                 )
@@ -777,10 +773,6 @@ def initiate_revoc(unpledge_application_name):
                         "parent": unpledge_application_doc.name,
                         "prf": i.prf,
                         "revoke_validate_remarks": "SUCCESS",
-                        "revoke_initiate_remarks": [
-                            "!=",
-                            "SUCCESS",
-                        ],
                     },
                     fields=["*"],
                 )
