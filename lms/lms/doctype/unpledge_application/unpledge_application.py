@@ -499,6 +499,7 @@ def validate_revoc(unpledge_application_name):
         ):
             success = []
             prf_list = []
+            revoc_response_list = []
             token_dict = dict()
 
             for i in unpledge_application_doc.unpledge_items:
@@ -660,34 +661,55 @@ def validate_revoc(unpledge_application_name):
                                 )
                             unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
-                            for i in prf:
-                                i = frappe.get_doc(
-                                    "Unpledge Application Unpledged Item", i.name
-                                )
-                                i.revoc_token = (
-                                    dict_decrypted_response.get("revocvalidate").get(
-                                        "revoctoken"
-                                    ),
-                                )
-                                i.revoc_ref_no = (
-                                    dict_decrypted_response.get("revocvalidate").get(
-                                        "reqrefno"
-                                    ),
-                                )
-                                i.save(ignore_permissions=True)
-                                frappe.db.commit()
-                                # frappe.db.set_value(
-                                #     "Unpledge Application Unpledged Item",
-                                #     i.name,
-                                #     {
-                                #         "revoc_token": dict_decrypted_response.get(
-                                #             "revocvalidate"
-                                #         ).get("revoctoken"),
-                                #         "revoc_ref_no": dict_decrypted_response.get(
-                                #             "revocvalidate"
-                                #         ).get("reqrefno"),
-                                #     },
-                                # )
+                            revoc_response_list.append(
+                                {
+                                    dict_decrypted_response.get("revocvalidate")
+                                    .get("schemedetails")
+                                    .get("isinno")
+                                    + dict_decrypted_response.get("revocvalidate")
+                                    .get("schemedetails")
+                                    .get("folio")
+                                    + dict_decrypted_response.get("revocvalidate")
+                                    .get("schemedetails")
+                                    .get("lienmarkno"): {
+                                        "revoc_token": dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("revoctoken"),
+                                        "revoc_ref_no": dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("reqrefno"),
+                                    }
+                                }
+                            )
+
+                            # for i in prf:
+                            #     i = frappe.get_doc(
+                            #         "Unpledge Application Unpledged Item", i.name
+                            #     )
+                            #     i.revoc_token = (
+                            #         dict_decrypted_response.get("revocvalidate").get(
+                            #             "revoctoken"
+                            #         ),
+                            #     )
+                            #     i.revoc_ref_no = (
+                            #         dict_decrypted_response.get("revocvalidate").get(
+                            #             "reqrefno"
+                            #         ),
+                            #     )
+                            #     i.save(ignore_permissions=True)
+                            #     frappe.db.commit()
+                            # frappe.db.set_value(
+                            #     "Unpledge Application Unpledged Item",
+                            #     i.name,
+                            #     {
+                            #         "revoc_token": dict_decrypted_response.get(
+                            #             "revocvalidate"
+                            #         ).get("revoctoken"),
+                            #         "revoc_ref_no": dict_decrypted_response.get(
+                            #             "revocvalidate"
+                            #         ).get("reqrefno"),
+                            #     },
+                            # )
 
                         else:
                             frappe.db.sql(
@@ -707,6 +729,28 @@ def validate_revoc(unpledge_application_name):
                         prf_list.append(prf[0].prf)
                     except requests.RequestException as e:
                         raise utils.exceptions.APIException(str(e))
+
+                isinfoliocombo = "{}{}{}".format(
+                    i.get("isin"), i.get("folio"), i.get("psn")
+                )
+                frappe.log_error(
+                    title="PSN LISt",
+                    message=+"\n\nrevoc_response_list:{}".format(
+                        str(revoc_response_list)
+                    )
+                    + "\nValidate Details:{}".format(str(isinfoliocombo))
+                    + str(unpledge_application_name),
+                )
+                if isinfoliocombo in revoc_response_list:
+                    i.revoke_token = revoc_response_list.get(isinfoliocombo).get(
+                        "revoc_token"
+                    )
+                    i.revoc_ref_no = revoc_response_list.get(isinfoliocombo).get(
+                        "revoc_ref_no"
+                    )
+                    i.save(ignore_permissions=True)
+                frappe.db.commit()
+
                 # if unpledge_application_doc.is_validated == True:
                 #     for i in unpledge_application_doc.unpledge_items:
                 #         psn = frappe.db.sql(
