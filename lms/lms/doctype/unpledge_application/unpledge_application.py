@@ -626,7 +626,7 @@ def validate_revoc(unpledge_application_name):
                                     i.revoke_validate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
-                                    i.revoke_token = dict_decrypted_response.get(
+                                    i.revoc_token = dict_decrypted_response.get(
                                         "revocvalidate"
                                     ).get("revoctoken")
                                     i.revoc_ref_no = dict_decrypted_response.get(
