@@ -208,7 +208,8 @@
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
-   "options": "\nEquity\nDebt"
+   "options": "\nEquity\nDebt",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
   },
   {
    "fieldname": "application_type",
@@ -329,7 +330,7 @@
   }
  ],
  "links": [],
- "modified": "2023-04-10 12:26:50.105442",
+ "modified": "2023-04-21 15:56:59.159516",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
