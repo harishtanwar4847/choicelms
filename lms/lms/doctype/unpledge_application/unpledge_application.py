@@ -622,6 +622,12 @@ def validate_revoc(unpledge_application_name):
                                     i.revoke_validate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
+                                    i.revoke_token = isin_details.get(
+                                        isin_folio_combo
+                                    ).get("revoc_token")
+                                    i.revoc_ref_no = isin_details.get(
+                                        isin_folio_combo
+                                    ).get("revoc_ref_no")
 
                             # success.append(dict_decrypted_response.get("revocvalidate").get("message"))
                             # if (
@@ -731,18 +737,18 @@ def validate_revoc(unpledge_application_name):
                     except requests.RequestException as e:
                         raise utils.exceptions.APIException(str(e))
 
-                isinfoliocombo = "{}{}{}".format(
-                    i.get("isin"), i.get("folio"), i.get("psn")
-                )
-                if isinfoliocombo in revoc_response_list:
-                    i.revoke_token = revoc_response_list.get(isinfoliocombo).get(
-                        "revoc_token"
-                    )
-                    i.revoc_ref_no = revoc_response_list.get(isinfoliocombo).get(
-                        "revoc_ref_no"
-                    )
-                    i.save(ignore_permissions=True)
-                frappe.db.commit()
+                # isinfoliocombo = "{}{}{}".format(
+                #     i.get("isin"), i.get("folio"), i.get("psn")
+                # )
+                # if isinfoliocombo in revoc_response_list:
+                #     i.revoke_token = revoc_response_list.get(isinfoliocombo).get(
+                #         "revoc_token"
+                #     )
+                #     i.revoc_ref_no = revoc_response_list.get(isinfoliocombo).get(
+                #         "revoc_ref_no"
+                #     )
+                #     i.save(ignore_permissions=True)
+                # frappe.db.commit()
 
                 # if unpledge_application_doc.is_validated == True:
                 #     for i in unpledge_application_doc.unpledge_items:
