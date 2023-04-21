@@ -619,6 +619,13 @@ def validate_revoc(unpledge_application_name):
                                 lms.create_log(
                                     {
                                         "isin_folio_combo": isin_folio_combo,
+                                        "bool": isin_folio_combo in isin_details,
+                                        "revoc_token": isin_details.get(
+                                            isin_folio_combo
+                                        ).get("revoc_token"),
+                                        "revoc_ref_no": isin_details.get(
+                                            isin_folio_combo
+                                        ).get("revoc_ref_no"),
                                     },
                                     "asach",
                                 )
