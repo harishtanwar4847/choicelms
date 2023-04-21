@@ -661,6 +661,9 @@ def validate_revoc(unpledge_application_name):
                             unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
                             for i in prf:
+                                i = frappe.get_doc(
+                                    "Unpledge Application Unpledged Item", i.name
+                                )
                                 i.revoc_token = (
                                     dict_decrypted_response.get("revocvalidate").get(
                                         "revoctoken"

@@ -792,6 +792,9 @@ def validate_invoc(sell_collateral_application_name):
                             )
                             frappe.db.commit()
                             for i in prf:
+                                i = frappe.get_doc(
+                                    "Sell Collateral Application Sell Item", i.name
+                                )
                                 i.invoke_token = dict_decrypted_response.get(
                                     "invocvalidate"
                                 ).get("invoctoken")
