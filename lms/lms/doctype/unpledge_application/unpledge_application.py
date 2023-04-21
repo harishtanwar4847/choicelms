@@ -612,17 +612,26 @@ def validate_revoc(unpledge_application_name):
                                 )
                                 lms.create_log(
                                     {
-                                        "isin_details": isin_details,
+                                        "revoc_token": dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("revoctoken"),
+                                        "revoc_ref_no": dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("reqrefno"),
                                     },
                                     "asach",
                                 )
-                                
+
                                 if isin_folio_combo in isin_details:
                                     i.revoke_validate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
-                                    i.revoke_token = dict_decrypted_response.get("revocvalidate").get("revoc_token")
-                                    i.revoc_ref_no = dict_decrypted_response.get("revocvalidate").get("revoc_ref_no")
+                                    i.revoke_token = dict_decrypted_response.get(
+                                        "revocvalidate"
+                                    ).get("revoctoken")
+                                    i.revoc_ref_no = dict_decrypted_response.get(
+                                        "revocvalidate"
+                                    ).get("reqrefno")
 
                             # success.append(dict_decrypted_response.get("revocvalidate").get("message"))
                             # if (
