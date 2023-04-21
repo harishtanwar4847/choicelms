@@ -636,6 +636,7 @@ def validate_invoc(sell_collateral_application_name):
                     filters={
                         "parent": sell_collateral_application_doc.name,
                         "prf": i.prf,
+                        "revoke_validate_remarks": ["!=", "SUCCESS"],
                     },
                     fields=["*"],
                 )
@@ -750,15 +751,6 @@ def validate_invoc(sell_collateral_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
-                                frappe.log_error(
-                                    title="NAcho",
-                                    message="isin_details : {}".format(
-                                        str(isin_details)
-                                        + "\n (isin_folio_combo{}".format(
-                                            str(isin_folio_combo)
-                                        )
-                                    ),
-                                )
                                 if isin_folio_combo in isin_details:
                                     i.invoke_validate_remarks = isin_details.get(
                                         isin_folio_combo
@@ -791,23 +783,36 @@ def validate_invoc(sell_collateral_application_name):
                             sell_collateral_application_doc.refno = str(token_dict)
                             if "FAILURE" not in success:
                                 sell_collateral_application_doc.is_validated = True
+                            elif "FAILURE" in success and "SUCCESS" in success:
+                                sell_collateral_application_doc.is_validated = True
+                                sell_collateral_application_doc.validate_message = (
+                                    "Partial Success"
+                                )
                             sell_collateral_application_doc.save(
                                 ignore_permissions=True
                             )
                             frappe.db.commit()
                             for i in prf:
-                                frappe.db.set_value(
-                                    "Sell Collateral Application Sell Item",
-                                    i.name,
-                                    {
-                                        "invoke_token": dict_decrypted_response.get(
-                                            "invocvalidate"
-                                        ).get("invoctoken"),
-                                        "invoke_ref_no": dict_decrypted_response.get(
-                                            "invocvalidate"
-                                        ).get("reqrefno"),
-                                    },
-                                )
+                                i.invoke_token = dict_decrypted_response.get(
+                                    "invocvalidate"
+                                ).get("invoctoken")
+                                i.invoke_ref_no = dict_decrypted_response.get(
+                                    "invocvalidate"
+                                ).get("reqrefno")
+                                i.save(ignore_permissions=True)
+                                frappe.db.commit()
+                                # frappe.db.set_value(
+                                #     "Sell Collateral Application Sell Item",
+                                #     i.name,
+                                #     {
+                                #         "invoke_token": dict_decrypted_response.get(
+                                #             "invocvalidate"
+                                #         ).get("invoctoken"),
+                                #         "invoke_ref_no": dict_decrypted_response.get(
+                                #             "invocvalidate"
+                                #         ).get("reqrefno"),
+                                #     },
+                                # )
 
                         else:
                             frappe.db.sql(
@@ -862,6 +867,8 @@ def initiate_invoc(sell_collateral_application_name):
                     filters={
                         "parent": sell_collateral_application_doc.name,
                         "prf": i.prf,
+                        "invoke_validate_remarks": "SUCCESS",
+                        "invoke_initiate_remarks": ["!=", "SUCCESS"],
                     },
                     fields=["*"],
                 )
@@ -891,7 +898,7 @@ def initiate_invoc(sell_collateral_application_name):
                             }
                         }
                         for i in prf:
-                            if i.invoke_initiate_remarks != "SUCCESS":
+                            if i.invoke_initiate_remarks == "SUCCESS":
                                 schemedetails = (
                                     {
                                         "amccode": i.amc_code,

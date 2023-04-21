@@ -504,7 +504,14 @@ def validate_revoc(unpledge_application_name):
             for i in unpledge_application_doc.unpledge_items:
                 prf = frappe.get_all(
                     "Unpledge Application Unpledged Item",
-                    filters={"parent": unpledge_application_doc.name, "prf": i.prf},
+                    filters={
+                        "parent": unpledge_application_doc.name,
+                        "prf": i.prf,
+                        "revoke_validate_remarks": [
+                            "!=",
+                            "SUCCESS",
+                        ],
+                    },
                     fields=["*"],
                 )
                 if i.prf not in prf_list:
@@ -658,18 +665,30 @@ def validate_revoc(unpledge_application_name):
                             unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
                             for i in prf:
-                                frappe.db.set_value(
-                                    "Unpledge Application Unpledged Item",
-                                    i.name,
-                                    {
-                                        "revoc_token": dict_decrypted_response.get(
-                                            "revocvalidate"
-                                        ).get("revoctoken"),
-                                        "revoc_ref_no": dict_decrypted_response.get(
-                                            "revocvalidate"
-                                        ).get("reqrefno"),
-                                    },
+                                i.revoc_token = (
+                                    dict_decrypted_response.get("revocvalidate").get(
+                                        "revoctoken"
+                                    ),
                                 )
+                                i.revoc_ref_no = (
+                                    dict_decrypted_response.get("revocvalidate").get(
+                                        "reqrefno"
+                                    ),
+                                )
+                                i.save(ignore_permissions=True)
+                                frappe.db.commit()
+                                # frappe.db.set_value(
+                                #     "Unpledge Application Unpledged Item",
+                                #     i.name,
+                                #     {
+                                #         "revoc_token": dict_decrypted_response.get(
+                                #             "revocvalidate"
+                                #         ).get("revoctoken"),
+                                #         "revoc_ref_no": dict_decrypted_response.get(
+                                #             "revocvalidate"
+                                #         ).get("reqrefno"),
+                                #     },
+                                # )
 
                         else:
                             frappe.db.sql(
@@ -754,7 +773,15 @@ def initiate_revoc(unpledge_application_name):
             for i in unpledge_application_doc.unpledge_items:
                 prf = frappe.get_all(
                     "Unpledge Application Unpledged Item",
-                    filters={"parent": unpledge_application_doc.name, "prf": i.prf},
+                    filters={
+                        "parent": unpledge_application_doc.name,
+                        "prf": i.prf,
+                        "revoke_validate_remarks": "SUCCESS",
+                        "revoke_initiate_remarks": [
+                            "!=",
+                            "SUCCESS",
+                        ],
+                    },
                     fields=["*"],
                 )
                 if i.prf not in prf_list:
@@ -846,27 +873,15 @@ def initiate_revoc(unpledge_application_name):
                             for i in schemedetails_res:
                                 isin_details[
                                     "{}{}{}".format(
-                                        i.get("isinno"), i.get("folio"), i.get("psn")
+                                        i.get("isinno"),
+                                        i.get("folio"),
+                                        i.get("lienmarkno"),
                                     )
                                 ] = i
 
                             for i in unpledge_application_doc.unpledge_items:
                                 isin_folio_combo = "{}{}{}".format(
-                                    i.get("isin"), i.get("folio"), i.get("lienmarkno")
-                                )
-                                frappe.log_error(
-                                    title="Revoc - initate logging",
-                                    message="\nisin_folio_combo :{}".format(
-                                        str(isin_folio_combo)
-                                    )
-                                    + "\nisin_details :{}".format(str(isin_details))
-                                    + "\n new_psn = {}".format(
-                                        str(
-                                            isin_details.get(isin_folio_combo).get(
-                                                "revoc_refno"
-                                            )
-                                        )
-                                    ),
+                                    i.get("isin"), i.get("folio"), i.get("psn")
                                 )
                                 if isin_folio_combo in isin_details:
                                     i.revoke_initiate_remarks = isin_details.get(
