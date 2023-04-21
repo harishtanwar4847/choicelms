@@ -734,14 +734,6 @@ def validate_revoc(unpledge_application_name):
                 isinfoliocombo = "{}{}{}".format(
                     i.get("isin"), i.get("folio"), i.get("psn")
                 )
-                frappe.log_error(
-                    title="PSN LISt",
-                    message=+"\n\nrevoc_response_list:{}".format(
-                        str(revoc_response_list)
-                    )
-                    + "\nValidate Details:{}".format(str(isinfoliocombo))
-                    + str(unpledge_application_name),
-                )
                 if isinfoliocombo in revoc_response_list:
                     i.revoke_token = revoc_response_list.get(isinfoliocombo).get(
                         "revoc_token"
