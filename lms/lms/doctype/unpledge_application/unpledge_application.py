@@ -664,20 +664,18 @@ def validate_revoc(unpledge_application_name):
                             schemedetails_res_res = dict_decrypted_response.get(
                                 "revocvalidate"
                             ).get("schemedetails")
-                            isin_details_ = {}
+                            # isin_details_ = {}
                             for i in schemedetails_res_res:
 
                                 frappe.log_error(
                                     title="PSN LISt",
                                     message=+"\n\nrevoc_response_list:{}".format(
                                         str(
-                                            isin_details_[
-                                                "{}{}{}".format(
-                                                    i.get("isinno"),
-                                                    i.get("folio"),
-                                                    i.get("lienmarkno"),
-                                                )
-                                            ]
+                                            "{}{}{}".format(
+                                                i.get("isinno"),
+                                                i.get("folio"),
+                                                i.get("lienmarkno"),
+                                            )
                                         )
                                     )
                                     + "\nValidate Details:{}".format(
@@ -701,13 +699,11 @@ def validate_revoc(unpledge_application_name):
 
                                 revoc_response_list.append(
                                     {
-                                        isin_details_[
-                                            "{}{}{}".format(
-                                                i.get("isinno"),
-                                                i.get("folio"),
-                                                i.get("lienmarkno"),
-                                            )
-                                        ]: {
+                                        "{}{}{}".format(
+                                            i.get("isinno"),
+                                            i.get("folio"),
+                                            i.get("lienmarkno"),
+                                        ): {
                                             "revoc_token": dict_decrypted_response.get(
                                                 "revocvalidate"
                                             ).get("revoctoken"),
