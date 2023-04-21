@@ -1386,12 +1386,14 @@ def loan_details(**kwargs):
                         isin=i.isin, folio=i.folio, prf=i.prf, loan=i.loan
                     ),
                     as_dict=1,
+                    debug=True,
                 )
                 psn = frappe.db.sql(
-                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge' and isin = '{isin}'""".format(
-                        prf=i.prf, isin=i.isin
+                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge'  and folio = '{folio}' and  isin = '{isin}'""".format(
+                        prf=i.prf, isin=i.isin, folio=i.folio
                     ),
                     as_dict=1,
+                    debug=True,
                 )
                 sql[0]["psn"] = psn[0]["psn"]
                 collateral_ledger_list.extend(sql)
@@ -2668,12 +2670,14 @@ def loan_unpledge_details(**kwargs):
                         isin=i.isin, folio=i.folio, prf=i.prf, loan=i.loan
                     ),
                     as_dict=1,
+                    debug=True,
                 )
                 psn = frappe.db.sql(
-                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge' and isin = '{isin}'""".format(
-                        prf=i.prf, isin=i.isin
+                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge' and isin = '{isin}'and folio = '{folio}'""".format(
+                        prf=i.prf, isin=i.isin, folio=i.folio
                     ),
                     as_dict=1,
+                    debug=True,
                 )
                 sql[0]["psn"] = psn[0]["psn"]
                 collateral_ledger_list.extend(sql)
