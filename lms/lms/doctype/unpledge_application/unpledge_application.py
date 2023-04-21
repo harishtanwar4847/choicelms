@@ -661,26 +661,29 @@ def validate_revoc(unpledge_application_name):
                                 )
                             unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
-                            revoc_response_list.append(
-                                {
-                                    dict_decrypted_response.get("revocvalidate")
-                                    .get("schemedetails")
-                                    .get("isinno")
-                                    + dict_decrypted_response.get("revocvalidate")
-                                    .get("schemedetails")
-                                    .get("folio")
-                                    + dict_decrypted_response.get("revocvalidate")
-                                    .get("schemedetails")
-                                    .get("lienmarkno"): {
-                                        "revoc_token": dict_decrypted_response.get(
-                                            "revocvalidate"
-                                        ).get("revoctoken"),
-                                        "revoc_ref_no": dict_decrypted_response.get(
-                                            "revocvalidate"
-                                        ).get("reqrefno"),
+                            schemedetails_res_res = dict_decrypted_response.get(
+                                "revocvalidate"
+                            ).get("schemedetails")
+                            isin_details_ = {}
+                            for i in schemedetails_res_res:
+                                revoc_response_list.append(
+                                    {
+                                        isin_details_[
+                                            "{}{}{}".format(
+                                                i.get("isinno"),
+                                                i.get("folio"),
+                                                i.get("lienmarkno"),
+                                            )
+                                        ]: {
+                                            "revoc_token": dict_decrypted_response.get(
+                                                "revocvalidate"
+                                            ).get("revoctoken"),
+                                            "revoc_ref_no": dict_decrypted_response.get(
+                                                "revocvalidate"
+                                            ).get("reqrefno"),
+                                        }
                                     }
-                                }
-                            )
+                                )
 
                             # for i in prf:
                             #     i = frappe.get_doc(
