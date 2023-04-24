@@ -284,7 +284,7 @@ class UnpledgeApplication(Document):
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
-                    "psn": i.get("psn"),
+                    "psn": i.get("new_psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
@@ -979,7 +979,7 @@ def initiate_revoc(unpledge_application_name):
                                                 old_psn=old_psn,
                                             )
                                         )
-                                        i.psn = new_psn
+                                        i.new_psn = new_psn
 
                             if (
                                 dict_decrypted_response.get("revocinitiate").get(

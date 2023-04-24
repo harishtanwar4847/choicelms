@@ -14,6 +14,7 @@
   "pledgor_boid",
   "pledgee_boid",
   "psn",
+  "new_psn",
   "column_break_10",
   "date_of_pledge",
   "prf",
@@ -144,11 +145,16 @@
    "fieldname": "invoke_ref_no",
    "fieldtype": "Data",
    "label": "Invoke Ref NO"
+  },
+  {
+   "fieldname": "new_psn",
+   "fieldtype": "Data",
+   "label": "New PSN"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2023-04-17 15:11:57.129620",
+ "modified": "2023-04-24 16:59:15.499012",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",
