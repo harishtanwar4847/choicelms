@@ -134,7 +134,8 @@
   {
    "fieldname": "psn",
    "fieldtype": "Data",
-   "label": "PSN"
+   "label": "PSN",
+   "read_only": 1
   },
   {
    "fieldname": "invoke_token",
@@ -149,12 +150,13 @@
   {
    "fieldname": "new_psn",
    "fieldtype": "Data",
-   "label": "New PSN"
+   "label": "New PSN",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2023-04-24 16:59:15.499012",
+ "modified": "2023-04-24 18:02:16.730188",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",
