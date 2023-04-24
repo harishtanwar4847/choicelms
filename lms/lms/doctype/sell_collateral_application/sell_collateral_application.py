@@ -884,7 +884,7 @@ def initiate_invoc(sell_collateral_application_name):
                             "invocinitiate": {
                                 "reqrefno": i.invoke_ref_no,
                                 "invoctoken": i.invoke_token,
-                                "lienrefno": collateral_ledger.prf,
+                                "lienrefno": i.prf,
                                 "pan": user_kyc.pan_no,
                                 "regemailid": customer.mycams_email_id,
                                 "clientid": las_settings.client_id,
