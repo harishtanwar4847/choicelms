@@ -732,10 +732,10 @@ def validate_invoc(sell_collateral_application_name):
                                 )
                             )
 
+                            isin_details = {}
                             schemedetails_res = dict_decrypted_response.get(
                                 "invocvalidate"
                             ).get("schemedetails")
-                            isin_details = {}
 
                             for i in schemedetails_res:
                                 isin_details[
@@ -743,9 +743,8 @@ def validate_invoc(sell_collateral_application_name):
                                         i.get("isinno"),
                                         i.get("folio"),
                                         i.get("lienmarkno"),
-                                    ),
+                                    )
                                 ] = i
-
                             for i in sell_collateral_application_doc.sell_items:
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
@@ -754,6 +753,12 @@ def validate_invoc(sell_collateral_application_name):
                                     i.invoke_validate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
+                                    i.invoke_token = dict_decrypted_response.get(
+                                        "invocvalidate"
+                                    ).get("invoctoken")
+                                    i.invoke_ref_no = dict_decrypted_response.get(
+                                        "invocvalidate"
+                                    ).get("reqrefno")
 
                             # if (
                             #     dict_decrypted_response.get("invocvalidate").get("message")
@@ -791,30 +796,30 @@ def validate_invoc(sell_collateral_application_name):
                                 ignore_permissions=True
                             )
                             frappe.db.commit()
-                            for i in prf:
-                                i = frappe.get_doc(
-                                    "Sell Collateral Application Sell Item", i.name
-                                )
-                                i.invoke_token = dict_decrypted_response.get(
-                                    "invocvalidate"
-                                ).get("invoctoken")
-                                i.invoke_ref_no = dict_decrypted_response.get(
-                                    "invocvalidate"
-                                ).get("reqrefno")
-                                i.save(ignore_permissions=True)
-                                frappe.db.commit()
-                                # frappe.db.set_value(
-                                #     "Sell Collateral Application Sell Item",
-                                #     i.name,
-                                #     {
-                                #         "invoke_token": dict_decrypted_response.get(
-                                #             "invocvalidate"
-                                #         ).get("invoctoken"),
-                                #         "invoke_ref_no": dict_decrypted_response.get(
-                                #             "invocvalidate"
-                                #         ).get("reqrefno"),
-                                #     },
-                                # )
+                            # for i in prf:
+                            #     i = frappe.get_doc(
+                            #         "Sell Collateral Application Sell Item", i.name
+                            #     )
+                            #     # i.invoke_token = dict_decrypted_response.get(
+                            #     #     "invocvalidate"
+                            #     # ).get("invoctoken")
+                            #     # i.invoke_ref_no = dict_decrypted_response.get(
+                            #     #     "invocvalidate"
+                            #     # ).get("reqrefno")
+                            #     i.save(ignore_permissions=True)
+                            #     frappe.db.commit()
+                            # frappe.db.set_value(
+                            #     "Sell Collateral Application Sell Item",
+                            #     i.name,
+                            #     {
+                            #         "invoke_token": dict_decrypted_response.get(
+                            #             "invocvalidate"
+                            #         ).get("invoctoken"),
+                            #         "invoke_ref_no": dict_decrypted_response.get(
+                            #             "invocvalidate"
+                            #         ).get("reqrefno"),
+                            #     },
+                            # )
 
                         else:
                             frappe.db.sql(
