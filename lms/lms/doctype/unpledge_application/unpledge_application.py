@@ -942,15 +942,12 @@ def initiate_revoc(unpledge_application_name):
                                     i.revoke_initiate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
-                                    if (
-                                        isin_details.get(isin_folio_combo).get(
-                                            "remarks"
-                                        )
-                                        == "SUCCESS"
-                                    ):
-                                        unpledge_application_doc.successfull_request_count += (
-                                            1
-                                        )
+                                    # if (
+                                    #     isin_details.get(isin_folio_combo).get(
+                                    #         "remarks"
+                                    #     )
+                                    #     == "SUCCESS"
+                                    # ):
 
                                     old_psn = i.psn
                                     # i.psn = isin_details.get(isin_folio_combo).get(
@@ -993,6 +990,7 @@ def initiate_revoc(unpledge_application_name):
                                 == "PARTIAL FAILURE"
                             ):
                                 unpledge_application_doc.is_initiated = True
+                                unpledge_application_doc.successfull_request_count += 1
                         else:
                             unpledge_application_doc.initiate_message = (
                                 dict_decrypted_response.get("status")[0].get("error")

@@ -984,15 +984,12 @@ def initiate_invoc(sell_collateral_application_name):
                                     i.invoke_initiate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
-                                    if (
-                                        isin_details.get(isin_folio_combo).get(
-                                            "remarks"
-                                        )
-                                        == "SUCCESS"
-                                    ):
-                                        sell_collateral_application_doc.successfull_request_count += (
-                                            1
-                                        )
+                                    # if (
+                                    #     isin_details.get(isin_folio_combo).get(
+                                    #         "remarks"
+                                    #     )
+                                    #     == "SUCCESS"
+                                    # ):
 
                                     old_psn = i.psn
                                     # i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
@@ -1034,6 +1031,9 @@ def initiate_invoc(sell_collateral_application_name):
                                 == "PARTIAL FAILURE"
                             ):
                                 sell_collateral_application_doc.is_initiated = True
+                                sell_collateral_application_doc.successfull_request_count += (
+                                    1
+                                )
 
                         else:
                             sell_collateral_application_doc.initiate_message = (
