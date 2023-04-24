@@ -257,7 +257,7 @@ class UnpledgeApplication(Document):
 
     def on_submit(self):
         for i in self.unpledge_items:
-            if i.unpledge_quantity > 0:
+            if i.unpledge_quantity > 0 and i.revoke_initiate_remarks == "SUCCESS":
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
