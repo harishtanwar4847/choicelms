@@ -967,6 +967,7 @@ def initiate_revoc(unpledge_application_name):
                                                 old_psn=old_psn,
                                             )
                                         )
+                                        i.psn = new_psn
 
                             if (
                                 dict_decrypted_response.get("revocinitiate").get(

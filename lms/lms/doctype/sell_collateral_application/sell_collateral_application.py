@@ -1020,6 +1020,7 @@ def initiate_invoc(sell_collateral_application_name):
                                             ),
                                             debug=True,
                                         )
+                                        i.psn = new_psn
 
                             if (
                                 dict_decrypted_response.get("invocinitiate").get(
