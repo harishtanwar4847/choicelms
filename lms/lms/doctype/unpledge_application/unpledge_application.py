@@ -314,25 +314,26 @@ class UnpledgeApplication(Document):
 
         else:
             # revoke charges - Mutual Fund
-            revoke_charges = lender.revoke_initiate_charges
+            for i in range(self.successfull_request_count):
+                revoke_charges = lender.revoke_initiate_charges
 
-            if lender.revoke_initiate_charge_type == "Fix":
-                revoke_charges = revoke_charges
-            elif lender.revoke_initiate_charge_type == "Percentage":
-                amount = self.unpledge_collateral_value * revoke_charges / 100
-                revoke_charges = loan.validate_loan_charges_amount(
-                    lender,
-                    amount,
-                    "revoke_initiate_charges_minimum_amount",
-                    "revoke_initiate_charges_maximum_amount",
-                )
+                if lender.revoke_initiate_charge_type == "Fix":
+                    revoke_charges = revoke_charges
+                elif lender.revoke_initiate_charge_type == "Percentage":
+                    amount = self.unpledge_collateral_value * revoke_charges / 100
+                    revoke_charges = loan.validate_loan_charges_amount(
+                        lender,
+                        amount,
+                        "revoke_initiate_charges_minimum_amount",
+                        "revoke_initiate_charges_maximum_amount",
+                    )
 
-            if revoke_charges > 0:
-                revoke_charges_reference = loan.create_loan_transaction(
-                    transaction_type="Revocation Charges",
-                    amount=revoke_charges,
-                    approve=True,
-                )
+                if revoke_charges > 0:
+                    revoke_charges_reference = loan.create_loan_transaction(
+                        transaction_type="Revocation Charges",
+                        amount=revoke_charges,
+                        approve=True,
+                    )
 
         self.notify_customer()
 
@@ -816,6 +817,7 @@ def initiate_revoc(unpledge_application_name):
         ):
             success = []
             prf_list = []
+            total_success_request = 0
             for i in unpledge_application_doc.unpledge_items:
                 prf = frappe.get_all(
                     "Unpledge Application Unpledged Item",
@@ -929,6 +931,16 @@ def initiate_revoc(unpledge_application_name):
                                     i.revoke_initiate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
+                                    if (
+                                        isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
+                                        unpledge_application_doc.successfull_request_count = (
+                                            total_success_request + 1
+                                        )
+
                                     old_psn = i.psn
                                     # i.psn = isin_details.get(isin_folio_combo).get(
                                     # "revoc_refno"

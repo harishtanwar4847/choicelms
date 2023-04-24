@@ -162,19 +162,6 @@ class SellCollateralApplication(Document):
                     )
                 )
             if self.instrument_type == "Mutual Fund":
-                frappe.log_error(
-                    "sell_requested_quantity_map : {}".format(
-                        str(sell_requested_quantity_map)
-                        + "\n(sell_requested_quantity_map.get(isin_folio_combo)) : {}".format(
-                            str(sell_requested_quantity_map.get(isin_folio_combo)),
-                        )
-                        + "\n i.sell_quantity) :{}".format(str(i.sell_quantity))
-                        + "\n (isin_folio_combo{}".format(
-                            str(isin_folio_combo),
-                        )
-                        + "\nstr(i.psn) :{}".format(str(i.psn))
-                    )
-                )
                 if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:
                     frappe.throw(
                         "You need to {} all {} of isin {}{}".format(
@@ -455,27 +442,28 @@ class SellCollateralApplication(Document):
 
         else:
             # invoke charges - Mutual Fund
-            invoke_charges = lender.invoke_initiate_charges
+            for i in range(self.successfull_request_count):
+                invoke_charges = lender.invoke_initiate_charges
 
-            if lender.invoke_initiate_charge_type == "Fix":
-                invoke_charges = invoke_charges
-            elif lender.invoke_initiate_charge_type == "Percentage":
-                amount = self.lender_selling_amount * invoke_charges / 100
-                invoke_charges = loan.validate_loan_charges_amount(
-                    lender,
-                    amount,
-                    "invoke_initiate_charges_minimum_amount",
-                    "invoke_initiate_charges_maximum_amount",
-                )
+                if lender.invoke_initiate_charge_type == "Fix":
+                    invoke_charges = invoke_charges
+                elif lender.invoke_initiate_charge_type == "Percentage":
+                    amount = self.lender_selling_amount * invoke_charges / 100
+                    invoke_charges = loan.validate_loan_charges_amount(
+                        lender,
+                        amount,
+                        "invoke_initiate_charges_minimum_amount",
+                        "invoke_initiate_charges_maximum_amount",
+                    )
 
-            if invoke_charges > 0:
-                invoke_charges_reference = loan.create_loan_transaction(
-                    transaction_type="Invocation Charges",
-                    amount=invoke_charges,
-                    approve=True,
-                    gst_percent=0,
-                    loan_margin_shortfall_name=self.loan_margin_shortfall,
-                )
+                if invoke_charges > 0:
+                    invoke_charges_reference = loan.create_loan_transaction(
+                        transaction_type="Invocation Charges",
+                        amount=invoke_charges,
+                        approve=True,
+                        gst_percent=0,
+                        loan_margin_shortfall_name=self.loan_margin_shortfall,
+                    )
 
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": self.owner, "parenttype": "User"}, ["role"]
@@ -868,6 +856,7 @@ def initiate_invoc(sell_collateral_application_name):
         ):
             success = []
             prf_list = []
+            total_success_request = []
             for i in sell_collateral_application_doc.sell_items:
                 prf = frappe.get_all(
                     "Sell Collateral Application Sell Item",
@@ -965,14 +954,14 @@ def initiate_invoc(sell_collateral_application_name):
                                     "message"
                                 )
                             )
-                            frappe.db.set_value(
-                                "Sell Collateral Application",
-                                sell_collateral_application_doc.name,
-                                "initiate_message",
-                                dict_decrypted_response.get("invocinitiate").get(
-                                    "message"
-                                ),
-                            )
+                            # frappe.db.set_value(
+                            #     "Sell Collateral Application",
+                            #     sell_collateral_application_doc.name,
+                            #     "initiate_message",
+                            #     dict_decrypted_response.get("invocinitiate").get(
+                            #         "message"
+                            #     ),
+                            # )
 
                             isin_details = {}
                             schemedetails_res = dict_decrypted_response.get(
@@ -992,30 +981,19 @@ def initiate_invoc(sell_collateral_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
-                                frappe.log_error(
-                                    title="Invocation - initate logging",
-                                    message="\nisin_folio_combo :{}".format(
-                                        str(isin_folio_combo)
-                                    )
-                                    + "\nisin_details :{}".format(str(isin_details))
-                                    + "\n new_psn = {}".format(
-                                        str(
-                                            isin_details.get(isin_folio_combo).get(
-                                                "invocrefno"
-                                            )
-                                        )
-                                    ),
-                                )
-                                if (
-                                    isin_folio_combo in isin_details
-                                    and dict_decrypted_response.get(
-                                        "invocinitiate"
-                                    ).get("message")
-                                    == "SUCCESS"
-                                ):
+                                if isin_folio_combo in isin_details:
                                     i.invoke_initiate_remarks = isin_details.get(
                                         isin_folio_combo
                                     ).get("remarks")
+                                    if (
+                                        isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
+                                        sell_collateral_application_doc.successfull_request_count = (
+                                            total_success_request + 1
+                                        )
 
                                     old_psn = i.psn
                                     # i.psn = isin_details.get(isin_folio_combo).get("invocrefno")

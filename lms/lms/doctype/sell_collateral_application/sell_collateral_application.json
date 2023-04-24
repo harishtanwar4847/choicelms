@@ -14,7 +14,7 @@
   "pending_unpledge_request_id",
   "instrument_type",
   "processed",
-  "invoctoken",
+  "successfull_request_count",
   "validate_message",
   "is_validated",
   "column_break_2",
@@ -189,13 +189,6 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
-   "fieldname": "invoctoken",
-   "fieldtype": "Data",
-   "label": "Invoctoken",
-   "read_only": 1
-  },
-  {
    "depends_on": "eval:doc.instrument_type != \"Shares\";",
    "fieldname": "actual_drawing_power",
    "fieldtype": "Currency",
@@ -214,11 +207,18 @@
    "fieldname": "processed",
    "fieldtype": "Check",
    "label": "Processed"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "successfull_request_count",
+   "fieldtype": "Data",
+   "label": "Successfull Request Count",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2023-01-19 10:41:00.620026",
+ "modified": "2023-04-24 11:57:38.278928",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",
