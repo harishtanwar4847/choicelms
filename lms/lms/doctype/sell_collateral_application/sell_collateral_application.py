@@ -369,7 +369,7 @@ class SellCollateralApplication(Document):
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
-                    "psn": i.get("new_psn"),
+                    "psn": i.get("new_psn") if i.get("new_psn") else i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
