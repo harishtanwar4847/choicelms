@@ -856,7 +856,7 @@ def initiate_invoc(sell_collateral_application_name):
         ):
             success = []
             prf_list = []
-            total_success_request = []
+            total_success_request = 0
             for i in sell_collateral_application_doc.sell_items:
                 prf = frappe.get_all(
                     "Sell Collateral Application Sell Item",
