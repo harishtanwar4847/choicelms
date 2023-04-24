@@ -948,7 +948,13 @@ def initiate_revoc(unpledge_application_name):
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "revoc_refno"
                                     )
-                                    if old_psn != new_psn:
+                                    if (
+                                        old_psn != new_psn
+                                        and isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
                                         frappe.db.sql(
                                             """
                                             update `tabCollateral Ledger`

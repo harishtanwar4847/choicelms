@@ -1000,7 +1000,13 @@ def initiate_invoc(sell_collateral_application_name):
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "invocrefno"
                                     )
-                                    if old_psn != new_psn:
+                                    if (
+                                        old_psn != new_psn
+                                        and isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
                                         frappe.db.sql(
                                             """
                                             update `tabCollateral Ledger`
