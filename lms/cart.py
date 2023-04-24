@@ -1027,13 +1027,32 @@ def get_tnc(**kwargs):
         roi_ = base_interest * 12
         # diff = lms.diff_in_months(frappe.)
         charges = lms.charges_for_apr(lender.name, lms.validate_rupees(diff))
-        apr = lms.calculate_apr(
-            data.get("cart_name"),
-            roi_,
-            12,
-            int(lms.validate_rupees(eligibile_loan)),
-            charges.get("total"),
+        interest_charges_in_amount = float(
+            cart.increased_sanctioned_limit
+            if cart.loan and not cart.loan_margin_shortfall
+            else cart.eligible_loan
+        ) * (roi_ / 100)
+        interest_per_month = float(interest_charges_in_amount / 12)
+        final_payment = float(interest_per_month) + (
+            cart.increased_sanctioned_limit
+            if cart.loan and not cart.loan_margin_shortfall
+            else cart.eligible_loan
         )
+        # apr = lms.calculate_apr(
+        #     data.get("cart_name"),
+        #     roi_,
+        #     12,
+        #     int(lms.validate_rupees(eligibile_loan)),
+        #     charges.get("total"),
+        # )
+        apr = lms.calculate_irr(
+            name_=data.get("cart_name"),
+            sanction_limit=float(eligibile_loan),
+            interest_per_month=interest_per_month,
+            final_payment=final_payment,
+            charges=charges.get("total"),
+        )
+
         tnc_ul = ["<ul>"]
         tnc_ul.append(
             "<li><strong> Name of borrower : {} </strong>".format(user_kyc.fullname)

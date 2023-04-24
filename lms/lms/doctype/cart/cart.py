@@ -559,27 +559,34 @@ class Cart(Document):
             lender.name,
             lms.validate_rupees(diff),
         )
-        apr = lms.calculate_apr(
-            self.name,
-            roi_,
-            12,
-            (
-                int(
-                    lms.validate_rupees(
-                        self.increased_sanctioned_limit
-                        if self.loan and not self.loan_margin_shortfall
-                        else self.eligible_loan
-                    )
-                )
-            ),
-            charges.get("total"),
-        )
-        annual_default_interest = lender.default_interest * 12
+        # apr = lms.calculate_apr(
+        #     self.name,
+        #     roi_,
+        #     12,
+        #     (
+        #         int(
+        #             lms.validate_rupees(
+        #                 self.increased_sanctioned_limit
+        #                 if self.loan and not self.loan_margin_shortfall
+        #                 else self.eligible_loan
+        #             )
+        #         )
+        #     ),
+        #     charges.get("total"),
+        # )
         sanction_l = (
             self.increased_sanctioned_limit
             if self.loan and not self.loan_margin_shortfall
             else self.eligible_loan
         )
+        apr = lms.calculate_irr(
+            name_=self.name,
+            sanction_limit=float(sanction_l),
+            interest_per_month=interest_per_month,
+            final_payment=final_payment,
+            charges=charges.get("total"),
+        )
+        annual_default_interest = lender.default_interest * 12
 
         doc = {
             "loan_application_number": "",

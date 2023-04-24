@@ -555,13 +555,13 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 lender.name,
                 lms.validate_rupees(float(diff)),
             )
-            apr = lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(lms.validate_rupees(float(self.sanctioned_limit))),
-                charges.get("total"),
-            )
+            # apr = lms.calculate_apr(
+            #     self.name,
+            #     roi_,
+            #     12,
+            #     int(lms.validate_rupees(float(self.sanctioned_limit))),
+            #     charges.get("total"),
+            # )
             annual_default_interest = lender.default_interest * 12
             # sanctionlimit = (
             #     new_increased_sanctioned_limit
@@ -571,6 +571,17 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             interest_charges_in_amount = int(
                 lms.validate_rupees(float(self.sanctioned_limit))
             ) * (roi_ / 100)
+            apr = lms.calculate_irr(
+                name_=self.name,
+                sanction_limit=float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                ),
+                interest_per_month=interest_per_month,
+                final_payment=final_payment,
+                charges=charges.get("total"),
+            )
             doc = {
                 "esign_date": "",
                 "loan_account_number": loan.name if self.loan else "",
@@ -856,22 +867,34 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                     )
                 )
             ) * (roi_ / 100)
-            apr = lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(
-                    lms.validate_rupees(
-                        float(
-                            loan.sanctioned_limit
-                            # self.increased_sanctioned_limit
-                            # if self.increased_sanctioned_limit
-                            # else self.drawing_power
-                        )
-                    )
+            # apr = lms.calculate_apr(
+            #     self.name,
+            #     roi_,
+            #     12,
+            #     int(
+            #         lms.validate_rupees(
+            #             float(
+            #                 loan.sanctioned_limit
+            #                 # self.increased_sanctioned_limit
+            #                 # if self.increased_sanctioned_limit
+            #                 # else self.drawing_power
+            #             )
+            #         )
+            #     ),
+            #     charges.get("total"),
+            # )
+            apr = lms.calculate_irr(
+                name_=self.name,
+                sanction_limit=float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
                 ),
-                charges.get("total"),
+                interest_per_month=interest_per_month,
+                final_payment=final_payment,
+                charges=charges.get("total"),
             )
+
             loan_name = ""
             if not check and self.loan:
                 loan_name = loan.name

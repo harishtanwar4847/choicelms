@@ -4396,3 +4396,20 @@ def send_sms_notification(customer, msg, token_type=None):
             ),
             title="Send SMS Notification Error",
         )
+
+
+def calculate_irr(name_, sanction_limit, interest_per_month, final_payment, charges=0):
+    try:
+        inflow_outflow = [-(sanction_limit - charges)]
+        inflow_outflow.extend([interest_per_month] * 11)
+        inflow_outflow.append(final_payment)
+        irr_ = npf.irr(inflow_outflow) * 12 * 100
+        if irr_ < 0:
+            irr_ = 0
+
+        return round(irr_, 2)
+    except Exception:
+        frappe.log_error(
+            title="Calculate IRR Error",
+            message=frappe.get_traceback() + "\n\n" + str(name_),
+        )

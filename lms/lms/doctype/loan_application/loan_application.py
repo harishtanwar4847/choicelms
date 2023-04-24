@@ -152,21 +152,21 @@ class LoanApplication(Document):
                 lender.name,
                 lms.validate_rupees(float(diff)),
             )
-            apr = lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(
-                    lms.validate_rupees(
-                        float(
-                            new_increased_sanctioned_limit
-                            if self.loan and not self.loan_margin_shortfall
-                            else self.drawing_power
-                        )
-                    )
-                ),
-                charges.get("total"),
-            )
+            # apr = lms.calculate_apr(
+            #     self.name,
+            #     roi_,
+            #     12,
+            #     int(
+            #         lms.validate_rupees(
+            #             float(
+            #                 new_increased_sanctioned_limit
+            #                 if self.loan and not self.loan_margin_shortfall
+            #                 else self.drawing_power
+            #             )
+            #         )
+            #     ),
+            #     charges.get("total"),
+            # )
             annual_default_interest = lender.default_interest * 12
             sanctionlimit = (
                 new_increased_sanctioned_limit
@@ -174,20 +174,18 @@ class LoanApplication(Document):
                 else self.drawing_power
             )
             interest_charges_in_amount = int(
-                lms.validate_rupees(
-                    float(
-                        new_increased_sanctioned_limit
-                        if self.loan and not self.loan_margin_shortfall
-                        else self.drawing_power
-                    )
-                )
+                lms.validate_rupees(float(sanctionlimit))
             ) * (roi_ / 100)
             interest_per_month = float(interest_charges_in_amount / 12)
-            final_payment = float(interest_per_month) + (
-                new_increased_sanctioned_limit
-                if self.loan and not self.loan_margin_shortfall
-                else self.drawing_power
+            final_payment = float(interest_per_month) + sanctionlimit
+            apr = lms.calculate_irr(
+                name_=self.name,
+                sanction_limit=float(sanctionlimit),
+                interest_per_month=interest_per_month,
+                final_payment=final_payment,
+                charges=charges.get("total"),
             )
+
             doc = {
                 "esign_date": "",
                 "loan_account_number": loan.name if self.loan else "",
@@ -2171,27 +2169,39 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                 )
             ) * (roi_ / 100)
-            apr = lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(
-                    lms.validate_rupees(
-                        float(
-                            self.increased_sanctioned_limit
-                            if self.increased_sanctioned_limit
-                            else self.drawing_power
-                        )
-                    )
-                ),
-                charges.get("total"),
-            )
+            # apr = lms.calculate_apr(
+            #     self.name,
+            #     roi_,
+            #     12,
+            #     int(
+            #         lms.validate_rupees(
+            #             float(
+            #                 self.increased_sanctioned_limit
+            #                 if self.increased_sanctioned_limit
+            #                 else self.drawing_power
+            #             )
+            #         )
+            #     ),
+            #     charges.get("total"),
+            # )
             interest_per_month = float(interest_charges_in_amount / 12)
             final_payment = float(interest_per_month) + (
                 self.increased_sanctioned_limit
                 if self.increased_sanctioned_limit
                 else self.drawing_power
             )
+            apr = lms.calculate_irr(
+                name_=self.name,
+                sanction_limit=float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                ),
+                interest_per_month=interest_per_month,
+                final_payment=final_payment,
+                charges=charges.get("total"),
+            )
+
             loan_name = ""
             if not check and self.loan:
                 loan_name = loan.name

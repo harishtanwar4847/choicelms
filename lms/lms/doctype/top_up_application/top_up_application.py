@@ -306,22 +306,30 @@ class TopupApplication(Document):
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(self.top_up_amount))
         )
-        apr = round(
-            lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(lms.validate_rupees(float(increased_sanction_limit))),
-                charges.get("total"),
-            ),
-            2,
-        )
+        # apr = round(
+        #     lms.calculate_apr(
+        #         self.name,
+        #         roi_,
+        #         12,
+        #         int(lms.validate_rupees(float(increased_sanction_limit))),
+        #         charges.get("total"),
+        #     ),
+        #     2,
+        # )
         annual_default_interest = lender.default_interest * 12
         interest_charges_in_amount = int((float(increased_sanction_limit))) * (
             roi_ / 100
         )
         interest_per_month = float(interest_charges_in_amount / 12)
         final_payment = float(interest_per_month) + (increased_sanction_limit)
+        apr = lms.calculate_irr(
+            name_=self.name,
+            sanction_limit=float(increased_sanction_limit),
+            interest_per_month=interest_per_month,
+            final_payment=final_payment,
+            charges=charges.get("total"),
+        )
+
         doc = {
             "esign_date": "",
             "loan_account_number": self.name,
@@ -737,22 +745,30 @@ class TopupApplication(Document):
             charges = lms.charges_for_apr(
                 lender.name, lms.validate_rupees(float(self.top_up_amount))
             )
-            apr = round(
-                lms.calculate_apr(
-                    self.name,
-                    roi_,
-                    12,
-                    int(lms.validate_rupees(float(increased_sanction_limit))),
-                    charges.get("total"),
-                ),
-                2,
-            )
+            # apr = round(
+            #     lms.calculate_apr(
+            #         self.name,
+            #         roi_,
+            #         12,
+            #         int(lms.validate_rupees(float(increased_sanction_limit))),
+            #         charges.get("total"),
+            #     ),
+            #     2,
+            # )
             annual_default_interest = lender.default_interest * 12
             interest_charges_in_amount = int(
                 lms.validate_rupees(float(increased_sanction_limit))
             ) * (roi_ / 100)
             interest_per_month = float(interest_charges_in_amount / 12)
             final_payment = float(interest_per_month) + (increased_sanction_limit)
+            apr = lms.calculate_irr(
+                name_=self.name,
+                sanction_limit=float(increased_sanction_limit),
+                interest_per_month=interest_per_month,
+                final_payment=final_payment,
+                charges=charges.get("total"),
+            )
+
             doc = {
                 "esign_date": "",
                 "loan_account_no": loan.name if self.loan else "",
