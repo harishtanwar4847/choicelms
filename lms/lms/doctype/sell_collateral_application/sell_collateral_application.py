@@ -904,7 +904,7 @@ def initiate_invoc(sell_collateral_application_name):
                             }
                         }
                         for i in prf:
-                            if i.invoke_initiate_remarks == "SUCCESS":
+                            if i.invoke_validate_remarks == "SUCCESS":
                                 schemedetails = (
                                     {
                                         "amccode": i.amc_code,
