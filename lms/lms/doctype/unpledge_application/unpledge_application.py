@@ -159,6 +159,18 @@ class UnpledgeApplication(Document):
                     )
                 )
             if self.instrument_type == "Mutual Fund":
+                lms.create_log(
+                    {
+                        "isin_folio_combo": isin_folio_combo,
+                        "unpledge_quantity_map": unpledge_quantity_map,
+                        "unpledge_requested_quantity_map": unpledge_requested_quantity_map,
+                        "i.unpledge_quantity": i.unpledge_quantity,
+                        "unpledge_requested_quantity_map.get(isin_folio_combo)": unpledge_requested_quantity_map.get(
+                            isin_folio_combo
+                        ),
+                    },
+                    "checking",
+                )
                 if (
                     unpledge_requested_quantity_map.get(isin_folio_combo)
                     > i.unpledge_quantity
