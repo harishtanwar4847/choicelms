@@ -817,7 +817,6 @@ def initiate_revoc(unpledge_application_name):
         ):
             success = []
             prf_list = []
-            total_success_request = 0
             for i in unpledge_application_doc.unpledge_items:
                 prf = frappe.get_all(
                     "Unpledge Application Unpledged Item",
@@ -937,8 +936,8 @@ def initiate_revoc(unpledge_application_name):
                                         )
                                         == "SUCCESS"
                                     ):
-                                        unpledge_application_doc.successfull_request_count = (
-                                            total_success_request + 1
+                                        unpledge_application_doc.successfull_request_count += (
+                                            1
                                         )
 
                                     old_psn = i.psn
