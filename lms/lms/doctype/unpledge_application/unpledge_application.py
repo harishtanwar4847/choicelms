@@ -939,9 +939,15 @@ def initiate_revoc(unpledge_application_name):
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
                                 if isin_folio_combo in isin_details:
-                                    i.revoke_initiate_remarks = isin_details.get(
-                                        isin_folio_combo
-                                    ).get("remarks")
+                                    i.revoke_initiate_remarks = (
+                                        isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        if isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        else "FAILURE"
+                                    )
                                     # if (
                                     #     isin_details.get(isin_folio_combo).get(
                                     #         "remarks"
