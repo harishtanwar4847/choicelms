@@ -519,7 +519,7 @@ class TopupApplication(Document):
             #     self.doctype, self.name, "lender_esigned_document", edited
             # )
             # self.lender_esigned_document = edited
-            self.map_loan_agreement_file(loan, edited)
+            self.map_loan_agreement_file(loan)
             attachments = self.create_attachment()
             loan_email_message = frappe.db.sql(
                 "select message from `tabNotification` where name ='Top up Application Approved';"
