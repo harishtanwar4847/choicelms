@@ -187,7 +187,7 @@ class LoanApplication(Document):
             )
 
             doc = {
-                "esign_date": "",
+                "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
                 "loan_account_number": loan.name if self.loan else "",
                 "loan_application_number": self.name,
                 "borrower_name": customer.full_name,
@@ -1028,27 +1028,27 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
                 if not self.is_offline_loan and self.lender_esigned_document:
-                    signed_doc = lms.pdf_editor(
-                        self.lender_esigned_document,
-                        pdf_doc_name,
-                        loan.name,
-                    )
-                    self.lender_esigned_document = signed_doc
-                    frappe.db.set_value(
-                        self.doctype, self.name, "lender_esigned_document", signed_doc
-                    )
+                    # signed_doc = lms.pdf_editor(
+                    #     self.lender_esigned_document,
+                    #     pdf_doc_name,
+                    #     loan.name,
+                    # )
+                    # self.lender_esigned_document = signed_doc
+                    # frappe.db.set_value(
+                    #     self.doctype, self.name, "lender_esigned_document", signed_doc
+                    # )
                     self.sanction_letter(check=loan.name)
             else:
                 loan = self.update_existing_loan()
                 if not self.is_offline_loan and self.lender_esigned_document:
-                    signed_doc = lms.pdf_editor(
-                        self.lender_esigned_document,
-                        pdf_doc_name,
-                    )
-                    self.lender_esigned_document = signed_doc
-                    frappe.db.set_value(
-                        self.doctype, self.name, "lender_esigned_document", signed_doc
-                    )
+                    # signed_doc = lms.pdf_editor(
+                    #     self.lender_esigned_document,
+                    #     pdf_doc_name,
+                    # )
+                    # self.lender_esigned_document = signed_doc
+                    # frappe.db.set_value(
+                    #     self.doctype, self.name, "lender_esigned_document", signed_doc
+                    # )
 
                     self.sanction_letter(check=loan.name)
             frappe.db.commit()
@@ -1344,52 +1344,52 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         return loan
 
     def map_loan_agreement_file(self, loan, increase_loan=False):
-        # file_name = frappe.db.get_value(
-        #     "File", {"file_url": self.lender_esigned_document}
-        # )
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.lender_esigned_document}
+        )
 
-        # loan_agreement = frappe.get_doc("File", file_name)
+        loan_agreement = frappe.get_doc("File", file_name)
 
-        # event = "New loan"
-        # if increase_loan:
-        #     loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
-        #         loan.name
-        #     )
-        #     event = "Increase loan"
-        # else:
-        #     loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
+        event = "New loan"
+        if increase_loan:
+            loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
+                loan.name
+            )
+            event = "Increase loan"
+        else:
+            loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
 
-        # is_private = 0
-        # loan_agreement_file_url = frappe.utils.get_files_path(
-        #     loan_agreement_file_name, is_private=is_private
-        # )
+        is_private = 0
+        loan_agreement_file_url = frappe.utils.get_files_path(
+            loan_agreement_file_name, is_private=is_private
+        )
 
-        # # frappe.db.begin()
-        # loan_agreement_file = frappe.get_doc(
-        #     {
-        #         "doctype": "File",
-        #         "file_name": loan_agreement_file_name,
-        #         "content": loan_agreement.get_content(),
-        #         "attached_to_doctype": "Loan",
-        #         "attached_to_name": loan.name,
-        #         "attached_to_field": "loan_agreement",
-        #         "folder": "Home",
-        #         # "file_url": loan_agreement_file_url,
-        #         "is_private": is_private,
-        #     }
-        # )
-        # loan_agreement_file.insert(ignore_permissions=True)
-        # frappe.db.commit()
+        # frappe.db.begin()
+        loan_agreement_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": loan_agreement_file_name,
+                "content": loan_agreement.get_content(),
+                "attached_to_doctype": "Loan",
+                "attached_to_name": loan.name,
+                "attached_to_field": "loan_agreement",
+                "folder": "Home",
+                # "file_url": loan_agreement_file_url,
+                "is_private": is_private,
+            }
+        )
+        loan_agreement_file.insert(ignore_permissions=True)
+        frappe.db.commit()
 
         frappe.db.set_value(
             "Loan",
             loan.name,
             "loan_agreement",
-            self.lender_esigned_document,
+            loan_agreement_file.file_url,
             update_modified=False,
         )
         # save loan sanction history
-        # loan.save_loan_sanction_history(loan_agreement_file.name, event)
+        loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def update_existing_loan(self):
         self.update_collateral_ledger(
@@ -2509,6 +2509,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         35,
                         36,
                         37,
+                        38,
                     ]  # page 1, 3, 5
                     pdfWriter = PdfWriter()
                     for page_num in pages:

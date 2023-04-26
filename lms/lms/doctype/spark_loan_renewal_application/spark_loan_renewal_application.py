@@ -585,7 +585,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 charges=charges.get("total"),
             )
             doc = {
-                "esign_date": "",
+                "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
                 "loan_account_number": loan.name if self.loan else "",
                 "loan_application_number": self.name,
                 "borrower_name": customer.full_name,
@@ -1152,6 +1152,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                         35,
                         36,
                         37,
+                        38,
                     ]  # page 1, 3, 5
                     pdfWriter = PdfWriter()
                     for page_num in pages:
