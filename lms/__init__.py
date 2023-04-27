@@ -1820,7 +1820,7 @@ def decrypt_mycams_response():
                 dp = ((i.eligible_percentage or 0) / 100) * i.amount
                 i.eligibile_amount = dp
                 drawing_power += dp
-            cart.increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            cart.increased_sanctioned_limit = round_down_amount_to_nearest_thousand(
                 drawing_power
             )
             cart.save(ignore_permissions=True)
