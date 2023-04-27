@@ -1813,6 +1813,7 @@ def decrypt_mycams_response():
                         "type": res.get("bankschemetype"),
                     },
                 )
+            cart.save(ignore_permissions=True)
             drawing_power = 0
             for i in cart.items:
                 i.amount = i.price * i.pledged_quantity
