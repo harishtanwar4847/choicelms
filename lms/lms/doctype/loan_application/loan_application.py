@@ -45,11 +45,19 @@ class LoanApplication(Document):
                 #     * self.allowable_ltv
                 #     / 100
                 # )
-                actual_dp = lms.round_down_amount_to_nearest_thousand(
-                    loan.actual_drawing_power
-                )
+                actual_dp = 0
+                for i in loan.items:
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
+                    actual_dp += i.eligible_amount
+                drawing_power = 0
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    dp = ((i.eligible_percentage or 0) / 100) * i.amount
+                    i.eligibile_amount = dp
+                    drawing_power += dp
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    actual_dp + self.drawing_power
+                    actual_dp + drawing_power
                 )
                 new_increased_sanctioned_limit = (
                     increased_sanctioned_limit
@@ -2119,11 +2127,19 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 #     * self.allowable_ltv
                 #     / 100
                 # )
-                actual_dp = lms.round_down_amount_to_nearest_thousand(
-                    loan.actual_drawing_power
-                )
+                actual_dp = 0
+                for i in loan.items:
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
+                    actual_dp += i.eligible_amount
+                drawing_power = 0
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    dp = ((i.eligible_percentage or 0) / 100) * i.amount
+                    i.eligibile_amount = dp
+                    drawing_power += dp
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    actual_dp + self.drawing_power
+                    actual_dp + drawing_power
                 )
                 new_increased_sanctioned_limit = (
                     increased_sanctioned_limit

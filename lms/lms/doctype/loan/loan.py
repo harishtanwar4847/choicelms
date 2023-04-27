@@ -1990,7 +1990,7 @@ class Loan(Document):
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
                 i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
-                total_collateral_value += i.amount
+                # total_collateral_value += i.amount
                 actual_drawing_power += i.eligible_amount
 
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
