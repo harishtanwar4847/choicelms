@@ -2775,11 +2775,6 @@ def validate_securities_for_unpledge(securities, loan):
                 "{}{}{}".format(i["isin"], i["folio"], i["psn"])
             )
             folio_list.append(i["folio"])
-        else:
-            if "psn" not in i.keys() or not i.get("psn"):
-                securities_valid = False
-                message = frappe._("psn not present")
-                break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
