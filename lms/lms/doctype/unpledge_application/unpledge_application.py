@@ -115,7 +115,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.price
             for i in self.items
         }
@@ -123,7 +123,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -132,7 +132,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.quantity
             for i in self.items
         }
@@ -147,7 +147,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(
@@ -200,7 +200,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if unpledge_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -215,7 +215,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -227,7 +227,7 @@ class UnpledgeApplication(Document):
                 isin_folio_combo = "{}{}{}".format(
                     i.isin,
                     "{}".format("-" + str(i.folio) if i.folio else ""),
-                    i.psn if i.psn else "",
+                    i.psn if self.instrument_type == "Mutual Fund" else "",
                 )
                 unpledge_quantity_map[isin_folio_combo] = (
                     unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
@@ -239,7 +239,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if unpledge_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
