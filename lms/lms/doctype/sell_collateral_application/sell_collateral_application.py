@@ -112,7 +112,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.price
             for i in self.items
         }
@@ -120,7 +120,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -129,7 +129,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.quantity
             for i in self.items
         }
@@ -149,7 +149,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
                 # psn[0][0] if psn else "",
             )
             if i.sell_quantity > i.quantity:
@@ -188,7 +188,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if sell_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -208,7 +208,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -219,7 +219,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
@@ -229,7 +229,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if sell_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
