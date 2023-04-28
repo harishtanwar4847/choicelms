@@ -405,6 +405,8 @@ class Cart(Document):
         lender = self.get_lender()
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
+        logo_file_path_1 = lender.get_lender_logo_file()
+        logo_file_path_2 = lender.get_lender_address_file()
         diff = self.eligible_loan
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
@@ -615,6 +617,8 @@ class Cart(Document):
                 )
             ).title(),
             "roi": roi_,
+            "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
             "default_interest": annual_default_interest,
             "rebate_interest": rebate_interest,
             "rebait_threshold": lender.rebait_threshold,

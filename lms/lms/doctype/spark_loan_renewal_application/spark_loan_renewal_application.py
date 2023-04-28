@@ -446,6 +446,8 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             user = frappe.get_doc("User", customer.user)
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             lender = self.get_lender()
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             diff = self.drawing_power
             if self.loan:
                 loan = self.get_loan()
@@ -597,6 +599,12 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 "district": perm_dist,
                 "state": perm_state,
                 "pincode": perm_pin,
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
                 # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
                 "sanctioned_amount": frappe.utils.fmt_money(
                     float(self.sanctioned_limit)

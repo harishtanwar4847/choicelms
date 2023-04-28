@@ -38,6 +38,8 @@ class LoanApplication(Document):
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             lender = self.get_lender()
             diff = self.drawing_power
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             if self.loan:
                 loan = self.get_loan()
                 # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -208,6 +210,12 @@ class LoanApplication(Document):
                 "state": perm_state,
                 "pincode": perm_pin,
                 # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
                 "sanctioned_amount": frappe.utils.fmt_money(
                     float(
                         new_increased_sanctioned_limit
@@ -2088,6 +2096,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             user = frappe.get_doc("User", customer.user)
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             lender = self.get_lender()
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             if user_kyc.address_details:
                 address_details = frappe.get_doc(
                     "Customer Address Details", user_kyc.address_details
@@ -2238,6 +2248,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "state": perm_state,
                     "pincode": perm_pin,
                     # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+                    "logo_file_path_1": logo_file_path_1.file_url
+                    if logo_file_path_1
+                    else "",
+                    "logo_file_path_2": logo_file_path_2.file_url
+                    if logo_file_path_2
+                    else "",
                     "sanctioned_amount": frappe.utils.fmt_money(
                         self.increased_sanctioned_limit
                         if self.increased_sanctioned_limit

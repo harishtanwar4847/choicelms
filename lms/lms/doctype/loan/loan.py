@@ -2122,7 +2122,8 @@ class Loan(Document):
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
         # loan = self.get_loan()
-
+        logo_file_path_1 = lender.get_lender_logo_file()
+        logo_file_path_2 = lender.get_lender_address_file()
         if user_kyc.address_details:
             address_details = frappe.get_doc(
                 "Customer Address Details", user_kyc.address_details
@@ -2293,6 +2294,8 @@ class Loan(Document):
             "old_sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(self.sanctioned_limit)
             ).title(),
+            "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": annual_default_interest,
             "penal_charges": lender.renewal_penal_interest
