@@ -2236,7 +2236,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             annual_default_interest = lender.default_interest * 12
             if self.status != "Approved":
                 doc = {
-                    "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+                    "esign_date": "",
                     "loan_account_number": loan_name,
                     "loan_application_no": self.name,
                     "borrower_name": customer.full_name,
