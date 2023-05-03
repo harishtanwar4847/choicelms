@@ -172,7 +172,8 @@
    "fieldtype": "Select",
    "label": "Scheme Type",
    "mandatory_depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
-   "options": "\nEquity\nDebt"
+   "options": "\nEquity\nDebt",
+   "read_only_depends_on": "doc.status != \"Pending\";"
   },
   {
    "depends_on": "eval:doc.instrument_type != \"Shares\";",
@@ -190,7 +191,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2023-02-07 21:38:24.812268",
+ "modified": "2023-04-21 16:00:57.510575",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

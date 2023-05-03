@@ -605,7 +605,6 @@ def my_loans():
                 customer.name
             ),
             as_dict=1,
-            debug=True,
         )
 
         data = {"loans": loans}
@@ -993,7 +992,6 @@ def loan_details(**kwargs):
                 "transactions_start": "",
             },
         )
-
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
             # return utils.respondWithFailure(
@@ -1013,7 +1011,6 @@ def loan_details(**kwargs):
             #             loan=loan.name,
             #         ),
             #         as_dict=True,
-            #         # debug=True,
             #     )
             #     print("psn_no",psn_no)
             # i["psn"] = psn_no
@@ -1374,6 +1371,33 @@ def loan_details(**kwargs):
         else:
             increase_loan_name = existing_loan_application[0].name
 
+        collateral_ledger = frappe.get_all(
+            "Collateral Ledger",
+            filters={"request_type": "Pledge", "loan": loan.name},
+            fields=["*"],
+        )
+        collateral_ledger_list = []
+        if loan.instrument_type == "Mutual Fund":
+            for i in collateral_ledger:
+                sql = frappe.db.sql(
+                    """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and prf = '{prf}' and loan = '{loan}'""".format(
+                        isin=i.isin, folio=i.folio, prf=i.prf, loan=i.loan
+                    ),
+                    as_dict=1,
+                    debug=True,
+                )
+                psn = frappe.db.sql(
+                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge'  and folio = '{folio}' and  isin = '{isin}'""".format(
+                        prf=i.prf, isin=i.isin, folio=i.folio
+                    ),
+                    as_dict=1,
+                    debug=True,
+                )
+                sql[0]["psn"] = psn[0]["psn"]
+                collateral_ledger_list.extend(sql)
+
         res = {
             "loan": loan,
             "instrument_type": loan.instrument_type,
@@ -1389,6 +1413,7 @@ def loan_details(**kwargs):
             "invoke_charge_details": invoke_initiate_charges
             if loan.instrument_type == "Mutual Fund"
             else {},
+            "collateral_ledger": collateral_ledger_list,
         }
 
         sell_collateral_application_exist = frappe.get_all(
@@ -2274,7 +2299,9 @@ def loan_statement(**kwargs):
                 else ""
             )
             pledged_securities_transactions = frappe.db.sql(
-                """select DATE_FORMAT(`tabCollateral Ledger`.creation, '%Y-%m-%d %H:%i') as creation, `tabCollateral Ledger`.isin, `tabSecurity`.security_name, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type, `tabCollateral Ledger`.folio from `tabCollateral Ledger`
+                """select DATE_FORMAT(`tabCollateral Ledger`.creation, '%Y-%m-%d %H:%i') as creation, `tabCollateral Ledger`.isin, `tabSecurity`.security_name,`tabAllowed Security`.eligible_percentage, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type,`tabCollateral Ledger`.security_category, `tabCollateral Ledger`.folio from `tabCollateral Ledger`
+                left join `tabAllowed Security`on `tabAllowed Security`.isin = `tabCollateral Ledger`.isin
+
             left join `tabSecurity`
             on `tabSecurity`.name = `tabCollateral Ledger`.isin
             where `tabCollateral Ledger`.loan = '{}'
@@ -2628,11 +2655,41 @@ def loan_unpledge_details(**kwargs):
             "revoke_initiate_charges_maximum_amount": lender.revoke_initiate_charges_maximum_amount,
         }
 
+        collateral_ledger = frappe.get_all(
+            "Collateral Ledger",
+            filters={"request_type": "Pledge", "loan": loan.name},
+            fields=["*"],
+        )
+        collateral_ledger_list = []
+        if loan.instrument_type == "Mutual Fund":
+            for i in collateral_ledger:
+                sql = frappe.db.sql(
+                    """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and prf = '{prf}' and loan = '{loan}'""".format(
+                        isin=i.isin, folio=i.folio, prf=i.prf, loan=i.loan
+                    ),
+                    as_dict=1,
+                    debug=True,
+                )
+                psn = frappe.db.sql(
+                    """select psn from `tabCollateral Ledger` where prf = '{prf}' and request_type = 'Pledge' and isin = '{isin}'and folio = '{folio}'""".format(
+                        prf=i.prf, isin=i.isin, folio=i.folio
+                    ),
+                    as_dict=1,
+                    debug=True,
+                )
+                sql[0]["psn"] = psn[0]["psn"]
+                collateral_ledger_list.extend(sql)
+
         res = {
             "loan": loan,
             "revoke_charge_details": revoke_initiate_charges
             if loan.instrument_type == "Mutual Fund"
             else {},
+            "collateral_ledger": collateral_ledger_list
+            if loan.instrument_type == "Mutual Fund"
+            else [],
         }
 
         loan_margin_shortfall = loan.get_margin_shortfall()
@@ -2714,13 +2771,10 @@ def validate_securities_for_unpledge(securities, loan):
                 securities_valid = False
                 message = frappe._("folio not present")
                 break
-            duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
+            duplicate_securities_list.append(
+                "{}{}{}".format(i["isin"], i["folio"], i["psn"])
+            )
             folio_list.append(i["folio"])
-        # else:
-        #     if "psn" not in i.keys() or not i.get("psn"):
-        #         securities_valid = False
-        #         message = frappe._("psn not present")
-        #         break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
@@ -2944,7 +2998,6 @@ def loan_unpledge_request(**kwargs):
             a = 0
             for date in pledged_quantity:
                 a += date.quantity
-            print("quantity", a)
 
         unpledge_application = frappe.get_doc(
             {
@@ -3281,7 +3334,9 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 securities_valid = False
                 message = frappe._("folio not present")
                 break
-            duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
+            duplicate_securities_list.append(
+                "{}{}{}".format(i["isin"], i["folio"], i["psn"])
+            )
             folio_list.append(i["folio"])
 
     if folio_list:

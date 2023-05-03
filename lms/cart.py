@@ -329,10 +329,12 @@ def upsert(**kwargs):
                 min_sanctioned_limit = 1000.0
 
         res["min_sanctioned_limit"] = (
-            min_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+            min_sanctioned_limit
+            # if not data.get("loan_margin_shortfall_name") else 0.0
         )
         res["max_sanctioned_limit"] = (
-            max_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+            max_sanctioned_limit
+            # if not data.get("loan_margin_shortfall_name") else 0.0
         )
         res["roi"] = lender.rate_of_interest
 
@@ -1025,13 +1027,24 @@ def get_tnc(**kwargs):
         roi_ = base_interest * 12
         # diff = lms.diff_in_months(frappe.)
         charges = lms.charges_for_apr(lender.name, lms.validate_rupees(diff))
-        apr = lms.calculate_apr(
-            data.get("cart_name"),
-            roi_,
-            12,
-            int(lms.validate_rupees(eligibile_loan)),
-            charges.get("total"),
+        interest_charges_in_amount = float(eligibile_loan) * (roi_ / 100)
+        interest_per_month = float(interest_charges_in_amount / 12)
+        final_payment = float(interest_per_month) + (eligibile_loan)
+        # apr = lms.calculate_apr(
+        #     data.get("cart_name"),
+        #     roi_,
+        #     12,
+        #     int(lms.validate_rupees(eligibile_loan)),
+        #     charges.get("total"),
+        # )
+        apr = lms.calculate_irr(
+            name_=data.get("cart_name"),
+            sanction_limit=float(eligibile_loan),
+            interest_per_month=interest_per_month,
+            final_payment=final_payment,
+            charges=charges.get("total"),
         )
+
         tnc_ul = ["<ul>"]
         tnc_ul.append(
             "<li><strong> Name of borrower : {} </strong>".format(user_kyc.fullname)

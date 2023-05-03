@@ -624,6 +624,7 @@ class Loan(Document):
 
             # adding new items if any
             for i in collateral_list_map.values():
+                print("collateral_list_map.values()", collateral_list_map.values())
                 loan_item = frappe.get_doc(
                     {
                         "doctype": "Loan Item",
@@ -633,6 +634,7 @@ class Loan(Document):
                         "pledged_quantity": i.quantity,
                         "price": i.price,
                         "eligible_percentage": i.eligible_percentage,
+                        "folio": i.folio,
                     }
                 )
 
@@ -700,7 +702,7 @@ class Loan(Document):
             check = self.update_items()
             if on_approval == False:
                 self.update_ltv()
-            if check:
+            if check or (not check and on_approval):
                 self.fill_items()
                 self.available_topup_amt = self.max_topup_amount()
                 self.save(ignore_permissions=True)
@@ -1988,7 +1990,7 @@ class Loan(Document):
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
                 i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
-                total_collateral_value += i.amount
+                # total_collateral_value += i.amount
                 actual_drawing_power += i.eligible_amount
 
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
@@ -2120,7 +2122,8 @@ class Loan(Document):
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
         # loan = self.get_loan()
-
+        logo_file_path_1 = lender.get_lender_logo_file()
+        logo_file_path_2 = lender.get_lender_address_file()
         if user_kyc.address_details:
             address_details = frappe.get_doc(
                 "Customer Address Details", user_kyc.address_details
@@ -2226,19 +2229,28 @@ class Loan(Document):
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(topup_amount))
         )
-        apr = round(
-            lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(lms.validate_rupees(float(increased_sanction_limit))),
-                charges.get("total"),
-            ),
-            2,
-        )
+        # apr = round(
+        #     lms.calculate_apr(
+        #         self.name,
+        #         roi_,
+        #         12,
+        #         int(lms.validate_rupees(float(increased_sanction_limit))),
+        #         charges.get("total"),
+        #     ),
+        #     2,
+        # )
         annual_default_interest = lender.default_interest * 12
         interest_amount = int(
             (lms.validate_rupees(float(increased_sanction_limit))) * (roi_ / 100)
+        )
+        interest_per_month = float(interest_amount / 12)
+        final_payment = float(interest_per_month) + (increased_sanction_limit)
+        apr = lms.calculate_irr(
+            name_=self.name,
+            sanction_limit=float(increased_sanction_limit),
+            interest_per_month=interest_per_month,
+            final_payment=final_payment,
+            charges=charges.get("total"),
         )
 
         doc = {
@@ -2282,6 +2294,8 @@ class Loan(Document):
             "old_sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(self.sanctioned_limit)
             ).title(),
+            "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": annual_default_interest,
             "penal_charges": lender.renewal_penal_interest
@@ -2289,6 +2303,8 @@ class Loan(Document):
             else "",
             "rebait_threshold": lender.rebait_threshold,
             "interest_charges_in_amount": frappe.utils.fmt_money(interest_amount),
+            "interest_per_month": frappe.utils.fmt_money(interest_per_month),
+            "final_payment": frappe.utils.fmt_money(final_payment),
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),

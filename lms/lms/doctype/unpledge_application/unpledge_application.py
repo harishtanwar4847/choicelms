@@ -115,7 +115,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.price
             for i in self.items
         }
@@ -123,7 +123,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -132,7 +132,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.quantity
             for i in self.items
         }
@@ -147,7 +147,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(
@@ -159,6 +159,18 @@ class UnpledgeApplication(Document):
                     )
                 )
             if self.instrument_type == "Mutual Fund":
+                lms.create_log(
+                    {
+                        "isin_folio_combo": isin_folio_combo,
+                        "unpledge_quantity_map": unpledge_quantity_map,
+                        "unpledge_requested_quantity_map": unpledge_requested_quantity_map,
+                        "i.unpledge_quantity": i.unpledge_quantity,
+                        "unpledge_requested_quantity_map.get(isin_folio_combo)": unpledge_requested_quantity_map.get(
+                            isin_folio_combo
+                        ),
+                    },
+                    "checking",
+                )
                 if (
                     unpledge_requested_quantity_map.get(isin_folio_combo)
                     > i.unpledge_quantity
@@ -188,7 +200,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if unpledge_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -203,7 +215,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -215,7 +227,7 @@ class UnpledgeApplication(Document):
                 isin_folio_combo = "{}{}{}".format(
                     i.isin,
                     "{}".format("-" + str(i.folio) if i.folio else ""),
-                    i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
+                    i.psn if self.instrument_type == "Mutual Fund" else "",
                 )
                 unpledge_quantity_map[isin_folio_combo] = (
                     unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
@@ -227,7 +239,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if unpledge_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
@@ -257,7 +269,7 @@ class UnpledgeApplication(Document):
 
     def on_submit(self):
         for i in self.unpledge_items:
-            if i.unpledge_quantity > 0:
+            if i.unpledge_quantity > 0 and i.revoke_initiate_remarks == "SUCCESS":
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
@@ -272,7 +284,7 @@ class UnpledgeApplication(Document):
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
-                    "psn": i.get("psn"),
+                    "psn": i.get("new_psn") if i.get("new_psn") else i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
@@ -314,25 +326,26 @@ class UnpledgeApplication(Document):
 
         else:
             # revoke charges - Mutual Fund
-            revoke_charges = lender.revoke_initiate_charges
+            for i in range(self.successfull_request_count):
+                revoke_charges = lender.revoke_initiate_charges
 
-            if lender.revoke_initiate_charge_type == "Fix":
-                revoke_charges = revoke_charges
-            elif lender.revoke_initiate_charge_type == "Percentage":
-                amount = self.unpledge_collateral_value * revoke_charges / 100
-                revoke_charges = loan.validate_loan_charges_amount(
-                    lender,
-                    amount,
-                    "revoke_initiate_charges_minimum_amount",
-                    "revoke_initiate_charges_maximum_amount",
-                )
+                if lender.revoke_initiate_charge_type == "Fix":
+                    revoke_charges = revoke_charges
+                elif lender.revoke_initiate_charge_type == "Percentage":
+                    amount = self.unpledge_collateral_value * revoke_charges / 100
+                    revoke_charges = loan.validate_loan_charges_amount(
+                        lender,
+                        amount,
+                        "revoke_initiate_charges_minimum_amount",
+                        "revoke_initiate_charges_maximum_amount",
+                    )
 
-            if revoke_charges > 0:
-                revoke_charges_reference = loan.create_loan_transaction(
-                    transaction_type="Revocation Charges",
-                    amount=revoke_charges,
-                    approve=True,
-                )
+                if revoke_charges > 0:
+                    revoke_charges_reference = loan.create_loan_transaction(
+                        transaction_type="Revocation Charges",
+                        amount=revoke_charges,
+                        approve=True,
+                    )
 
         self.notify_customer()
 
@@ -497,158 +510,293 @@ def validate_revoc(unpledge_application_name):
             customer.mycams_email_id
             and unpledge_application_doc.instrument_type == "Mutual Fund"
         ):
-            # create payload
-            try:
-                datetime_signature = lms.create_signature_mycams()
-                las_settings = frappe.get_single("LAS Settings")
-                headers = {
-                    "Content-Type": "application/json",
-                    "clientid": las_settings.client_id,
-                    "datetimestamp": datetime_signature[0],
-                    "signature": datetime_signature[1],
-                    "subclientid": "",
-                }
-                url = las_settings.revoke_api
-                data = {
-                    "revocvalidate": {
-                        "reqrefno": unpledge_application_doc.name,
-                        "lienrefno": collateral_ledger.prf,
-                        "pan": user_kyc.pan_no,
-                        "regemailid": customer.mycams_email_id,
-                        "clientid": las_settings.client_id,
-                        "requestip": "",
-                        "schemedetails": [],
-                    }
-                }
-                for i in unpledge_application_doc.unpledge_items:
-                    psn = frappe.db.sql(
-                        """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
-                            isin=i.isin,
-                            folio=i.folio,
-                            loan=unpledge_application_doc.loan,
-                            type="Pledge",
-                        ),
-                        as_dict=1,
-                    )
-                    schemedetails = (
-                        {
-                            "amccode": i.amc_code,
-                            "folio": i.folio,
-                            "schemecode": i.scheme_code,
-                            "schemename": i.security_name,
-                            "isinno": i.isin,
-                            "schemetype": unpledge_application_doc.scheme_type,
-                            "schemecategory": i.security_category,
-                            "lienunit": i.quantity,
-                            "revocationunit": i.unpledge_quantity,
-                            "lienmarkno": psn[0].psn,
-                        },
-                    )
-                    data["revocvalidate"]["schemedetails"].append(schemedetails[0])
+            success = []
+            prf_list = []
+            revoc_response_list = []
+            token_dict = dict()
 
-                lms.create_log(
-                    {
-                        "json_payload": data,
+            for i in unpledge_application_doc.unpledge_items:
+                prf = frappe.get_all(
+                    "Unpledge Application Unpledged Item",
+                    filters={
+                        "parent": unpledge_application_doc.name,
+                        "prf": i.prf,
                     },
-                    "revoke_validate_request",
+                    fields=["*"],
                 )
-                encrypted_data = lms.AESCBC(
-                    las_settings.encryption_key, las_settings.iv
-                ).encrypt(json.dumps(data))
-
-                req_data = {"req": str(encrypted_data)}
-
-                resp = requests.post(
-                    url=url, headers=headers, data=json.dumps(req_data)
-                ).text
-
-                encrypted_response = (
-                    json.loads(resp).get("res").replace("-", "+").replace("_", "/")
-                )
-                decrypted_response = lms.AESCBC(
-                    las_settings.decryption_key, las_settings.iv
-                ).decrypt(encrypted_response)
-                dict_decrypted_response = json.loads(decrypted_response)
-
-                lms.create_log(
-                    {
-                        "encrypted_request": encrypted_data,
-                        "encrypred_response": json.loads(resp).get("res"),
-                        "decrypted_response": dict_decrypted_response,
-                    },
-                    "revoke_validate_response",
-                )
-
-                if dict_decrypted_response.get("revocvalidate"):
-                    unpledge_application_doc.validate_message = (
-                        dict_decrypted_response.get("revocvalidate").get("message")
-                    )
-                    unpledge_application_doc.revoctoken = dict_decrypted_response.get(
-                        "revocvalidate"
-                    ).get("revoctoken")
-
-                    isin_details = {}
-                    schemedetails_res = dict_decrypted_response.get(
-                        "revocvalidate"
-                    ).get("schemedetails")
-
-                    for i in schemedetails_res:
-                        isin_details[
-                            "{}{}{}".format(
-                                i.get("isinno"), i.get("folio"), i.get("psn")
+                if i.prf not in prf_list:
+                    try:
+                        datetime_signature = lms.create_signature_mycams()
+                        las_settings = frappe.get_single("LAS Settings")
+                        headers = {
+                            "Content-Type": "application/json",
+                            "clientid": las_settings.client_id,
+                            "datetimestamp": datetime_signature[0],
+                            "signature": datetime_signature[1],
+                            "subclientid": "",
+                        }
+                        url = las_settings.revoke_api
+                        data = {
+                            "revocvalidate": {
+                                "reqrefno": "{}_{}".format(
+                                    unpledge_application_doc.name,
+                                    frappe.utils.now_datetime().strftime(
+                                        "%Y-%m-%d %H:%M:%S.%f"
+                                    ),
+                                ),
+                                "lienrefno": i.prf,
+                                "pan": user_kyc.pan_no,
+                                "regemailid": customer.mycams_email_id,
+                                "clientid": las_settings.client_id,
+                                "requestip": "",
+                                "schemedetails": [],
+                            }
+                        }
+                        for i in prf:
+                            schemedetails = (
+                                {
+                                    "amccode": i.amc_code,
+                                    "folio": i.folio,
+                                    "schemecode": i.scheme_code,
+                                    "schemename": i.security_name,
+                                    "isinno": i.isin,
+                                    "schemetype": unpledge_application_doc.scheme_type,
+                                    "schemecategory": i.security_category,
+                                    "lienunit": i.quantity,
+                                    "revocationunit": i.unpledge_quantity,
+                                    "lienmarkno": i.psn,
+                                },
                             )
-                        ] = i
-                    for i in unpledge_application_doc.unpledge_items:
-                        isin_folio_combo = "{}{}{}".format(
-                            i.get("isin"), i.get("folio"), i.get("psn")
-                        )
-                        if isin_folio_combo in isin_details:
-                            i.revoke_validate_remarks = isin_details.get(
-                                isin_folio_combo
-                            ).get("remarks")
+                            data["revocvalidate"]["schemedetails"].append(
+                                schemedetails[0]
+                            )
+                        ("data", data)
 
-                    if (
-                        dict_decrypted_response.get("revocvalidate").get("message")
-                        == "SUCCESS"
-                    ):
-                        unpledge_application_doc.is_validated = True
-                else:
-                    unpledge_application_doc.validate_message = (
-                        dict_decrypted_response.get("status")[0].get("error")
-                    )
-                unpledge_application_doc.save(ignore_permissions=True)
-                frappe.db.commit()
-
-                if unpledge_application_doc.is_validated == True:
-                    for i in unpledge_application_doc.unpledge_items:
-                        psn = frappe.db.sql(
-                            """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
-                                isin=i.isin,
-                                folio=i.folio,
-                                loan=unpledge_application_doc.loan,
-                                type="Pledge",
-                            ),
-                            as_dict=1,
+                        encrypted_data = lms.AESCBC(
+                            las_settings.encryption_key, las_settings.iv
+                        ).encrypt(json.dumps(data))
+                        req_data = {"req": str(encrypted_data)}
+                        resp = requests.post(
+                            url=url, headers=headers, data=json.dumps(req_data)
+                        ).text
+                        encrypted_response = (
+                            json.loads(resp)
+                            .get("res")
+                            .replace("-", "+")
+                            .replace("_", "/")
                         )
-                        unpledge_item_doc_list = frappe.get_all(
-                            "Unpledge Application Unpledged Item",
-                            filters={
-                                "parent": unpledge_application_doc.name,
-                                "isin": i.isin,
-                                "folio": i.folio,
+                        decrypted_response = lms.AESCBC(
+                            las_settings.decryption_key, las_settings.iv
+                        ).decrypt(encrypted_response)
+                        dict_decrypted_response = json.loads(decrypted_response)
+
+                        lms.create_log(
+                            {
+                                "json_payload": data,
+                                "encrypted_request": encrypted_data,
+                                "encrypred_response": json.loads(resp).get("res"),
+                                "decrypted_response": dict_decrypted_response,
                             },
-                            fields=["name"],
+                            "revoke_validate",
                         )
-                        unpledge_item_doc = frappe.get_doc(
-                            "Unpledge Application Unpledged Item",
-                            unpledge_item_doc_list[0].name,
-                        )
-                        unpledge_item_doc.psn = psn[0].psn
-                        unpledge_item_doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                        if dict_decrypted_response.get("revocvalidate"):
+                            unpledge_application_doc.validate_message = (
+                                dict_decrypted_response.get("revocvalidate").get(
+                                    "message"
+                                )
+                            )
 
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
+                            isin_details = {}
+                            schemedetails_res = dict_decrypted_response.get(
+                                "revocvalidate"
+                            ).get("schemedetails")
+
+                            for i in schemedetails_res:
+                                isin_details[
+                                    "{}{}{}".format(
+                                        i.get("isinno"),
+                                        i.get("folio"),
+                                        i.get("lienmarkno"),
+                                    )
+                                ] = i
+                            for i in unpledge_application_doc.unpledge_items:
+                                isin_folio_combo = "{}{}{}".format(
+                                    i.get("isin"), i.get("folio"), i.get("psn")
+                                )
+                                lms.create_log(
+                                    {
+                                        "revoc_token": dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("revoctoken"),
+                                        "revoc_ref_no": dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("reqrefno"),
+                                    },
+                                    "asach",
+                                )
+
+                                if isin_folio_combo in isin_details:
+                                    i.revoke_validate_remarks = isin_details.get(
+                                        isin_folio_combo
+                                    ).get("remarks")
+                                    i.revoc_token = dict_decrypted_response.get(
+                                        "revocvalidate"
+                                    ).get("revoctoken")
+                                    i.revoc_ref_no = dict_decrypted_response.get(
+                                        "revocvalidate"
+                                    ).get("reqrefno")
+
+                            # success.append(dict_decrypted_response.get("revocvalidate").get("message"))
+                            # if (
+                            #     dict_decrypted_response.get("revocvalidate").get("message")
+                            #     == "SUCCESS"
+                            # ):
+                            #     unpledge_application_doc.is_validated = True
+                            success.append(
+                                dict_decrypted_response.get("revocvalidate").get(
+                                    "message"
+                                )
+                            )
+                            token_dict.update(
+                                {
+                                    str(
+                                        dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("reqrefno")
+                                    ): str(
+                                        dict_decrypted_response.get(
+                                            "revocvalidate"
+                                        ).get("revoctoken")
+                                    )
+                                }
+                            )
+                            unpledge_application_doc.refno = (
+                                dict_decrypted_response.get("revocvalidate").get(
+                                    "revoctoken"
+                                )
+                            )
+                            if "FAILURE" not in success:
+                                unpledge_application_doc.is_validated = True
+                            elif "FAILURE" in success and "SUCCESS" in success:
+                                unpledge_application_doc.is_validated = True
+                                unpledge_application_doc.validate_message = (
+                                    "Partial Success"
+                                )
+                            unpledge_application_doc.save(ignore_permissions=True)
+                            frappe.db.commit()
+                            schemedetails_res_res = dict_decrypted_response.get(
+                                "revocvalidate"
+                            ).get("schemedetails")
+                            # isin_details_ = {}
+                            for i in schemedetails_res_res:
+                                revoc_response_list.append(
+                                    {
+                                        "{}{}{}".format(
+                                            i.get("isinno"),
+                                            i.get("folio"),
+                                            i.get("lienmarkno"),
+                                        ): {
+                                            "revoc_token": dict_decrypted_response.get(
+                                                "revocvalidate"
+                                            ).get("revoctoken"),
+                                            "revoc_ref_no": dict_decrypted_response.get(
+                                                "revocvalidate"
+                                            ).get("reqrefno"),
+                                        }
+                                    }
+                                )
+
+                            # for i in prf:
+                            #     i = frappe.get_doc(
+                            #         "Unpledge Application Unpledged Item", i.name
+                            #     )
+                            #     i.revoc_token = (
+                            #         dict_decrypted_response.get("revocvalidate").get(
+                            #             "revoctoken"
+                            #         ),
+                            #     )
+                            #     i.revoc_ref_no = (
+                            #         dict_decrypted_response.get("revocvalidate").get(
+                            #             "reqrefno"
+                            #         ),
+                            #     )
+                            #     i.save(ignore_permissions=True)
+                            #     frappe.db.commit()
+                            # frappe.db.set_value(
+                            #     "Unpledge Application Unpledged Item",
+                            #     i.name,
+                            #     {
+                            #         "revoc_token": dict_decrypted_response.get(
+                            #             "revocvalidate"
+                            #         ).get("revoctoken"),
+                            #         "revoc_ref_no": dict_decrypted_response.get(
+                            #             "revocvalidate"
+                            #         ).get("reqrefno"),
+                            #     },
+                            # )
+
+                        else:
+                            frappe.db.sql(
+                                """update `tabUnpledge Application` set validate_message = '{message}' where name ='{name}'""".format(
+                                    message=dict_decrypted_response.get("status")[
+                                        0
+                                    ].get("error"),
+                                    name=unpledge_application_doc.name,
+                                )
+                            )
+                            # unpledge_application_doc.validate_message = (
+                            #     dict_decrypted_response.get("status")[0].get("error")
+                            # )
+                            # unpledge_application_doc.save(ignore_permissions=True)
+                            frappe.db.commit()
+
+                        prf_list.append(prf[0].prf)
+                    except requests.RequestException as e:
+                        raise utils.exceptions.APIException(str(e))
+
+                # isinfoliocombo = "{}{}{}".format(
+                #     i.get("isin"), i.get("folio"), i.get("psn")
+                # )
+                # if isinfoliocombo in revoc_response_list:
+                #     i.revoke_token = revoc_response_list.get(isinfoliocombo).get(
+                #         "revoc_token"
+                #     )
+                #     i.revoc_ref_no = revoc_response_list.get(isinfoliocombo).get(
+                #         "revoc_ref_no"
+                #     )
+                #     i.save(ignore_permissions=True)
+                # frappe.db.commit()
+
+                # if unpledge_application_doc.is_validated == True:
+                #     for i in unpledge_application_doc.unpledge_items:
+                #         psn = frappe.db.sql(
+                #             """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
+                #                 isin=i.isin,
+                #                 folio=i.folio,
+                #                 loan=unpledge_application_doc.loan,
+                #                 type="Pledge",
+                #             ),
+                #             as_dict=1,
+                #         )
+                #         print("psn",psn)
+                #         print("psn11111",psn[0].psn)
+                #         unpledge_item_doc_list = frappe.get_all(
+                #             "Unpledge Application Unpledged Item",
+                #             filters={
+                #                 "parent": unpledge_application_doc.name,
+                #                 "isin": i.isin,
+                #                 "folio": i.folio,
+                #             },
+                #             fields=["name"],
+                #         )
+                #         unpledge_item_doc = frappe.get_doc(
+                #             "Unpledge Application Unpledged Item",
+                #             unpledge_item_doc_list[0].name,
+                #         )
+                #         unpledge_item_doc.psn = psn[0].psn
+                #         unpledge_item_doc.save(ignore_permissions=True)
+                #         frappe.db.commit()
+
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:
@@ -679,143 +827,187 @@ def initiate_revoc(unpledge_application_name):
             customer.mycams_email_id
             and unpledge_application_doc.instrument_type == "Mutual Fund"
         ):
-            try:
-                # create payload
-                datetime_signature = lms.create_signature_mycams()
-                las_settings = frappe.get_single("LAS Settings")
-                headers = {
-                    "Content-Type": "application/json",
-                    "clientid": las_settings.client_id,
-                    "datetimestamp": datetime_signature[0],
-                    "signature": datetime_signature[1],
-                    "subclientid": "",
-                }
-                url = las_settings.revoke_api
-                data = {
-                    "revocinitiate": {
-                        "reqrefno": unpledge_application_doc.name,
-                        "revoctoken": unpledge_application_doc.revoctoken,
-                        "lienrefno": collateral_ledger.prf,
-                        "pan": user_kyc.pan_no,
-                        "regemailid": customer.mycams_email_id,
-                        "clientid": las_settings.client_id,
-                        "requestip": "",
-                        "schemedetails": [],
-                    }
-                }
-                for i in unpledge_application_doc.unpledge_items:
-                    schemedetails = (
-                        {
-                            "amccode": i.amc_code,
-                            "folio": i.folio,
-                            "schemecode": i.scheme_code,
-                            "schemename": i.security_name,
-                            "isinno": i.isin,
-                            "schemetype": unpledge_application_doc.scheme_type,
-                            "schemecategory": i.security_category,
-                            "lienunit": i.quantity,
-                            "revocationunit": i.unpledge_quantity,
-                            "lienmarkno": i.psn,
-                        },
-                    )
-                    data["revocinitiate"]["schemedetails"].append(schemedetails[0])
-
-                lms.create_log(
-                    {
-                        "json_payload": data,
+            success = []
+            prf_list = []
+            for i in unpledge_application_doc.unpledge_items:
+                prf = frappe.get_all(
+                    "Unpledge Application Unpledged Item",
+                    filters={
+                        "parent": unpledge_application_doc.name,
+                        "prf": i.prf,
+                        "revoke_validate_remarks": "SUCCESS",
                     },
-                    "revoke_initiate_request",
+                    fields=["*"],
                 )
-                encrypted_data = lms.AESCBC(
-                    las_settings.encryption_key, las_settings.iv
-                ).encrypt(json.dumps(data))
-
-                req_data = {"req": str(encrypted_data)}
-
-                resp = requests.post(
-                    url=url, headers=headers, data=json.dumps(req_data)
-                ).text
-
-                encrypted_response = (
-                    json.loads(resp).get("res").replace("-", "+").replace("_", "/")
-                )
-                decrypted_response = lms.AESCBC(
-                    las_settings.decryption_key, las_settings.iv
-                ).decrypt(encrypted_response)
-                dict_decrypted_response = json.loads(decrypted_response)
-
-                lms.create_log(
-                    {
-                        "encrypted_request": encrypted_data,
-                        "encrypred_response": json.loads(resp).get("res"),
-                        "decrypted_response": dict_decrypted_response,
-                    },
-                    "revoke_initiate_response",
-                )
-
-                if dict_decrypted_response.get("revocinitiate"):
-                    unpledge_application_doc.initiate_message = (
-                        dict_decrypted_response.get("revocinitiate").get("message")
-                    )
-
-                    schemedetails_res = dict_decrypted_response.get(
-                        "revocinitiate"
-                    ).get("schemedetails")
-                    isin_details = {}
-                    for i in schemedetails_res:
-                        isin_details[
-                            "{}{}{}".format(
-                                i.get("isinno"), i.get("folio"), i.get("psn")
+                if i.prf not in prf_list:
+                    try:
+                        # create payload
+                        datetime_signature = lms.create_signature_mycams()
+                        las_settings = frappe.get_single("LAS Settings")
+                        headers = {
+                            "Content-Type": "application/json",
+                            "clientid": las_settings.client_id,
+                            "datetimestamp": datetime_signature[0],
+                            "signature": datetime_signature[1],
+                            "subclientid": "",
+                        }
+                        url = las_settings.revoke_api
+                        data = {
+                            "revocinitiate": {
+                                "reqrefno": i.revoc_ref_no,
+                                "revoctoken": i.revoc_token,
+                                "lienrefno": i.prf,
+                                "pan": user_kyc.pan_no,
+                                "regemailid": customer.mycams_email_id,
+                                "clientid": las_settings.client_id,
+                                "requestip": "",
+                                "schemedetails": [],
+                            }
+                        }
+                        for i in prf:
+                            schemedetails = (
+                                {
+                                    "amccode": i.amc_code,
+                                    "folio": i.folio,
+                                    "schemecode": i.scheme_code,
+                                    "schemename": i.security_name,
+                                    "isinno": i.isin,
+                                    "schemetype": unpledge_application_doc.scheme_type,
+                                    "schemecategory": i.security_category,
+                                    "lienunit": i.quantity,
+                                    "revocationunit": i.unpledge_quantity,
+                                    "lienmarkno": i.psn,
+                                },
                             )
-                        ] = i
+                            data["revocinitiate"]["schemedetails"].append(
+                                schemedetails[0]
+                            )
 
-                    for i in unpledge_application_doc.unpledge_items:
-                        isin_folio_combo = "{}{}{}".format(
-                            i.get("isin"), i.get("folio"), i.get("psn")
+                        encrypted_data = lms.AESCBC(
+                            las_settings.encryption_key, las_settings.iv
+                        ).encrypt(json.dumps(data))
+
+                        req_data = {"req": str(encrypted_data)}
+
+                        resp = requests.post(
+                            url=url, headers=headers, data=json.dumps(req_data)
+                        ).text
+
+                        encrypted_response = (
+                            json.loads(resp)
+                            .get("res")
+                            .replace("-", "+")
+                            .replace("_", "/")
                         )
-                        if isin_folio_combo in isin_details:
-                            i.revoke_initiate_remarks = isin_details.get(
-                                isin_folio_combo
-                            ).get("remarks")
-                            old_psn = i.psn
-                            i.psn = isin_details.get(isin_folio_combo).get(
-                                "revoc_refno"
-                            )
-                            new_psn = isin_details.get(isin_folio_combo).get(
-                                "revoc_refno"
-                            )
-                            if old_psn != new_psn:
-                                frappe.db.sql(
-                                    """
-                                    update `tabCollateral Ledger`
-                                    set psn = '{psn}'
-                                    where loan = '{loan}' and isin = '{isin}' and folio = '{folio}'
-                                    """.format(
-                                        psn=new_psn,
-                                        isin=i.get("isin"),
-                                        loan=unpledge_application_doc.loan,
-                                        folio=i.get("folio"),
-                                    )
+                        decrypted_response = lms.AESCBC(
+                            las_settings.decryption_key, las_settings.iv
+                        ).decrypt(encrypted_response)
+                        dict_decrypted_response = json.loads(decrypted_response)
+
+                        lms.create_log(
+                            {
+                                "json_payload": data,
+                                "encrypted_request": encrypted_data,
+                                "encrypred_response": json.loads(resp).get("res"),
+                                "decrypted_response": dict_decrypted_response,
+                            },
+                            "revoke_initiate",
+                        )
+
+                        if dict_decrypted_response.get("revocinitiate"):
+                            unpledge_application_doc.initiate_message = (
+                                dict_decrypted_response.get("revocinitiate").get(
+                                    "message"
                                 )
+                            )
 
-                    if (
-                        dict_decrypted_response.get("revocinitiate").get("message")
-                        == "SUCCESS"
-                    ) or (
-                        dict_decrypted_response.get("revocinitiate").get("message")
-                        == "PARTIAL FAILURE"
-                    ):
-                        unpledge_application_doc.is_initiated = True
-                else:
-                    unpledge_application_doc.initiate_message = (
-                        dict_decrypted_response.get("status")[0].get("error")
-                    )
+                            schemedetails_res = dict_decrypted_response.get(
+                                "revocinitiate"
+                            ).get("schemedetails")
+                            isin_details = {}
+                            for i in schemedetails_res:
+                                isin_details[
+                                    "{}{}{}".format(
+                                        i.get("isinno"),
+                                        i.get("folio"),
+                                        i.get("lienmarkno"),
+                                    )
+                                ] = i
 
-                unpledge_application_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+                            for i in unpledge_application_doc.unpledge_items:
+                                isin_folio_combo = "{}{}{}".format(
+                                    i.get("isin"), i.get("folio"), i.get("psn")
+                                )
+                                if isin_folio_combo in isin_details:
+                                    i.revoke_initiate_remarks = (
+                                        isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        if isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        else "FAILURE"
+                                    )
+                                    # if (
+                                    #     isin_details.get(isin_folio_combo).get(
+                                    #         "remarks"
+                                    #     )
+                                    #     == "SUCCESS"
+                                    # ):
 
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
+                                    old_psn = i.psn
+                                    # i.psn = isin_details.get(isin_folio_combo).get(
+                                    # "revoc_refno"
+                                    # )
+                                    new_psn = isin_details.get(isin_folio_combo).get(
+                                        "revoc_refno"
+                                    )
+                                    if (
+                                        old_psn != new_psn
+                                        and isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
+                                        frappe.db.sql(
+                                            """
+                                            update `tabCollateral Ledger`
+                                            set psn = '{psn}'
+                                            where loan = '{loan}' and isin = '{isin}' and folio = '{folio}' and psn = '{old_psn}'
+                                            """.format(
+                                                psn=new_psn,
+                                                isin=i.get("isin"),
+                                                loan=unpledge_application_doc.loan,
+                                                folio=i.get("folio"),
+                                                old_psn=old_psn,
+                                            )
+                                        )
+                                        i.new_psn = new_psn
+
+                            if (
+                                dict_decrypted_response.get("revocinitiate").get(
+                                    "message"
+                                )
+                                == "SUCCESS"
+                            ) or (
+                                dict_decrypted_response.get("revocinitiate").get(
+                                    "message"
+                                )
+                                == "PARTIAL FAILURE"
+                            ):
+                                unpledge_application_doc.is_initiated = True
+                                unpledge_application_doc.successfull_request_count += 1
+                        else:
+                            unpledge_application_doc.initiate_message = (
+                                dict_decrypted_response.get("status")[0].get("error")
+                            )
+
+                        unpledge_application_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+                        prf_list.append(prf[0].prf)
+
+                    except requests.RequestException as e:
+                        raise utils.exceptions.APIException(str(e))
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:

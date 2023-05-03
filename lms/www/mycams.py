@@ -66,7 +66,7 @@ def get_context(context):
                     "osid": "Windows",
                     "url": "",
                     "redirecturl": frappe.utils.get_url(
-                        "/api/method/lms.decrypt_lien_marking_response"
+                        "/api/method/lms.decrypt_mycams_response"
                     ),  # mandatory
                     "markid": "mark12",
                     "verifyid": "verify12",

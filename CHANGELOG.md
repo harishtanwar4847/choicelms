@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.17.0] - 2023-05-03
+
+## Added
+
+- [SPRK-43 - Increase Loan In MF](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/584)
+
 ## [v5.16.0] - 2023-04-11
 
 ## Added

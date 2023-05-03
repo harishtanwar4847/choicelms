@@ -18,28 +18,6 @@
  ],
  "fields": [
   {
-   "fieldname": "quantity",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Quantity/Unit",
-   "precision": "3",
-   "reqd": 1
-  },
-  {
-   "fieldname": "price",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Price/NAV",
-   "precision": "9"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Amount",
-   "read_only": 1
-  },
-  {
    "fieldname": "isin",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -55,8 +33,35 @@
    "read_only": 1
   },
   {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity/Unit",
+   "precision": "3",
+   "reqd": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN/Lien Mark Number"
+  },
+  {
    "fieldname": "column_break_4",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Price/NAV",
+   "precision": "9"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "read_only": 1
   },
   {
    "fieldname": "folio",

@@ -148,12 +148,14 @@
    "fetch_from": "loan.customer",
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Customer",
    "options": "Loan Customer"
   },
   {
    "fieldname": "loan",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Loan Account No.",
    "options": "Loan"
   },
@@ -278,8 +280,9 @@
   {
    "fieldname": "custom_rebate_interest",
    "fieldtype": "Float",
-   "label": "Custom Rebate Interest"},
-   {
+   "label": "Custom Rebate Interest"
+  },
+  {
    "fieldname": "sanction_letter_logs",
    "fieldtype": "Link",
    "label": "Sanction Letter Logs",
@@ -288,7 +291,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-14 12:36:23.964891",
+ "modified": "2023-04-20 15:12:01.614777",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

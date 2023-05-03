@@ -38,6 +38,8 @@ class LoanApplication(Document):
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             lender = self.get_lender()
             diff = self.drawing_power
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             if self.loan:
                 loan = self.get_loan()
                 # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -45,11 +47,19 @@ class LoanApplication(Document):
                 #     * self.allowable_ltv
                 #     / 100
                 # )
-                actual_dp = lms.round_down_amount_to_nearest_thousand(
-                    loan.actual_drawing_power
-                )
+                actual_dp = 0
+                for i in loan.items:
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
+                    actual_dp += i.eligible_amount
+                drawing_power = 0
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    dp = ((i.eligible_percentage or 0) / 100) * i.amount
+                    i.eligibile_amount = dp
+                    drawing_power += dp
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    actual_dp + self.drawing_power
+                    actual_dp + drawing_power
                 )
                 new_increased_sanctioned_limit = (
                     increased_sanctioned_limit
@@ -152,21 +162,21 @@ class LoanApplication(Document):
                 lender.name,
                 lms.validate_rupees(float(diff)),
             )
-            apr = lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(
-                    lms.validate_rupees(
-                        float(
-                            new_increased_sanctioned_limit
-                            if self.loan and not self.loan_margin_shortfall
-                            else self.drawing_power
-                        )
-                    )
-                ),
-                charges.get("total"),
-            )
+            # apr = lms.calculate_apr(
+            #     self.name,
+            #     roi_,
+            #     12,
+            #     int(
+            #         lms.validate_rupees(
+            #             float(
+            #                 new_increased_sanctioned_limit
+            #                 if self.loan and not self.loan_margin_shortfall
+            #                 else self.drawing_power
+            #             )
+            #         )
+            #     ),
+            #     charges.get("total"),
+            # )
             annual_default_interest = lender.default_interest * 12
             sanctionlimit = (
                 new_increased_sanctioned_limit
@@ -174,16 +184,20 @@ class LoanApplication(Document):
                 else self.drawing_power
             )
             interest_charges_in_amount = int(
-                lms.validate_rupees(
-                    float(
-                        new_increased_sanctioned_limit
-                        if self.loan and not self.loan_margin_shortfall
-                        else self.drawing_power
-                    )
-                )
+                lms.validate_rupees(float(sanctionlimit))
             ) * (roi_ / 100)
+            interest_per_month = float(interest_charges_in_amount / 12)
+            final_payment = float(interest_per_month) + sanctionlimit
+            apr = lms.calculate_irr(
+                name_=self.name,
+                sanction_limit=float(sanctionlimit),
+                interest_per_month=interest_per_month,
+                final_payment=final_payment,
+                charges=charges.get("total"),
+            )
+
             doc = {
-                "esign_date": "",
+                "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
                 "loan_account_number": loan.name if self.loan else "",
                 "loan_application_number": self.name,
                 "borrower_name": customer.full_name,
@@ -196,6 +210,12 @@ class LoanApplication(Document):
                 "state": perm_state,
                 "pincode": perm_pin,
                 # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
                 "sanctioned_amount": frappe.utils.fmt_money(
                     float(
                         new_increased_sanctioned_limit
@@ -245,6 +265,8 @@ class LoanApplication(Document):
                 "interest_charges_in_amount": frappe.utils.fmt_money(
                     interest_charges_in_amount
                 ),
+                "interest_per_month": frappe.utils.fmt_money(interest_per_month),
+                "final_payment": frappe.utils.fmt_money(final_payment),
                 "renewal_charges": lms.validate_rupees(lender.renewal_charges)
                 if lender.renewal_charge_type == "Fix"
                 else lms.validate_percent(lender.renewal_charges),
@@ -476,7 +498,12 @@ class LoanApplication(Document):
 
         else:
             if self.instrument_type == "Mutual Fund":
-                if self.drawing_power < self.minimum_sanctioned_limit:
+                drawing_power_mf = (
+                    self.increased_sanctioned_limit
+                    if self.application_type == "Increase Loan"
+                    else self.drawing_power
+                )
+                if drawing_power_mf < self.minimum_sanctioned_limit:
                     self.remarks = "Rejected due to min/max range"
                     self.status = "Rejected"
                     self.workflow_state = "Rejected"
@@ -524,7 +551,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         customer=self.get_customer(),
                     )
 
-                elif self.drawing_power >= self.minimum_sanctioned_limit:
+                elif drawing_power_mf >= self.minimum_sanctioned_limit:
                     customer = self.get_customer()
                     frappe.session.user = "Administrator"
                     user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -654,6 +681,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             )
                             if isin_folio_combo in isin_details:
                                 cur = isin_details.get(isin_folio_combo)
+                                frappe.log_error(
+                                    "{}\n{}".format(str(isin_folio_combo), str(cur))
+                                )
                                 i.pledge_executed = 1
                                 i.pledge_status = (
                                     "Success"
@@ -699,12 +729,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             pledge_securities = 1
                         self.workflow_state = "Pledge executed"
                         self.total_collateral_value = round(total_collateral_value, 2)
-
                         drawing_power = 0
                         for i in self.items:
                             i.amount = i.price * i.pledged_quantity
                             dp = (i.eligible_percentage / 100) * i.amount
-                            i.eligible_amount = dp
+                            i.eligibile_amount = dp
                             # self.total_collateral_value += i.amount
                             drawing_power += dp
 
@@ -712,7 +741,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             lms.round_down_amount_to_nearest_thousand(drawing_power),
                             2,
                         )
-
                         if not customer.pledge_securities:
                             customer.pledge_securities = pledge_securities
                             customer.save(ignore_permissions=True)
@@ -869,11 +897,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             self.actual_drawing_power = drawing_power
 
             # TODO : if increase loan drawing power is less than 10k the loan application wont be proceed
-            loan_total_collateral_value = 0
-            if self.loan:
-                loan_total_collateral_value = frappe.get_doc(
-                    "Loan", self.loan
-                ).total_collateral_value
+            # loan_total_collateral_value = 0
+            # if self.loan:
+            #     loan_total_collateral_value = frappe.get_doc(
+            #         "Loan", self.loan
+            #     ).total_collateral_value
 
             # Use increased sanctioned limit field for this validation
             # if self.instrument_type == "Shares":
@@ -1016,27 +1044,27 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
                 if not self.is_offline_loan and self.lender_esigned_document:
-                    signed_doc = lms.pdf_editor(
-                        self.lender_esigned_document,
-                        pdf_doc_name,
-                        loan.name,
-                    )
-                    self.lender_esigned_document = signed_doc
-                    frappe.db.set_value(
-                        self.doctype, self.name, "lender_esigned_document", signed_doc
-                    )
+                    # signed_doc = lms.pdf_editor(
+                    #     self.lender_esigned_document,
+                    #     pdf_doc_name,
+                    #     loan.name,
+                    # )
+                    # self.lender_esigned_document = signed_doc
+                    # frappe.db.set_value(
+                    #     self.doctype, self.name, "lender_esigned_document", signed_doc
+                    # )
                     self.sanction_letter(check=loan.name)
             else:
                 loan = self.update_existing_loan()
                 if not self.is_offline_loan and self.lender_esigned_document:
-                    signed_doc = lms.pdf_editor(
-                        self.lender_esigned_document,
-                        pdf_doc_name,
-                    )
-                    self.lender_esigned_document = signed_doc
-                    frappe.db.set_value(
-                        self.doctype, self.name, "lender_esigned_document", signed_doc
-                    )
+                    # signed_doc = lms.pdf_editor(
+                    #     self.lender_esigned_document,
+                    #     pdf_doc_name,
+                    # )
+                    # self.lender_esigned_document = signed_doc
+                    # frappe.db.set_value(
+                    #     self.doctype, self.name, "lender_esigned_document", signed_doc
+                    # )
 
                     self.sanction_letter(check=loan.name)
             frappe.db.commit()
@@ -1332,52 +1360,52 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         return loan
 
     def map_loan_agreement_file(self, loan, increase_loan=False):
-        # file_name = frappe.db.get_value(
-        #     "File", {"file_url": self.lender_esigned_document}
-        # )
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.lender_esigned_document}
+        )
 
-        # loan_agreement = frappe.get_doc("File", file_name)
+        loan_agreement = frappe.get_doc("File", file_name)
 
-        # event = "New loan"
-        # if increase_loan:
-        #     loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
-        #         loan.name
-        #     )
-        #     event = "Increase loan"
-        # else:
-        #     loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
+        event = "New loan"
+        if increase_loan:
+            loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
+                loan.name
+            )
+            event = "Increase loan"
+        else:
+            loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
 
-        # is_private = 0
-        # loan_agreement_file_url = frappe.utils.get_files_path(
-        #     loan_agreement_file_name, is_private=is_private
-        # )
+        is_private = 0
+        loan_agreement_file_url = frappe.utils.get_files_path(
+            loan_agreement_file_name, is_private=is_private
+        )
 
-        # # frappe.db.begin()
-        # loan_agreement_file = frappe.get_doc(
-        #     {
-        #         "doctype": "File",
-        #         "file_name": loan_agreement_file_name,
-        #         "content": loan_agreement.get_content(),
-        #         "attached_to_doctype": "Loan",
-        #         "attached_to_name": loan.name,
-        #         "attached_to_field": "loan_agreement",
-        #         "folder": "Home",
-        #         # "file_url": loan_agreement_file_url,
-        #         "is_private": is_private,
-        #     }
-        # )
-        # loan_agreement_file.insert(ignore_permissions=True)
-        # frappe.db.commit()
+        # frappe.db.begin()
+        loan_agreement_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": loan_agreement_file_name,
+                "content": loan_agreement.get_content(),
+                "attached_to_doctype": "Loan",
+                "attached_to_name": loan.name,
+                "attached_to_field": "loan_agreement",
+                "folder": "Home",
+                # "file_url": loan_agreement_file_url,
+                "is_private": is_private,
+            }
+        )
+        loan_agreement_file.insert(ignore_permissions=True)
+        frappe.db.commit()
 
         frappe.db.set_value(
             "Loan",
             loan.name,
             "loan_agreement",
-            self.lender_esigned_document,
+            loan_agreement_file.file_url,
             update_modified=False,
         )
         # save loan sanction history
-        # loan.save_loan_sanction_history(loan_agreement_file.name, event)
+        loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def update_existing_loan(self):
         self.update_collateral_ledger(
@@ -2068,6 +2096,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             user = frappe.get_doc("User", customer.user)
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             lender = self.get_lender()
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             if user_kyc.address_details:
                 address_details = frappe.get_doc(
                     "Customer Address Details", user_kyc.address_details
@@ -2107,18 +2137,26 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 #     * self.allowable_ltv
                 #     / 100
                 # )
-                actual_dp = lms.round_down_amount_to_nearest_thousand(
-                    loan.actual_drawing_power
-                )
+                actual_dp = 0
+                for i in loan.items:
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
+                    actual_dp += i.eligible_amount
+                drawing_power = 0
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    dp = ((i.eligible_percentage or 0) / 100) * i.amount
+                    i.eligibile_amount = dp
+                    drawing_power += dp
                 increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                    actual_dp + self.drawing_power
+                    actual_dp + drawing_power
                 )
-                self.increased_sanctioned_limit = increased_sanctioned_limit
                 new_increased_sanctioned_limit = (
                     increased_sanctioned_limit
                     if increased_sanctioned_limit < lender.maximum_sanctioned_limit
                     else lender.maximum_sanctioned_limit
                 )
+                self.increased_sanctioned_limit = new_increased_sanctioned_limit
                 diff = self.increased_sanctioned_limit - loan.sanctioned_limit
             interest_config = frappe.get_value(
                 "Interest Configuration",
@@ -2157,21 +2195,39 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                 )
             ) * (roi_ / 100)
-            apr = lms.calculate_apr(
-                self.name,
-                roi_,
-                12,
-                int(
-                    lms.validate_rupees(
-                        float(
-                            self.increased_sanctioned_limit
-                            if self.increased_sanctioned_limit
-                            else self.drawing_power
-                        )
-                    )
-                ),
-                charges.get("total"),
+            # apr = lms.calculate_apr(
+            #     self.name,
+            #     roi_,
+            #     12,
+            #     int(
+            #         lms.validate_rupees(
+            #             float(
+            #                 self.increased_sanctioned_limit
+            #                 if self.increased_sanctioned_limit
+            #                 else self.drawing_power
+            #             )
+            #         )
+            #     ),
+            #     charges.get("total"),
+            # )
+            interest_per_month = float(interest_charges_in_amount / 12)
+            final_payment = float(interest_per_month) + (
+                self.increased_sanctioned_limit
+                if self.increased_sanctioned_limit
+                else self.drawing_power
             )
+            apr = lms.calculate_irr(
+                name_=self.name,
+                sanction_limit=float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                ),
+                interest_per_month=interest_per_month,
+                final_payment=final_payment,
+                charges=charges.get("total"),
+            )
+
             loan_name = ""
             if not check and self.loan:
                 loan_name = loan.name
@@ -2180,7 +2236,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             annual_default_interest = lender.default_interest * 12
             if self.status != "Approved":
                 doc = {
-                    "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+                    "esign_date": "",
                     "loan_account_number": loan_name,
                     "loan_application_no": self.name,
                     "borrower_name": customer.full_name,
@@ -2192,6 +2248,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "state": perm_state,
                     "pincode": perm_pin,
                     # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+                    "logo_file_path_1": logo_file_path_1.file_url
+                    if logo_file_path_1
+                    else "",
+                    "logo_file_path_2": logo_file_path_2.file_url
+                    if logo_file_path_2
+                    else "",
                     "sanctioned_amount": frappe.utils.fmt_money(
                         self.increased_sanctioned_limit
                         if self.increased_sanctioned_limit
@@ -2242,6 +2304,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "interest_charges_in_amount": frappe.utils.fmt_money(
                         interest_charges_in_amount
                     ),
+                    "interest_per_month": frappe.utils.fmt_money(interest_per_month),
+                    "final_payment": frappe.utils.fmt_money(final_payment),
                     "renewal_charges": lms.validate_rupees(lender.renewal_charges)
                     if lender.renewal_charge_type == "Fix"
                     else lms.validate_percent(lender.renewal_charges),
@@ -2469,14 +2533,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     file_base_name = pdf_file_path.replace(".pdf", "")
                     reader = PdfReader(pdf_file_path)
                     pages = [
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
                         30,
-                        31,
-                        32,
-                        33,
-                        34,
-                        35,
-                        36,
-                        37,
                     ]  # page 1, 3, 5
                     pdfWriter = PdfWriter()
                     for page_num in pages:

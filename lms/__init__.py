@@ -57,7 +57,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.16.0"
+__version__ = "5.17.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1758,7 +1758,7 @@ def loan_payment_log_permission_query(user):
 
 
 @frappe.whitelist(allow_guest=True)
-def decrypt_lien_marking_response():
+def decrypt_mycams_response():
     try:
         data = frappe.local.form_dict
         las_settings = frappe.get_single("LAS Settings")
@@ -1813,6 +1813,16 @@ def decrypt_lien_marking_response():
                         "type": res.get("bankschemetype"),
                     },
                 )
+            cart.save(ignore_permissions=True)
+            drawing_power = 0
+            for i in cart.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = ((i.eligible_percentage or 0) / 100) * i.amount
+                i.eligibile_amount = dp
+                drawing_power += dp
+            cart.increased_sanctioned_limit = round_down_amount_to_nearest_thousand(
+                drawing_power
+            )
             cart.save(ignore_permissions=True)
             cart.create_loan_application()
             frappe.db.commit()
@@ -4395,4 +4405,21 @@ def send_sms_notification(customer, msg, token_type=None):
                 customer, str(msg)
             ),
             title="Send SMS Notification Error",
+        )
+
+
+def calculate_irr(name_, sanction_limit, interest_per_month, final_payment, charges=0):
+    try:
+        inflow_outflow = [-(sanction_limit - charges)]
+        inflow_outflow.extend([interest_per_month] * 11)
+        inflow_outflow.append(final_payment)
+        irr_ = npf.irr(inflow_outflow) * 12 * 100
+        if irr_ < 0:
+            irr_ = 0
+
+        return round(irr_, 2)
+    except Exception:
+        frappe.log_error(
+            title="Calculate IRR Error",
+            message=frappe.get_traceback() + "\n\n" + str(name_),
         )

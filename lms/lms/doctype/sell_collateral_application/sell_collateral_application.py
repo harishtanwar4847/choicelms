@@ -112,7 +112,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.price
             for i in self.items
         }
@@ -120,7 +120,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -129,7 +129,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.quantity
             for i in self.items
         }
@@ -141,10 +141,16 @@ class SellCollateralApplication(Document):
         )
 
         for i in self.sell_items:
+            # psn = frappe.db.sql(
+            #     """select psn from `tabSell Collateral Application Sell Item` where name = '{name}' and isin = '{isin}' and folio = '{folio}'""".format(
+            #         name=i.name, isin=i.isin, folio=i.folio
+            #     )
+            # )
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
+                # psn[0][0] if psn else "",
             )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
@@ -182,7 +188,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if sell_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -202,7 +208,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -213,7 +219,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
@@ -223,7 +229,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if sell_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
@@ -348,7 +354,7 @@ class SellCollateralApplication(Document):
     def on_submit(self):
         las_settings = frappe.get_single("LAS Settings")
         for i in self.sell_items:
-            if i.sell_quantity > 0:
+            if i.sell_quantity > 0 and i.invoke_initiate_remarks == "SUCCESS":
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
@@ -363,7 +369,7 @@ class SellCollateralApplication(Document):
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
-                    "psn": i.get("psn"),
+                    "psn": i.get("new_psn") if i.get("new_psn") else i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
@@ -436,27 +442,28 @@ class SellCollateralApplication(Document):
 
         else:
             # invoke charges - Mutual Fund
-            invoke_charges = lender.invoke_initiate_charges
+            for i in range(self.successfull_request_count):
+                invoke_charges = lender.invoke_initiate_charges
 
-            if lender.invoke_initiate_charge_type == "Fix":
-                invoke_charges = invoke_charges
-            elif lender.invoke_initiate_charge_type == "Percentage":
-                amount = self.lender_selling_amount * invoke_charges / 100
-                invoke_charges = loan.validate_loan_charges_amount(
-                    lender,
-                    amount,
-                    "invoke_initiate_charges_minimum_amount",
-                    "invoke_initiate_charges_maximum_amount",
-                )
+                if lender.invoke_initiate_charge_type == "Fix":
+                    invoke_charges = invoke_charges
+                elif lender.invoke_initiate_charge_type == "Percentage":
+                    amount = self.lender_selling_amount * invoke_charges / 100
+                    invoke_charges = loan.validate_loan_charges_amount(
+                        lender,
+                        amount,
+                        "invoke_initiate_charges_minimum_amount",
+                        "invoke_initiate_charges_maximum_amount",
+                    )
 
-            if invoke_charges > 0:
-                invoke_charges_reference = loan.create_loan_transaction(
-                    transaction_type="Invocation Charges",
-                    amount=invoke_charges,
-                    approve=True,
-                    gst_percent=0,
-                    loan_margin_shortfall_name=self.loan_margin_shortfall,
-                )
+                if invoke_charges > 0:
+                    invoke_charges_reference = loan.create_loan_transaction(
+                        transaction_type="Invocation Charges",
+                        amount=invoke_charges,
+                        approve=True,
+                        gst_percent=0,
+                        loan_margin_shortfall_name=self.loan_margin_shortfall,
+                    )
 
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": self.owner, "parenttype": "User"}, ["role"]
@@ -607,156 +614,214 @@ def validate_invoc(sell_collateral_application_name):
             customer.mycams_email_id
             and sell_collateral_application_doc.instrument_type == "Mutual Fund"
         ):
-            try:
-                # create payload
-                datetime_signature = lms.create_signature_mycams()
-                las_settings = frappe.get_single("LAS Settings")
-                headers = {
-                    "Content-Type": "application/json",
-                    "clientid": las_settings.client_id,
-                    "datetimestamp": datetime_signature[0],
-                    "signature": datetime_signature[1],
-                    "subclientid": "",
-                }
-                url = las_settings.invoke_api
-                data = {
-                    "invocvalidate": {
-                        "reqrefno": sell_collateral_application_doc.name,
-                        "lienrefno": collateral_ledger.prf,
-                        "pan": user_kyc.pan_no,
-                        "regemailid": customer.mycams_email_id,
-                        "clientid": las_settings.client_id,
-                        "requestip": "103.19.132.194",
-                        "schemedetails": [],
-                    }
-                }
-                for i in sell_collateral_application_doc.sell_items:
-                    psn = frappe.db.sql(
-                        """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
-                            isin=i.isin,
-                            folio=i.folio,
-                            loan=sell_collateral_application_doc.loan,
-                            type="Pledge",
-                        ),
-                        as_dict=1,
-                    )
-                    schemedetails = (
-                        {
-                            "amccode": i.amc_code,
-                            "folio": i.folio,
-                            "schemecode": i.scheme_code,
-                            "schemename": i.security_name,
-                            "isinno": i.isin,
-                            "schemetype": sell_collateral_application_doc.scheme_type,
-                            "schemecategory": i.security_category,
-                            "lienunit": i.quantity,
-                            "invocationunit": i.sell_quantity,
-                            "lienmarkno": psn[0].psn,
-                        },
-                    )
-                    data["invocvalidate"]["schemedetails"].append(schemedetails[0])
+            success = []
+            prf_list = []
+            token_dict = dict()
 
-                lms.create_log(
-                    {
-                        "json_payload": data,
+            for i in sell_collateral_application_doc.sell_items:
+                prf = frappe.get_all(
+                    "Sell Collateral Application Sell Item",
+                    filters={
+                        "parent": sell_collateral_application_doc.name,
+                        "prf": i.prf,
                     },
-                    "invoke_validate_request",
+                    fields=["*"],
                 )
-                encrypted_data = lms.AESCBC(
-                    las_settings.encryption_key, las_settings.iv
-                ).encrypt(json.dumps(data))
+                if i.prf not in prf_list:
+                    try:
+                        # create payload
+                        datetime_signature = lms.create_signature_mycams()
+                        las_settings = frappe.get_single("LAS Settings")
+                        headers = {
+                            "Content-Type": "application/json",
+                            "clientid": las_settings.client_id,
+                            "datetimestamp": datetime_signature[0],
+                            "signature": datetime_signature[1],
+                            "subclientid": "",
+                        }
+                        url = las_settings.invoke_api
+                        data = {
+                            "invocvalidate": {
+                                "reqrefno": "{}_{}".format(
+                                    sell_collateral_application_doc.name,
+                                    frappe.utils.now_datetime().strftime(
+                                        "%Y-%m-%d %H:%M:%S.%f"
+                                    ),
+                                ),
+                                "lienrefno": i.prf,
+                                "pan": user_kyc.pan_no,
+                                "regemailid": customer.mycams_email_id,
+                                "clientid": las_settings.client_id,
+                                "requestip": "103.19.132.194",
+                                "schemedetails": [],
+                            }
+                        }
+                        for i in prf:
+                            schemedetails = (
+                                {
+                                    "amccode": i.amc_code,
+                                    "folio": i.folio,
+                                    "schemecode": i.scheme_code,
+                                    "schemename": i.security_name,
+                                    "isinno": i.isin,
+                                    "schemetype": sell_collateral_application_doc.scheme_type,
+                                    "schemecategory": i.security_category,
+                                    "lienunit": i.quantity,
+                                    "invocationunit": i.sell_quantity,
+                                    "lienmarkno": i.psn,
+                                },
+                            )
+                            data["invocvalidate"]["schemedetails"].append(
+                                schemedetails[0]
+                            )
+                        ("data", data)
 
-                req_data = {"req": str(encrypted_data)}
-
-                resp = requests.post(
-                    url=url, headers=headers, data=json.dumps(req_data)
-                ).text
-
-                encrypted_response = (
-                    json.loads(resp).get("res").replace("-", "+").replace("_", "/")
-                )
-                decrypted_response = lms.AESCBC(
-                    las_settings.decryption_key, las_settings.iv
-                ).decrypt(encrypted_response)
-                dict_decrypted_response = json.loads(decrypted_response)
-
-                lms.create_log(
-                    {
-                        "encrypted_request": encrypted_data,
-                        "encrypred_response": json.loads(resp).get("res"),
-                        "decrypted_response": dict_decrypted_response,
-                    },
-                    "invoke_validate_response",
-                )
-
-                if dict_decrypted_response.get("invocvalidate"):
-                    sell_collateral_application_doc.validate_message = (
-                        dict_decrypted_response.get("invocvalidate").get("message")
-                    )
-                    sell_collateral_application_doc.invoctoken = (
-                        dict_decrypted_response.get("invocvalidate").get("invoctoken")
-                    )
-
-                    schemedetails_res = dict_decrypted_response.get(
-                        "invocvalidate"
-                    ).get("schemedetails")
-                    isin_details = {}
-
-                    for i in schemedetails_res:
-                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
-
-                    for i in sell_collateral_application_doc.sell_items:
-                        isin_folio_combo = "{}{}{}".format(
-                            i.get("isin"), i.get("folio"), i.get("psn")
-                        )
-                        if isin_folio_combo in isin_details:
-                            i.invoke_validate_remarks = isin_details.get(
-                                isin_folio_combo
-                            ).get("remarks")
-
-                    if (
-                        dict_decrypted_response.get("invocvalidate").get("message")
-                        == "SUCCESS"
-                    ):
-                        sell_collateral_application_doc.is_validated = True
-                else:
-                    sell_collateral_application_doc.validate_message = (
-                        dict_decrypted_response.get("status")[0].get("error")
-                    )
-
-                sell_collateral_application_doc.save(ignore_permissions=True)
-                frappe.db.commit()
-
-                if sell_collateral_application_doc.is_validated == True:
-                    for i in sell_collateral_application_doc.sell_items:
-                        psn = frappe.db.sql(
-                            """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
-                                isin=i.isin,
-                                folio=i.folio,
-                                loan=sell_collateral_application_doc.loan,
-                                type="Pledge",
-                            ),
-                            as_dict=1,
-                        )
-                        sell_item_doc_list = frappe.get_all(
-                            "Sell Collateral Application Sell Item",
-                            filters={
-                                "parent": sell_collateral_application_doc.name,
-                                "isin": i.isin,
-                                "folio": i.folio,
+                        lms.create_log(
+                            {
+                                "json_payload": data,
                             },
-                            fields=["name"],
+                            "invoke_validate_request",
                         )
-                        sell_item_doc = frappe.get_doc(
-                            "Sell Collateral Application Sell Item",
-                            sell_item_doc_list[0].name,
+                        encrypted_data = lms.AESCBC(
+                            las_settings.encryption_key, las_settings.iv
+                        ).encrypt(json.dumps(data))
+                        req_data = {"req": str(encrypted_data)}
+                        resp = requests.post(
+                            url=url, headers=headers, data=json.dumps(req_data)
+                        ).text
+                        encrypted_response = (
+                            json.loads(resp)
+                            .get("res")
+                            .replace("-", "+")
+                            .replace("_", "/")
                         )
-                        sell_item_doc.psn = psn[0].psn
-                        sell_item_doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                        decrypted_response = lms.AESCBC(
+                            las_settings.decryption_key, las_settings.iv
+                        ).decrypt(encrypted_response)
+                        dict_decrypted_response = json.loads(decrypted_response)
 
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
+                        lms.create_log(
+                            {
+                                "encrypted_request": encrypted_data,
+                                "encrypred_response": json.loads(resp).get("res"),
+                                "decrypted_response": dict_decrypted_response,
+                            },
+                            "invoke_validate_response",
+                        )
+                        if dict_decrypted_response.get("invocvalidate"):
+                            sell_collateral_application_doc.validate_message = (
+                                dict_decrypted_response.get("invocvalidate").get(
+                                    "message"
+                                )
+                            )
+                            sell_collateral_application_doc.invoctoken = (
+                                dict_decrypted_response.get("invocvalidate").get(
+                                    "invoctoken"
+                                )
+                            )
+
+                            isin_details = {}
+                            schemedetails_res = dict_decrypted_response.get(
+                                "invocvalidate"
+                            ).get("schemedetails")
+
+                            for i in schemedetails_res:
+                                isin_details[
+                                    "{}{}{}".format(
+                                        i.get("isinno"),
+                                        i.get("folio"),
+                                        i.get("lienmarkno"),
+                                    )
+                                ] = i
+                            for i in sell_collateral_application_doc.sell_items:
+                                isin_folio_combo = "{}{}{}".format(
+                                    i.get("isin"), i.get("folio"), i.get("psn")
+                                )
+                                if isin_folio_combo in isin_details:
+                                    i.invoke_validate_remarks = isin_details.get(
+                                        isin_folio_combo
+                                    ).get("remarks")
+                                    i.invoke_token = dict_decrypted_response.get(
+                                        "invocvalidate"
+                                    ).get("invoctoken")
+                                    i.invoke_ref_no = dict_decrypted_response.get(
+                                        "invocvalidate"
+                                    ).get("reqrefno")
+
+                            # if (
+                            #     dict_decrypted_response.get("invocvalidate").get("message")
+                            #     == "SUCCESS"
+                            # ):
+                            #     sell_collateral_application_doc.is_validated = True
+                            success.append(
+                                dict_decrypted_response.get("invocvalidate").get(
+                                    "message"
+                                )
+                            )
+                            (success)
+                            token_dict.update(
+                                {
+                                    str(
+                                        dict_decrypted_response.get(
+                                            "invocvalidate"
+                                        ).get("reqrefno")
+                                    ): str(
+                                        dict_decrypted_response.get(
+                                            "invocvalidate"
+                                        ).get("invoctoken")
+                                    )
+                                }
+                            )
+                            sell_collateral_application_doc.refno = str(token_dict)
+                            if "FAILURE" not in success:
+                                sell_collateral_application_doc.is_validated = True
+                            elif "FAILURE" in success and "SUCCESS" in success:
+                                sell_collateral_application_doc.is_validated = True
+                                sell_collateral_application_doc.validate_message = (
+                                    "Partial Success"
+                                )
+                            sell_collateral_application_doc.save(
+                                ignore_permissions=True
+                            )
+                            frappe.db.commit()
+                            # for i in prf:
+                            #     i = frappe.get_doc(
+                            #         "Sell Collateral Application Sell Item", i.name
+                            #     )
+                            #     # i.invoke_token = dict_decrypted_response.get(
+                            #     #     "invocvalidate"
+                            #     # ).get("invoctoken")
+                            #     # i.invoke_ref_no = dict_decrypted_response.get(
+                            #     #     "invocvalidate"
+                            #     # ).get("reqrefno")
+                            #     i.save(ignore_permissions=True)
+                            #     frappe.db.commit()
+                            # frappe.db.set_value(
+                            #     "Sell Collateral Application Sell Item",
+                            #     i.name,
+                            #     {
+                            #         "invoke_token": dict_decrypted_response.get(
+                            #             "invocvalidate"
+                            #         ).get("invoctoken"),
+                            #         "invoke_ref_no": dict_decrypted_response.get(
+                            #             "invocvalidate"
+                            #         ).get("reqrefno"),
+                            #     },
+                            # )
+
+                        else:
+                            frappe.db.sql(
+                                """update `tabSell Collateral Application` set validate_message = '{message}' where name ='{name}'""".format(
+                                    message=dict_decrypted_response.get("status")[
+                                        0
+                                    ].get("error"),
+                                    name=sell_collateral_application_doc.name,
+                                )
+                            )
+                            frappe.db.commit()
+
+                    except requests.RequestException as e:
+                        raise utils.exceptions.APIException(str(e))
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:
@@ -789,144 +854,205 @@ def initiate_invoc(sell_collateral_application_name):
             customer.mycams_email_id
             and sell_collateral_application_doc.instrument_type == "Mutual Fund"
         ):
-            try:
-                # create payload
-                datetime_signature = lms.create_signature_mycams()
-                las_settings = frappe.get_single("LAS Settings")
-                headers = {
-                    "Content-Type": "application/json",
-                    "clientid": las_settings.client_id,
-                    "datetimestamp": datetime_signature[0],
-                    "signature": datetime_signature[1],
-                    "subclientid": "",
-                }
-                url = las_settings.invoke_api
-                data = {
-                    "invocinitiate": {
-                        "reqrefno": sell_collateral_application_doc.name,
-                        "invoctoken": sell_collateral_application_doc.invoctoken,
-                        "lienrefno": collateral_ledger.prf,
-                        "pan": user_kyc.pan_no,
-                        "regemailid": customer.mycams_email_id,
-                        "clientid": las_settings.client_id,
-                        "requestip": "103.19.132.194",
-                        "schemedetails": [],
-                    }
-                }
-                for i in sell_collateral_application_doc.sell_items:
-                    schemedetails = (
-                        {
-                            "amccode": i.amc_code,
-                            "folio": i.folio,
-                            "schemecode": i.scheme_code,
-                            "schemename": i.security_name,
-                            "isinno": i.isin,
-                            "schemetype": sell_collateral_application_doc.scheme_type,
-                            "schemecategory": i.security_category,
-                            "lienunit": i.quantity,
-                            "invocationunit": i.sell_quantity,
-                            "lienmarkno": i.psn,
-                        },
-                    )
-                    data["invocinitiate"]["schemedetails"].append(schemedetails[0])
-
-                lms.create_log(
-                    {
-                        "json_payload": data,
+            success = []
+            prf_list = []
+            for i in sell_collateral_application_doc.sell_items:
+                prf = frappe.get_all(
+                    "Sell Collateral Application Sell Item",
+                    filters={
+                        "parent": sell_collateral_application_doc.name,
+                        "prf": i.prf,
+                        "invoke_validate_remarks": "SUCCESS",
                     },
-                    "invoke_initiate_request",
+                    fields=["*"],
                 )
-                encrypted_data = lms.AESCBC(
-                    las_settings.encryption_key, las_settings.iv
-                ).encrypt(json.dumps(data))
-
-                req_data = {"req": str(encrypted_data)}
-
-                sell_collateral_application_doc.db_set(
-                    "invoke_initiate_request_timestamp", frappe.utils.now_datetime()
-                )
-
-                resp = requests.post(
-                    url=url, headers=headers, data=json.dumps(req_data)
-                ).text
-
-                encrypted_response = (
-                    json.loads(resp).get("res").replace("-", "+").replace("_", "/")
-                )
-                decrypted_response = lms.AESCBC(
-                    las_settings.decryption_key, las_settings.iv
-                ).decrypt(encrypted_response)
-                dict_decrypted_response = json.loads(decrypted_response)
-
-                lms.create_log(
-                    {
-                        "encrypted_request": encrypted_data,
-                        "encrypred_response": json.loads(resp).get("res"),
-                        "decrypted_response": dict_decrypted_response,
-                    },
-                    "invoke_initiate_response",
-                )
-
-                if dict_decrypted_response.get("invocinitiate"):
-                    sell_collateral_application_doc.initiate_message = (
-                        dict_decrypted_response.get("invocinitiate").get("message")
-                    )
-
-                    isin_details = {}
-                    schemedetails_res = dict_decrypted_response.get(
-                        "invocinitiate"
-                    ).get("schemedetails")
-
-                    for i in schemedetails_res:
-                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
-
-                    for i in sell_collateral_application_doc.sell_items:
-                        isin_folio_combo = "{}{}".format(
-                            i.get("isin"), i.get("folio"), i.get("psn")
-                        )
-                        if isin_folio_combo in isin_details:
-                            i.invoke_initiate_remarks = isin_details.get(
-                                isin_folio_combo
-                            ).get("remarks")
-
-                            old_psn = i.psn
-                            i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
-                            new_psn = isin_details.get(isin_folio_combo).get(
-                                "invocrefno"
-                            )
-                            if old_psn != new_psn:
-                                frappe.db.sql(
-                                    """
-                                    update `tabCollateral Ledger`
-                                    set psn = '{psn}'
-                                    where loan = '{loan}' and isin = '{isin}' and folio = '{folio}'
-                                    """.format(
-                                        psn=new_psn,
-                                        isin=i.get("isin"),
-                                        loan=sell_collateral_application_doc.loan,
-                                        folio=i.get("folio"),
-                                    )
+                if i.prf not in prf_list:
+                    try:
+                        # create payload
+                        datetime_signature = lms.create_signature_mycams()
+                        las_settings = frappe.get_single("LAS Settings")
+                        headers = {
+                            "Content-Type": "application/json",
+                            "clientid": las_settings.client_id,
+                            "datetimestamp": datetime_signature[0],
+                            "signature": datetime_signature[1],
+                            "subclientid": "",
+                        }
+                        url = las_settings.invoke_api
+                        data = {
+                            "invocinitiate": {
+                                "reqrefno": i.invoke_ref_no,
+                                "invoctoken": i.invoke_token,
+                                "lienrefno": i.prf,
+                                "pan": user_kyc.pan_no,
+                                "regemailid": customer.mycams_email_id,
+                                "clientid": las_settings.client_id,
+                                "requestip": "103.19.132.194",
+                                "schemedetails": [],
+                            }
+                        }
+                        for i in prf:
+                            if i.invoke_validate_remarks == "SUCCESS":
+                                schemedetails = (
+                                    {
+                                        "amccode": i.amc_code,
+                                        "folio": i.folio,
+                                        "schemecode": i.scheme_code,
+                                        "schemename": i.security_name,
+                                        "isinno": i.isin,
+                                        "schemetype": sell_collateral_application_doc.scheme_type,
+                                        "schemecategory": i.security_category,
+                                        "lienunit": i.quantity,
+                                        "invocationunit": i.sell_quantity,
+                                        "lienmarkno": i.psn,
+                                    },
+                                )
+                                data["invocinitiate"]["schemedetails"].append(
+                                    schemedetails[0]
                                 )
 
-                    if (
-                        dict_decrypted_response.get("invocinitiate").get("message")
-                        == "SUCCESS"
-                    ) or (
-                        dict_decrypted_response.get("invocinitiate").get("message")
-                        == "PARTIAL FAILURE"
-                    ):
-                        sell_collateral_application_doc.is_initiated = True
+                        encrypted_data = lms.AESCBC(
+                            las_settings.encryption_key, las_settings.iv
+                        ).encrypt(json.dumps(data))
 
-                else:
-                    sell_collateral_application_doc.initiate_message = (
-                        dict_decrypted_response.get("status")[0].get("error")
-                    )
+                        req_data = {"req": str(encrypted_data)}
 
-                sell_collateral_application_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+                        sell_collateral_application_doc.db_set(
+                            "invoke_initiate_request_timestamp",
+                            frappe.utils.now_datetime(),
+                        )
 
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
+                        resp = requests.post(
+                            url=url, headers=headers, data=json.dumps(req_data)
+                        ).text
+
+                        encrypted_response = (
+                            json.loads(resp)
+                            .get("res")
+                            .replace("-", "+")
+                            .replace("_", "/")
+                        )
+                        decrypted_response = lms.AESCBC(
+                            las_settings.decryption_key, las_settings.iv
+                        ).decrypt(encrypted_response)
+                        dict_decrypted_response = json.loads(decrypted_response)
+
+                        lms.create_log(
+                            {
+                                "json_payload": data,
+                                "encrypted_request": encrypted_data,
+                                "encrypred_response": json.loads(resp).get("res"),
+                                "decrypted_response": dict_decrypted_response,
+                            },
+                            "invoke_initiate",
+                        )
+
+                        if dict_decrypted_response.get("invocinitiate"):
+                            sell_collateral_application_doc.initiate_message = (
+                                dict_decrypted_response.get("invocinitiate").get(
+                                    "message"
+                                )
+                            )
+                            # frappe.db.set_value(
+                            #     "Sell Collateral Application",
+                            #     sell_collateral_application_doc.name,
+                            #     "initiate_message",
+                            #     dict_decrypted_response.get("invocinitiate").get(
+                            #         "message"
+                            #     ),
+                            # )
+
+                            isin_details = {}
+                            schemedetails_res = dict_decrypted_response.get(
+                                "invocinitiate"
+                            ).get("schemedetails")
+
+                            for i in schemedetails_res:
+                                isin_details[
+                                    "{}{}{}".format(
+                                        i.get("isinno"),
+                                        i.get("folio"),
+                                        i.get("lienmarkno"),
+                                    )
+                                ] = i
+
+                            for i in sell_collateral_application_doc.sell_items:
+                                isin_folio_combo = "{}{}{}".format(
+                                    i.get("isin"), i.get("folio"), i.get("psn")
+                                )
+                                if isin_folio_combo in isin_details:
+                                    i.invoke_initiate_remarks = (
+                                        isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        if isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        else "FAILURE"
+                                    )
+                                    # if (
+                                    #     isin_details.get(isin_folio_combo).get(
+                                    #         "remarks"
+                                    #     )
+                                    #     == "SUCCESS"
+                                    # ):
+
+                                    old_psn = i.psn
+                                    # i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
+                                    new_psn = isin_details.get(isin_folio_combo).get(
+                                        "invocrefno"
+                                    )
+                                    if (
+                                        old_psn != new_psn
+                                        and isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
+                                        frappe.db.sql(
+                                            """
+                                            update `tabCollateral Ledger`
+                                            set psn = '{psn}'
+                                            where loan = '{loan}' and isin = '{isin}' and folio = '{folio}' and psn = '{oldpsn}'
+                                            """.format(
+                                                psn=new_psn,
+                                                isin=i.get("isin"),
+                                                loan=sell_collateral_application_doc.loan,
+                                                folio=i.get("folio"),
+                                                oldpsn=old_psn,
+                                            ),
+                                            debug=True,
+                                        )
+                                        i.new_psn = new_psn
+
+                            if (
+                                dict_decrypted_response.get("invocinitiate").get(
+                                    "message"
+                                )
+                                == "SUCCESS"
+                            ) or (
+                                dict_decrypted_response.get("invocinitiate").get(
+                                    "message"
+                                )
+                                == "PARTIAL FAILURE"
+                            ):
+                                sell_collateral_application_doc.is_initiated = True
+                                sell_collateral_application_doc.successfull_request_count += (
+                                    1
+                                )
+
+                        else:
+                            sell_collateral_application_doc.initiate_message = (
+                                dict_decrypted_response.get("status")[0].get("error")
+                            )
+
+                        sell_collateral_application_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+
+                        prf_list.append(prf[0].prf)
+
+                    except requests.RequestException as e:
+                        raise utils.exceptions.APIException(str(e))
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:

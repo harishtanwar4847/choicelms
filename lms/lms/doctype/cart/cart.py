@@ -285,26 +285,94 @@ class Cart(Document):
                         application_type = "Lien"
                         msg_type = "lien"
                         email_subject = "Lien Application Successful"
+                # mark cart as processed
+                self.is_processed = 1
+                self.save()
 
+                if self.loan_margin_shortfall:
+                    loan_margin_shortfall = frappe.get_doc(
+                        "Loan Margin Shortfall", self.loan_margin_shortfall
+                    )
+                    if loan_margin_shortfall.status == "Pending":
+                        loan_margin_shortfall.status = "Request Pending"
+                        loan_margin_shortfall.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    doc = frappe.get_doc(
+                        "User KYC", self.get_customer().choice_kyc
+                    ).as_dict()
                     frappe.enqueue_doc(
-                        "Notification", email_subject, method="send", doc=doc
+                        "Notification",
+                        "Margin Shortfall Action Taken",
+                        method="send",
+                        doc=doc,
                     )
-                    mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
-                        msg_type
+                    msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification",
+                        "Margin shortfall – Action taken",
+                        fields=["*"],
                     )
-                    # if mess:
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification,
+                        loan=self.loan,
+                        customer=self.get_customer(),
+                    )
                     receiver_list = [str(self.get_customer().phone)]
-                    if doc.mob_num:
-                        receiver_list.append(str(doc.mob_num))
-                    if doc.choice_mob_no:
-                        receiver_list.append(str(doc.choice_mob_no))
+                    if self.get_customer().get_kyc().mob_num:
+                        receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+                    if self.get_customer().get_kyc().choice_mob_no:
+                        receiver_list.append(
+                            str(self.get_customer().get_kyc().choice_mob_no)
+                        )
 
                     receiver_list = list(set(receiver_list))
 
                     frappe.enqueue(
-                        method=send_sms, receiver_list=receiver_list, msg=mess
+                        method=send_sms, receiver_list=receiver_list, msg=msg
                     )
-            return loan_application
+
+                # if self.loan_margin_shortfall:
+                #     loan_application.status = "Ready for Approval"
+                #     loan_application.workflow_state = "Ready for Approval"
+                #     loan_application.save(ignore_permissions=True)
+
+                if not self.loan_margin_shortfall:
+                    customer = frappe.get_doc("Loan Customer", self.customer)
+                    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                    doc["loan_application_name"] = loan_application.name
+                    doc[
+                        "minimum_sanctioned_limit"
+                    ] = loan_application.minimum_sanctioned_limit
+                    # frappe.enqueue_doc(
+                    #     "Notification", "Loan Application Creation", method="send", doc=doc
+                    # )
+                    if not loan_application.remarks:
+                        msg_type = "pledge"
+                        email_subject = "Pledge Application Success"
+                        if self.instrument_type == "Mutual Fund":
+                            application_type = "Lien"
+                            msg_type = "lien"
+                            email_subject = "Lien Application Successful"
+
+                        frappe.enqueue_doc(
+                            "Notification", email_subject, method="send", doc=doc
+                        )
+                        mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
+                            msg_type
+                        )
+                        # if mess:
+                        receiver_list = [str(self.get_customer().phone)]
+                        if doc.mob_num:
+                            receiver_list.append(str(doc.mob_num))
+                        if doc.choice_mob_no:
+                            receiver_list.append(str(doc.choice_mob_no))
+
+                        receiver_list = list(set(receiver_list))
+
+                        frappe.enqueue(
+                            method=send_sms, receiver_list=receiver_list, msg=mess
+                        )
+                return loan_application
         except Exception:
             if frappe.utils.get_url() == "https://spark.loans":
                 email_msg = "Loan Customer {customer} is attempting for {application_type} of Loan application in {instrument_type}, but the same is not getting executed\n{cart}".format(
@@ -337,6 +405,8 @@ class Cart(Document):
         lender = self.get_lender()
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
+        logo_file_path_1 = lender.get_lender_logo_file()
+        logo_file_path_2 = lender.get_lender_address_file()
         diff = self.eligible_loan
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
@@ -481,31 +551,44 @@ class Cart(Document):
                 )
             )
         ) * (roi_ / 100)
+        interest_per_month = float(interest_charges_in_amount / 12)
+        final_payment = float(interest_per_month) + (
+            self.increased_sanctioned_limit
+            if self.loan and not self.loan_margin_shortfall
+            else self.eligible_loan
+        )
         charges = lms.charges_for_apr(
             lender.name,
             lms.validate_rupees(diff),
         )
-        apr = lms.calculate_apr(
-            self.name,
-            roi_,
-            12,
-            (
-                int(
-                    lms.validate_rupees(
-                        self.increased_sanctioned_limit
-                        if self.loan and not self.loan_margin_shortfall
-                        else self.eligible_loan
-                    )
-                )
-            ),
-            charges.get("total"),
-        )
-        annual_default_interest = lender.default_interest * 12
+        # apr = lms.calculate_apr(
+        #     self.name,
+        #     roi_,
+        #     12,
+        #     (
+        #         int(
+        #             lms.validate_rupees(
+        #                 self.increased_sanctioned_limit
+        #                 if self.loan and not self.loan_margin_shortfall
+        #                 else self.eligible_loan
+        #             )
+        #         )
+        #     ),
+        #     charges.get("total"),
+        # )
         sanction_l = (
             self.increased_sanctioned_limit
             if self.loan and not self.loan_margin_shortfall
             else self.eligible_loan
         )
+        apr = lms.calculate_irr(
+            name_=self.name,
+            sanction_limit=float(sanction_l),
+            interest_per_month=interest_per_month,
+            final_payment=final_payment,
+            charges=charges.get("total"),
+        )
+        annual_default_interest = lender.default_interest * 12
 
         doc = {
             "loan_application_number": "",
@@ -534,6 +617,8 @@ class Cart(Document):
                 )
             ).title(),
             "roi": roi_,
+            "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
             "default_interest": annual_default_interest,
             "rebate_interest": rebate_interest,
             "rebait_threshold": lender.rebait_threshold,
@@ -547,6 +632,8 @@ class Cart(Document):
             "interest_charges_in_amount": frappe.utils.fmt_money(
                 interest_charges_in_amount
             ),
+            "interest_per_month": frappe.utils.fmt_money(interest_per_month),
+            "final_payment": frappe.utils.fmt_money(final_payment),
             "renewal_charge_type": lender.renewal_charge_type,
             "renewal_charge_in_words": lms.number_to_word(
                 lms.validate_rupees(lender.renewal_charges)
