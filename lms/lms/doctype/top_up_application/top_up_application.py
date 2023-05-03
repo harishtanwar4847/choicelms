@@ -23,14 +23,6 @@ class TopupApplication(Document):
 
     def on_submit(self):
         loan = self.get_loan()
-        frappe.log_error(
-            message="\nTopup ammount: {}".format(self.top_up_amount)
-            + "\nsanction limit: {}\n max topup amt {}".format(
-                loan.sanctioned_limit + self.top_up_amount, loan.max_topup_amount()
-            ),
-            title="Topup amount checking",
-        )
-
         # apply loan charges
         self.apply_loan_charges(loan)
         loan.reload()
