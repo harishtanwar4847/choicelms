@@ -1949,7 +1949,8 @@ class Loan(Document):
                         self.base_interest = self.custom_base_interest
                         self.rebate_interest = self.custom_rebate_interest
                         self.old_wef_date = self.wef_date
-                        self.old_is_default = self.is_default
+                        self.old_is_default = self.main_is_default
+                        self.main_is_default = self.is_default
                         self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):

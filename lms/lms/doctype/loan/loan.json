@@ -38,6 +38,7 @@
   "interest_due",
   "penal_interest_charges",
   "total_interest_incl_penal_due",
+  "main_is_default",
   "column_break_28",
   "rebate_interest",
   "rebate_interest_amount",
@@ -320,6 +321,13 @@
    "read_only": 1
   },
   {
+    "default": "0",
+    "fieldname": "main_is_default",
+    "fieldtype": "Check",
+    "label": "Is Default",
+    "read_only": 1
+   },
+  {
    "fieldname": "old_interest",
    "fieldtype": "Float",
    "label": "Old Base Interest",
@@ -346,7 +354,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-21 14:36:09.878034",
+ "modified": "2023-05-03 15:53:09.878034",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
