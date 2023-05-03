@@ -22,12 +22,14 @@ class TopupApplication(Document):
         return frappe.get_doc("Loan", self.loan)
 
     def on_submit(self):
+        loan = self.get_loan()
         frappe.log_error(
             message="\nTopup ammount: {}".format(self.top_up_amount)
-            + "\nsanction limit: {}".format(loan.sanctioned_limit + self.top_up_amount),
-            title=(("Topup amount checking")),
+            + "\nsanction limit: {}\n max topup amt {}".format(
+                loan.sanctioned_limit + self.top_up_amount, loan.max_topup_amount()
+            ),
+            title="Topup amount checking",
         )
-        loan = self.get_loan()
 
         # apply loan charges
         self.apply_loan_charges(loan)
