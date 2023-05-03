@@ -331,9 +331,7 @@ class TopupApplication(Document):
         )
 
         doc = {
-            "esign_date": (frappe.utils.now_datetime() - timedelta(days=1)).strftime(
-                "%d-%m-%Y"
-            ),
+            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": self.name,
             "borrower_name": customer.full_name,
             "borrower_address": address,
