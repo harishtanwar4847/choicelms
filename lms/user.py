@@ -5649,7 +5649,6 @@ def au_penny_drop(**kwargs):
                             other_bank_.is_default = 0
                             other_bank_.save(ignore_permissions=True)
                             frappe.db.commit()
-                    lms.log_api_error(bank_acc[0])
                     frappe.get_doc(
                         {
                             "doctype": "User Bank Account",
@@ -5852,7 +5851,6 @@ def au_penny_drop(**kwargs):
 
                             else:
                                 # For non choice user
-                                lms.log_api_error(result_)
                                 frappe.get_doc(
                                     {
                                         "doctype": "User Bank Account",
