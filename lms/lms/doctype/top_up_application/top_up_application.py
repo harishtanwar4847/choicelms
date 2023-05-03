@@ -1072,6 +1072,7 @@ class TopupApplication(Document):
                 file_base_name = pdf_file_path.replace(".pdf", "")
                 pdf = PdfReader(pdf_file_path)
                 pages = [
+                    23,
                     24,
                     25,
                     26,
@@ -1079,7 +1080,6 @@ class TopupApplication(Document):
                     28,
                     29,
                     30,
-                    31,
                 ]  # page 1, 3, 5
                 pdfWriter = PdfWriter()
                 for page_num in pages:

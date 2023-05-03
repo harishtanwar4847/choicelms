@@ -2535,6 +2535,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     file_base_name = pdf_file_path.replace(".pdf", "")
                     reader = PdfReader(pdf_file_path)
                     pages = [
+                        23,
                         24,
                         25,
                         26,
@@ -2542,7 +2543,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         28,
                         29,
                         30,
-                        31,
                     ]  # page 1, 3, 5
                     pdfWriter = PdfWriter()
                     for page_num in pages:

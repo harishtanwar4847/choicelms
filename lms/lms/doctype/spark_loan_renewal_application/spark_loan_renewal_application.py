@@ -1152,6 +1152,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                     file_base_name = pdf_file_path.replace(".pdf", "")
                     reader = PdfReader(pdf_file_path)
                     pages = [
+                        23,
                         24,
                         25,
                         26,
@@ -1159,7 +1160,6 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                         28,
                         29,
                         30,
-                        31,
                     ]  # page 1, 3, 5
                     pdfWriter = PdfWriter()
                     for page_num in pages:
