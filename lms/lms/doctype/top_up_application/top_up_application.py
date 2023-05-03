@@ -284,29 +284,17 @@ class TopupApplication(Document):
             wef_date = loan.wef_date
             if type(wef_date) is str:
                 wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-
-            if loan.is_default == 0:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_rebate_interest
-                )
+            if (
+                wef_date >= frappe.utils.now_datetime().date() and loan.is_default == 0
+            ) or (
+                loan.old_is_default == 0
+                and wef_date >= frappe.utils.now_datetime().date()
+            ):  # custom
+                base_interest = loan.old_interest
+                rebate_interest = loan.old_rebate_interest
             else:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.rebait_interest
-                )
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
         else:
             base_interest = int_config.base_interest
             rebate_interest = int_config.rebait_interest
@@ -760,29 +748,18 @@ class TopupApplication(Document):
                 wef_date = loan.wef_date
                 if type(wef_date) is str:
                     wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-
-                if loan.is_default == 0:
-                    base_interest = (
-                        loan.old_interest
-                        if wef_date >= frappe.utils.now_datetime().date()
-                        else loan.custom_base_interest
-                    )
-                    rebate_interest = (
-                        loan.old_rebate_interest
-                        if wef_date >= frappe.utils.now_datetime().date()
-                        else loan.custom_rebate_interest
-                    )
+                if (
+                    wef_date >= frappe.utils.now_datetime().date()
+                    and loan.is_default == 0
+                ) or (
+                    loan.old_is_default == 0
+                    and wef_date >= frappe.utils.now_datetime().date()
+                ):  # custom
+                    base_interest = loan.old_interest
+                    rebate_interest = loan.old_rebate_interest
                 else:
-                    base_interest = (
-                        loan.old_interest
-                        if wef_date >= frappe.utils.now_datetime().date()
-                        else int_config.base_interest
-                    )
-                    rebate_interest = (
-                        loan.old_rebate_interest
-                        if wef_date >= frappe.utils.now_datetime().date()
-                        else int_config.rebait_interest
-                    )
+                    base_interest = int_config.base_interest
+                    rebate_interest = int_config.rebait_interest
             else:
                 base_interest = int_config.base_interest
                 rebate_interest = int_config.rebait_interest

@@ -716,6 +716,7 @@ def get_tnc(**kwargs):
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
         user = lms.__user()
+        loan = {}
 
         if (
             data.get("cart_name")
@@ -871,13 +872,6 @@ def get_tnc(**kwargs):
                     )
                 )
 
-            # msg = "Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
-            # receiver_list = list(
-            #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            # )
-            # from lms.lms.doctype.user_token.user_token import send_sms
-
-            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         if user_kyc.address_details:
             address_details = frappe.get_doc(
                 "Customer Address Details", user_kyc.address_details
@@ -937,93 +931,34 @@ def get_tnc(**kwargs):
         int_config = frappe.get_doc("Interest Configuration", interest_config)
         if data.get("cart_name") and cart.loan:
             loan = frappe.get_doc("Loan", cart.loan)
-            wef_date = loan.wef_date
-            if type(wef_date) is str:
-                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-            if loan.is_default == 0:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_rebate_interest
-                )
-            else:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.rebait_interest
-                )
 
         elif data.get("loan_renewal_name"):
             renewal = frappe.get_doc(
                 "Spark Loan Renewal Application", data.get("loan_renewal_name")
             )
             loan = frappe.get_doc("Loan", renewal.loan)
-            wef_date = loan.wef_date
-            if type(wef_date) is str:
-                wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-            if loan.is_default == 0:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_rebate_interest
-                )
-            else:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.rebait_interest
-                )
         elif data.get("loan_name") and data.get("topup_amount"):
             loan = frappe.get_doc("Loan", data.get("loan_name"))
+
+        if loan:
             wef_date = loan.wef_date
             if type(wef_date) is str:
                 wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-            if loan.is_default == 0:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else loan.custom_rebate_interest
-                )
+            if (
+                wef_date >= frappe.utils.now_datetime().date() and loan.is_default == 0
+            ) or (
+                loan.old_is_default == 0
+                and wef_date >= frappe.utils.now_datetime().date()
+            ):  # custom
+                base_interest = loan.old_interest
+                rebate_interest = loan.old_rebate_interest
             else:
-                base_interest = (
-                    loan.old_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.base_interest
-                )
-                rebate_interest = (
-                    loan.old_rebate_interest
-                    if wef_date >= frappe.utils.now_datetime().date()
-                    else int_config.rebait_interest
-                )
-
+                base_interest = int_config.base_interest
+                rebate_interest = int_config.rebait_interest
         else:
             base_interest = int_config.base_interest
             rebate_interest = int_config.rebait_interest
+
         roi_ = base_interest * 12
         # diff = lms.diff_in_months(frappe.)
         charges = lms.charges_for_apr(lender.name, lms.validate_rupees(diff))

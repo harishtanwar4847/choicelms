@@ -51,7 +51,8 @@
   "column_break_40",
   "custom_rebate_interest",
   "old_rebate_interest",
-  "old_wef_date"
+  "old_wef_date",
+  "old_is_default"
  ],
  "fields": [
   {
@@ -254,7 +255,6 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.instrument_type != \"Shares\";",
    "fieldname": "actual_drawing_power",
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
@@ -336,11 +336,17 @@
    "fieldtype": "Date",
    "label": "Old w.e.f date",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "old_is_default",
+   "fieldtype": "Check",
+   "label": "Old Is Default"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-12 10:58:12.425845",
+ "modified": "2023-04-21 14:36:09.878034",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

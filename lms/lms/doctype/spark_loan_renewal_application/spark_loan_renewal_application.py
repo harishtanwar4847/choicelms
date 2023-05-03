@@ -249,16 +249,19 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                     wef_date = loan.wef_date
                     if type(wef_date) is str:
                         wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-                    custom_base_interest = (
-                        loan.old_interest
-                        if wef_date >= frappe.utils.now_datetime().date()
-                        else loan.custom_base_interest
-                    )
-                    custom_rebate_interest = (
-                        loan.old_rebate_interest
-                        if wef_date >= frappe.utils.now_datetime().date()
-                        else loan.custom_rebate_interest
-                    )
+                    if (
+                        wef_date >= frappe.utils.now_datetime().date()
+                        and self.is_default == 0
+                    ) or (
+                        self.old_is_default == 0
+                        and wef_date >= frappe.utils.now_datetime().date()
+                    ):
+                        custom_base_interest = loan.old_interest
+                        custom_rebate_interest = loan.old_rebate_interest
+                    else:
+                        custom_base_interest = loan.custom_base_interest
+                        custom_rebate_interest = loan.custom_rebate_interest
+
                     frappe.get_doc(
                         dict(
                             doctype="Spark Loan Renewal Application",
@@ -1980,16 +1983,17 @@ You have received a loan renewal extension of 7 days from the current expiry dat
             wef_date = loan.wef_date
             if type(wef_date) is str:
                 wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-            custom_base_interest = (
-                loan.old_interest
-                if wef_date >= frappe.utils.now_datetime().date()
-                else loan.custom_base_interest
-            )
-            custom_rebate_interest = (
-                loan.old_rebate_interest
-                if wef_date >= frappe.utils.now_datetime().date()
-                else loan.custom_rebate_interest
-            )
+            if (
+                wef_date >= frappe.utils.now_datetime().date() and loan.is_default == 0
+            ) or (
+                loan.old_is_default == 0
+                and wef_date >= frappe.utils.now_datetime().date()
+            ):
+                custom_base_interest = loan.old_interest
+                custom_rebate_interest = loan.old_rebate_interest
+            else:
+                custom_base_interest = loan.custom_base_interest
+                custom_rebate_interest = loan.custom_rebate_interest
             renewal_doc = frappe.get_doc(
                 dict(
                     doctype="Spark Loan Renewal Application",

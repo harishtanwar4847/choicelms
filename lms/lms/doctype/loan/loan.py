@@ -1949,6 +1949,7 @@ class Loan(Document):
                         self.base_interest = self.custom_base_interest
                         self.rebate_interest = self.custom_rebate_interest
                         self.old_wef_date = self.wef_date
+                        self.old_is_default = self.is_default
                         self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
@@ -2202,28 +2203,16 @@ class Loan(Document):
         wef_date = self.wef_date
         if type(wef_date) is str:
             wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-        if self.is_default == 0:
-            base_interest = (
-                self.old_interest
-                if wef_date >= frappe.utils.now_datetime().date()
-                else self.custom_base_interest
-            )
-            rebate_interest = (
-                self.old_rebate_interest
-                if wef_date >= frappe.utils.now_datetime().date()
-                else self.custom_rebate_interest
-            )
+        if (
+            wef_date >= frappe.utils.now_datetime().date() and self.is_default == 0
+        ) or (
+            self.old_is_default == 0 and wef_date >= frappe.utils.now_datetime().date()
+        ):  # custom
+            base_interest = self.old_interest
+            rebate_interest = self.old_rebate_interest
         else:
-            base_interest = (
-                self.old_interest
-                if wef_date >= frappe.utils.now_datetime().date()
-                else int_config.base_interest
-            )
-            rebate_interest = (
-                self.old_rebate_interest
-                if wef_date >= frappe.utils.now_datetime().date()
-                else int_config.rebait_interest
-            )
+            base_interest = int_config.base_interest
+            rebate_interest = int_config.rebait_interest
 
         roi_ = round((base_interest * 12), 2)
         charges = lms.charges_for_apr(
