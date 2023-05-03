@@ -23,6 +23,13 @@ class TopupApplication(Document):
 
     def on_submit(self):
         loan = self.get_loan()
+        frappe.log_error(
+            message="\nTopup ammount: {}".format(self.top_up_amount)
+            + "\nsanction limit: {}\n max topup amt {}".format(
+                loan.sanctioned_limit + self.top_up_amount, loan.max_topup_amount()
+            ),
+            title="Topup amount checking",
+        )
 
         # apply loan charges
         self.apply_loan_charges(loan)
@@ -195,7 +202,8 @@ class TopupApplication(Document):
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         lender = self.get_lender()
         loan = self.get_loan()
-
+        logo_file_path_1 = lender.get_lender_logo_file()
+        logo_file_path_2 = lender.get_lender_address_file()
         if user_kyc.address_details:
             address_details = frappe.get_doc(
                 "Customer Address Details", user_kyc.address_details
@@ -331,7 +339,7 @@ class TopupApplication(Document):
         )
 
         doc = {
-            "esign_date": "",
+            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": self.name,
             "borrower_name": customer.full_name,
             "borrower_address": address,
@@ -345,6 +353,8 @@ class TopupApplication(Document):
             "sanctioned_amount": frappe.utils.fmt_money(
                 float(increased_sanction_limit)
             ),
+            "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
             # "sanctioned_amount": (float(increased_sanction_limit)),
             "sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(float(increased_sanction_limit))
@@ -511,15 +521,15 @@ class TopupApplication(Document):
         attachments = ""
         if doc.get("top_up_application").get("status") == "Approved":
             pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
-            edited = lms.pdf_editor(
-                self.lender_esigned_document,
-                pdf_doc_name,
-            )
-            frappe.db.set_value(
-                self.doctype, self.name, "lender_esigned_document", edited
-            )
-            self.lender_esigned_document = edited
-            self.map_loan_agreement_file(loan, edited)
+            # edited = lms.pdf_editor(
+            #     self.lender_esigned_document,
+            #     pdf_doc_name,
+            # )
+            # frappe.db.set_value(
+            #     self.doctype, self.name, "lender_esigned_document", edited
+            # )
+            # self.lender_esigned_document = edited
+            self.map_loan_agreement_file(loan)
             attachments = self.create_attachment()
             loan_email_message = frappe.db.sql(
                 "select message from `tabNotification` where name ='Top up Application Approved';"
@@ -609,14 +619,47 @@ class TopupApplication(Document):
                 customer=self.get_customer(),
             )
 
-    def map_loan_agreement_file(self, loan, edited):
+    def map_loan_agreement_file(self, loan):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.lender_esigned_document}
+        )
+
+        loan_agreement = frappe.get_doc("File", file_name)
+
+        loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(loan.name)
+        event = "Top up"
+
+        is_private = 0
+
+        # loan_agreement_file_url = frappe.utils.get_files_path(
+        #     loan_agreement_file_name, is_private=is_private
+        # )
+
+        loan_agreement_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": loan_agreement_file_name,
+                "content": loan_agreement.get_content(),
+                "attached_to_doctype": "Loan",
+                "attached_to_name": loan.name,
+                "attached_to_field": "loan_agreement",
+                "folder": "Home",
+                # "file_url": loan_agreement_file_url,
+                "is_private": is_private,
+            }
+        )
+        loan_agreement_file.insert(ignore_permissions=True)
+        frappe.db.commit()
+
         frappe.db.set_value(
             "Loan",
             loan.name,
             "loan_agreement",
-            edited,
+            loan_agreement_file.file_url,
             update_modified=False,
         )
+        # save loan sanction history
+        loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def before_save(self):
         loan = self.get_loan()
@@ -668,6 +711,8 @@ class TopupApplication(Document):
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             lender = self.get_lender()
             loan = self.get_loan()
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             if user_kyc.address_details:
                 address_details = frappe.get_doc(
                     "Customer Address Details", user_kyc.address_details
@@ -785,6 +830,12 @@ class TopupApplication(Document):
                 "sanctioned_amount": frappe.utils.fmt_money(
                     float(increased_sanction_limit)
                 ),
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
                 "sanctioned_amount_in_words": lms.number_to_word(
                     lms.validate_rupees(float(increased_sanction_limit))
                 ).title(),
@@ -1035,6 +1086,7 @@ class TopupApplication(Document):
                     35,
                     36,
                     37,
+                    38,
                 ]  # page 1, 3, 5
                 pdfWriter = PdfWriter()
                 for page_num in pages:

@@ -112,7 +112,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.price
             for i in self.items
         }
@@ -120,7 +120,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -129,7 +129,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.quantity
             for i in self.items
         }
@@ -149,7 +149,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
                 # psn[0][0] if psn else "",
             )
             if i.sell_quantity > i.quantity:
@@ -188,7 +188,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if sell_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -208,7 +208,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -219,7 +219,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
@@ -229,7 +229,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if sell_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
@@ -354,7 +354,7 @@ class SellCollateralApplication(Document):
     def on_submit(self):
         las_settings = frappe.get_single("LAS Settings")
         for i in self.sell_items:
-            if i.sell_quantity > 0:
+            if i.sell_quantity > 0 and i.invoke_initiate_remarks == "SUCCESS":
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
@@ -369,7 +369,7 @@ class SellCollateralApplication(Document):
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
-                    "psn": i.get("psn"),
+                    "psn": i.get("new_psn") if i.get("new_psn") else i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
@@ -856,7 +856,6 @@ def initiate_invoc(sell_collateral_application_name):
         ):
             success = []
             prf_list = []
-            total_success_request = []
             for i in sell_collateral_application_doc.sell_items:
                 prf = frappe.get_all(
                     "Sell Collateral Application Sell Item",
@@ -884,7 +883,7 @@ def initiate_invoc(sell_collateral_application_name):
                             "invocinitiate": {
                                 "reqrefno": i.invoke_ref_no,
                                 "invoctoken": i.invoke_token,
-                                "lienrefno": collateral_ledger.prf,
+                                "lienrefno": i.prf,
                                 "pan": user_kyc.pan_no,
                                 "regemailid": customer.mycams_email_id,
                                 "clientid": las_settings.client_id,
@@ -982,25 +981,34 @@ def initiate_invoc(sell_collateral_application_name):
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
                                 if isin_folio_combo in isin_details:
-                                    i.invoke_initiate_remarks = isin_details.get(
-                                        isin_folio_combo
-                                    ).get("remarks")
-                                    if (
+                                    i.invoke_initiate_remarks = (
                                         isin_details.get(isin_folio_combo).get(
                                             "remarks"
                                         )
-                                        == "SUCCESS"
-                                    ):
-                                        sell_collateral_application_doc.successfull_request_count = (
-                                            total_success_request + 1
+                                        if isin_details.get(isin_folio_combo).get(
+                                            "remarks"
                                         )
+                                        else "FAILURE"
+                                    )
+                                    # if (
+                                    #     isin_details.get(isin_folio_combo).get(
+                                    #         "remarks"
+                                    #     )
+                                    #     == "SUCCESS"
+                                    # ):
 
                                     old_psn = i.psn
                                     # i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "invocrefno"
                                     )
-                                    if old_psn != new_psn:
+                                    if (
+                                        old_psn != new_psn
+                                        and isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
                                         frappe.db.sql(
                                             """
                                             update `tabCollateral Ledger`
@@ -1015,6 +1023,7 @@ def initiate_invoc(sell_collateral_application_name):
                                             ),
                                             debug=True,
                                         )
+                                        i.new_psn = new_psn
 
                             if (
                                 dict_decrypted_response.get("invocinitiate").get(
@@ -1028,6 +1037,9 @@ def initiate_invoc(sell_collateral_application_name):
                                 == "PARTIAL FAILURE"
                             ):
                                 sell_collateral_application_doc.is_initiated = True
+                                sell_collateral_application_doc.successfull_request_count += (
+                                    1
+                                )
 
                         else:
                             sell_collateral_application_doc.initiate_message = (

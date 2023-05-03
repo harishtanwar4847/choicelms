@@ -115,7 +115,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.price
             for i in self.items
         }
@@ -123,7 +123,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -132,7 +132,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): i.quantity
             for i in self.items
         }
@@ -147,7 +147,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(
@@ -159,6 +159,18 @@ class UnpledgeApplication(Document):
                     )
                 )
             if self.instrument_type == "Mutual Fund":
+                lms.create_log(
+                    {
+                        "isin_folio_combo": isin_folio_combo,
+                        "unpledge_quantity_map": unpledge_quantity_map,
+                        "unpledge_requested_quantity_map": unpledge_requested_quantity_map,
+                        "i.unpledge_quantity": i.unpledge_quantity,
+                        "unpledge_requested_quantity_map.get(isin_folio_combo)": unpledge_requested_quantity_map.get(
+                            isin_folio_combo
+                        ),
+                    },
+                    "checking",
+                )
                 if (
                     unpledge_requested_quantity_map.get(isin_folio_combo)
                     > i.unpledge_quantity
@@ -188,7 +200,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if unpledge_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -203,7 +215,7 @@ class UnpledgeApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             ): 0
             for i in self.items
         }
@@ -215,7 +227,7 @@ class UnpledgeApplication(Document):
                 isin_folio_combo = "{}{}{}".format(
                     i.isin,
                     "{}".format("-" + str(i.folio) if i.folio else ""),
-                    i.psn if i.psn else "",
+                    i.psn if self.instrument_type == "Mutual Fund" else "",
                 )
                 unpledge_quantity_map[isin_folio_combo] = (
                     unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
@@ -227,7 +239,7 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 "{}".format("-" + str(i.folio) if i.folio else ""),
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" else "",
             )
             if unpledge_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
@@ -257,7 +269,7 @@ class UnpledgeApplication(Document):
 
     def on_submit(self):
         for i in self.unpledge_items:
-            if i.unpledge_quantity > 0:
+            if i.unpledge_quantity > 0 and i.revoke_initiate_remarks == "SUCCESS":
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
@@ -272,7 +284,7 @@ class UnpledgeApplication(Document):
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
-                    "psn": i.get("psn"),
+                    "psn": i.get("new_psn") if i.get("new_psn") else i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
@@ -817,7 +829,6 @@ def initiate_revoc(unpledge_application_name):
         ):
             success = []
             prf_list = []
-            total_success_request = 0
             for i in unpledge_application_doc.unpledge_items:
                 prf = frappe.get_all(
                     "Unpledge Application Unpledged Item",
@@ -928,18 +939,21 @@ def initiate_revoc(unpledge_application_name):
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
                                 if isin_folio_combo in isin_details:
-                                    i.revoke_initiate_remarks = isin_details.get(
-                                        isin_folio_combo
-                                    ).get("remarks")
-                                    if (
+                                    i.revoke_initiate_remarks = (
                                         isin_details.get(isin_folio_combo).get(
                                             "remarks"
                                         )
-                                        == "SUCCESS"
-                                    ):
-                                        unpledge_application_doc.successfull_request_count = (
-                                            total_success_request + 1
+                                        if isin_details.get(isin_folio_combo).get(
+                                            "remarks"
                                         )
+                                        else "FAILURE"
+                                    )
+                                    # if (
+                                    #     isin_details.get(isin_folio_combo).get(
+                                    #         "remarks"
+                                    #     )
+                                    #     == "SUCCESS"
+                                    # ):
 
                                     old_psn = i.psn
                                     # i.psn = isin_details.get(isin_folio_combo).get(
@@ -948,7 +962,13 @@ def initiate_revoc(unpledge_application_name):
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "revoc_refno"
                                     )
-                                    if old_psn != new_psn:
+                                    if (
+                                        old_psn != new_psn
+                                        and isin_details.get(isin_folio_combo).get(
+                                            "remarks"
+                                        )
+                                        == "SUCCESS"
+                                    ):
                                         frappe.db.sql(
                                             """
                                             update `tabCollateral Ledger`
@@ -962,6 +982,7 @@ def initiate_revoc(unpledge_application_name):
                                                 old_psn=old_psn,
                                             )
                                         )
+                                        i.new_psn = new_psn
 
                             if (
                                 dict_decrypted_response.get("revocinitiate").get(
@@ -975,6 +996,7 @@ def initiate_revoc(unpledge_application_name):
                                 == "PARTIAL FAILURE"
                             ):
                                 unpledge_application_doc.is_initiated = True
+                                unpledge_application_doc.successfull_request_count += 1
                         else:
                             unpledge_application_doc.initiate_message = (
                                 dict_decrypted_response.get("status")[0].get("error")

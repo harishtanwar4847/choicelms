@@ -1027,17 +1027,9 @@ def get_tnc(**kwargs):
         roi_ = base_interest * 12
         # diff = lms.diff_in_months(frappe.)
         charges = lms.charges_for_apr(lender.name, lms.validate_rupees(diff))
-        interest_charges_in_amount = float(
-            cart.increased_sanctioned_limit
-            if cart.loan and not cart.loan_margin_shortfall
-            else cart.eligible_loan
-        ) * (roi_ / 100)
+        interest_charges_in_amount = float(eligibile_loan) * (roi_ / 100)
         interest_per_month = float(interest_charges_in_amount / 12)
-        final_payment = float(interest_per_month) + (
-            cart.increased_sanctioned_limit
-            if cart.loan and not cart.loan_margin_shortfall
-            else cart.eligible_loan
-        )
+        final_payment = float(interest_per_month) + (eligibile_loan)
         # apr = lms.calculate_apr(
         #     data.get("cart_name"),
         #     roi_,

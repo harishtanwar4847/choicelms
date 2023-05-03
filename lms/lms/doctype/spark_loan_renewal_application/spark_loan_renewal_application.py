@@ -446,6 +446,8 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             user = frappe.get_doc("User", customer.user)
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             lender = self.get_lender()
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             diff = self.drawing_power
             if self.loan:
                 loan = self.get_loan()
@@ -571,6 +573,8 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             interest_charges_in_amount = int(
                 lms.validate_rupees(float(self.sanctioned_limit))
             ) * (roi_ / 100)
+            interest_per_month = float(interest_charges_in_amount / 12)
+            final_payment = float(interest_per_month) + self.sanctioned_limit
             apr = lms.calculate_irr(
                 name_=self.name,
                 sanction_limit=float(
@@ -583,7 +587,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 charges=charges.get("total"),
             )
             doc = {
-                "esign_date": "",
+                "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
                 "loan_account_number": loan.name if self.loan else "",
                 "loan_application_number": self.name,
                 "borrower_name": customer.full_name,
@@ -595,6 +599,12 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 "district": perm_dist,
                 "state": perm_state,
                 "pincode": perm_pin,
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
                 # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
                 "sanctioned_amount": frappe.utils.fmt_money(
                     float(self.sanctioned_limit)
@@ -635,6 +645,8 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 "interest_charges_in_amount": frappe.utils.fmt_money(
                     interest_charges_in_amount
                 ),
+                "interest_per_month": frappe.utils.fmt_money(interest_per_month),
+                "final_payment": frappe.utils.fmt_money(final_payment),
                 "renewal_charges": lms.validate_rupees(lender.renewal_charges)
                 if lender.renewal_charge_type == "Fix"
                 else lms.validate_percent(lender.renewal_charges),
@@ -827,7 +839,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 #     if increased_sanctioned_limit < lender.maximum_sanctioned_limit
                 #     else lender.maximum_sanctioned_limit
                 # )
-                diff = loan.sanctioned_limit
+                diff = self.sanctioned_limit
             interest_config = frappe.get_value(
                 "Interest Configuration",
                 {
@@ -860,7 +872,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             interest_charges_in_amount = int(
                 lms.validate_rupees(
                     float(
-                        loan.sanctioned_limit
+                        self.sanctioned_limit
                         # self.increased_sanctioned_limit
                         # if self.increased_sanctioned_limit
                         # else self.drawing_power
@@ -883,6 +895,8 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             #     ),
             #     charges.get("total"),
             # )
+            interest_per_month = float(interest_charges_in_amount / 12)
+            final_payment = float(interest_per_month) + self.sanctioned_limit
             apr = lms.calculate_irr(
                 name_=self.name,
                 sanction_limit=float(
@@ -903,7 +917,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
             annual_default_interest = lender.default_interest * 12
             if self.status != "Approved":
                 doc = {
-                    "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+                    "esign_date": "",
                     "loan_account_number": loan_name,
                     "loan_application_no": self.name,
                     "borrower_name": customer.full_name,
@@ -969,6 +983,8 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                     "interest_charges_in_amount": frappe.utils.fmt_money(
                         interest_charges_in_amount
                     ),
+                    "interest_per_month": frappe.utils.fmt_money(interest_per_month),
+                    "final_payment": frappe.utils.fmt_money(final_payment),
                     "renewal_charges": lms.validate_rupees(lender.renewal_charges)
                     if lender.renewal_charge_type == "Fix"
                     else lms.validate_percent(lender.renewal_charges),
@@ -1144,6 +1160,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                         35,
                         36,
                         37,
+                        38,
                     ]  # page 1, 3, 5
                     pdfWriter = PdfWriter()
                     for page_num in pages:

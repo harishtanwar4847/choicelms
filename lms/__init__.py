@@ -1814,6 +1814,16 @@ def decrypt_mycams_response():
                     },
                 )
             cart.save(ignore_permissions=True)
+            drawing_power = 0
+            for i in cart.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = ((i.eligible_percentage or 0) / 100) * i.amount
+                i.eligibile_amount = dp
+                drawing_power += dp
+            cart.increased_sanctioned_limit = round_down_amount_to_nearest_thousand(
+                drawing_power
+            )
+            cart.save(ignore_permissions=True)
             cart.create_loan_application()
             frappe.db.commit()
             return utils.respondWithSuccess()
