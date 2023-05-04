@@ -40,13 +40,13 @@
 
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                {% if doc.get("token_type") == "Pledge OTP" %}
+                {% if doc.get("token_type") == "PledgeOTP" %}
                   Use OTP doc.get("token") to securely Pledge your securities.<br />
                   <br />
                   DO NOT disclose it to anyone to keep your account safe. Valid for 10 mins<br />
                   <br />
                 {% endif %}
-                {% if doc.get("token_type") == "Unpledge OTP" %}
+                {% if doc.get("token_type") == "UnpledgeOTP" %}
                   Use OTP doc.get("token") for un-pledging securities at Spark Loans.<br />
                   <br />
                   Keep it confidential and enter to complete the request.Valid for 10 mins<br />
