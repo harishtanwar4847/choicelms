@@ -39,10 +39,44 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                  Your token_type for Spark Loans is token.<br />
+                {% if doc.get("token_type") == "OTP" %}
+                  Your login OTP is {{doc.get("token")}}.<br />
                   <br />
-                  Do not share your token_type with anyone. Your OTP is valid for 10 minutes.<br />
+                  Thank you for choosing Spark Loans. Do not share OTP for security reasons. Valid for 10 mins.<br />
                   <br />
+                {% endif %}
+                {% if doc.get("token_type") == "WithdrawOTP" %}
+                  Use OTP {{doc.get("token")}} to complete your withdrawal transaction request.<br />
+                  <br />
+                  NEVER share your OTP with anyone. OTP Expires in 10 mins.<br />
+                  <br />  
+                {% endif %}
+                {% if doc.get("token_type") == "SellCollateralOTP" %}
+                 Use OTP {{doc.get("token")}} to complete your sell securities request with confidence & ease.<br />
+                  <br />
+                {% endif %}
+                {% if doc.get("token_type") == "LienOTP" %}
+                 Use the Lien OTP {{doc.get("token")}} to complete your process of pledging the Mutual Fund holdings.<br />
+                  <br />
+                {% endif %}
+                {% if doc.get("token_type") == "InvokeOTP" %}
+                 Use the Invoke OTP {{doc.get("token")}} for a hassle-free transaction.<br />
+                  <br />
+                  Securely sell your Mutual Fund holdings with ease.<br />
+                  <br /> 
+                {% endif %}
+                {% if doc.get("token_type") == "RevokeOTP" %}
+                 Use OTP {{doc.get("token")}} to place the revoke request for Mutual Fund holdings.<br />
+                  <br />
+                  Do not shar OTP for security reasons. Valid for 10 mins.<br />
+                  <br /> 
+                {% endif %}
+                {% if doc.get("token_type") == "LoanRenewalOTP" %}
+                 Your loan renewal request OTP for Spark Loans is {{doc.get("token")}} .<br />
+                  <br />
+                  NEVER share your OTP with anyone. OTP Expires in 10 mins.<br />
+                  <br /> 
+                {% endif %}
                   You can reach to us through 'Contact Us' on the app.<br />
                   We look forward to serve you soon.<br />
                   <br />

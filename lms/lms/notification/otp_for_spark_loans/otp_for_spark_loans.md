@@ -31,7 +31,7 @@
           <td height="25">&nbsp;</td>
         </tr>
         <tr>
-          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear investor_name,</span></strong></td>
+          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{doc.get("fullname")}},</span></strong></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
