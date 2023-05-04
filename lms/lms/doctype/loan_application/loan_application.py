@@ -936,6 +936,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         if self.status == "Pledge executed":
             total_collateral_value = 0
 
+            drawing_power = 0
             for i in self.items:
                 # i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 if i.pledge_status == "Success" or i.pledge_status == "":
@@ -943,8 +944,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         i.lender_approval_status == "Approved"
                         or i.lender_approval_status == ""
                     ):
+                        i.amount = i.price * i.pledged_quantity
+                        dp = (i.eligible_percentage / 100) * i.amount
+                        i.eligible_amount = dp
+                        # self.total_collateral_value += i.amount
+                        drawing_power += dp
                         total_collateral_value += i.amount
-                        self.total_collateral_value = round(total_collateral_value, 2)
                         # if self.instrument_type == "Shares":
                         #     drawing_power = round(
                         #         lms.round_down_amount_to_nearest_thousand(
@@ -954,13 +959,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         #         2,
                         #     )
                         # else:
-                        drawing_power = 0
-                        for i in self.items:
-                            i.amount = i.price * i.pledged_quantity
-                            dp = (i.eligible_percentage / 100) * i.amount
-                            i.eligible_amount = dp
-                            # self.total_collateral_value += i.amount
-                            drawing_power += dp
+                        # for i in self.items:
 
                         drawing_power = round(
                             lms.round_down_amount_to_nearest_thousand(drawing_power),
@@ -971,6 +970,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         if drawing_power < self.maximum_sanctioned_limit
                         else self.maximum_sanctioned_limit
                     )
+            self.total_collateral_value = round(total_collateral_value, 2)
 
         # On loan application rejection mark lender approvel status as rejected in loan application items
         if self.status == "Rejected":
