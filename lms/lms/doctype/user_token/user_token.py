@@ -40,15 +40,21 @@ class UserToken(Document):
                     email_otp = email_otp.replace("investor_name", doc.fullname)
                     email_otp = email_otp.replace("token_type", token_type)
                     email_otp = email_otp.replace("token", self.token)
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[doc.email],
-                        sender=None,
-                        subject="OTP for Spark Loans",
-                        message=email_otp,
-                        queue="short",
-                        delayed=False,
-                        job_name="Spark OTP on Email",
+                    # frappe.enqueue(
+                    #     method=frappe.sendmail,
+                    #     recipients=[doc.email],
+                    #     sender=None,
+                    #     subject="OTP for Spark Loans",
+                    #     message=email_otp,
+                    #     queue="short",
+                    #     delayed=False,
+                    #     job_name="Spark OTP on Email",
+                    # )
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "OTP for Spark Loans",
+                        method="send",
+                        doc=doc,
                     )
             else:
                 doc = frappe.get_all(
