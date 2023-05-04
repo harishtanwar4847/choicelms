@@ -73,9 +73,9 @@ class Cart(Document):
             )
 
             application_type = "New Loan"
-            base_interest = ""
-            rebate_interest = ""
-            is_default = ""
+            base_interest = 0
+            rebate_interest = 0
+            is_default = 0
             if self.loan and not self.loan_margin_shortfall:
                 application_type = "Increase Loan"
                 loan = frappe.get_doc("Loan", self.loan)
@@ -105,6 +105,7 @@ class Cart(Document):
                 else:
                     base_interest = int_config.base_interest
                     rebate_interest = int_config.rebait_interest
+                    is_default = 1
 
             elif self.loan and self.loan_margin_shortfall:
                 application_type = "Margin Shortfall"
