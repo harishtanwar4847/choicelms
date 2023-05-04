@@ -498,10 +498,9 @@ class Cart(Document):
             if type(wef_date) is str:
                 wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
             if (
-                wef_date >= frappe.utils.now_datetime().date() and loan.is_default == 0
-            ) or (
-                loan.old_is_default == 0
-                and wef_date >= frappe.utils.now_datetime().date()
+                wef_date > frappe.utils.now_datetime().date() and loan.is_default == 0
+            ) and (
+                loan.old_is_default and wef_date > frappe.utils.now_datetime().date()
             ):  # custom
                 base_interest = loan.old_interest
                 rebate_interest = loan.old_rebate_interest
