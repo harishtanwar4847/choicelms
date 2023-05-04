@@ -35,7 +35,11 @@ class UserToken(Document):
                 )[0]
                 doc["token_type"] = token_type
                 doc["token"] = self.token
-                print("doc", doc)
+                frappe.log_error(
+                    message="\n\token {}".format(doc.get("token"))
+                    + "\ntoken_type {}".format(doc.get("token_type")),
+                    title="email checking",
+                )
                 if doc:
                     email_otp = frappe.db.sql(
                         "select message from `tabNotification` where name='OTP for Spark Loans';"
