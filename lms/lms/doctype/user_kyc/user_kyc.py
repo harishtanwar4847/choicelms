@@ -302,7 +302,7 @@ class UserKYC(Document):
             if (
                 i.personalized_cheque
                 and not i.penny_request_id
-                and not loan_customer.offline_customer
+                and loan_customer.offline_customer
             ):
                 if self.kyc_status == "Approved":
                     data = {
