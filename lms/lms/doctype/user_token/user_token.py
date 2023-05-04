@@ -66,7 +66,6 @@ class UserToken(Document):
                 doc = frappe.get_doc("User", user_doc.name).as_dict()
                 doc["token_type"] = token_type
                 doc["token"] = self.token
-                print("doc", doc)
                 if doc:
                     # doc[0]["doctype"] = "User"
                     # doc[0]["otp_info"] = {
