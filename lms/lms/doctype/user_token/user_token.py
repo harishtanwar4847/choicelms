@@ -33,7 +33,7 @@ class UserToken(Document):
                 user_kyc_doc = frappe.get_all(
                     "User KYC", filters={"user": frappe.session.user}, fields=["*"]
                 )[0]
-                doc = frappe.get_doc("User KYC", user_kyc_doc.name)
+                doc = frappe.get_doc("User KYC", user_kyc_doc.name).as_dict()
                 doc["token_type"] = token_type
                 doc["token"] = self.token
                 frappe.log_error(
