@@ -37,15 +37,25 @@
           <td>&nbsp;</td>
         </tr>
         <tr>
+
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                  Your token_type for Spark Loans is token.<br />
+                {% if doc.get("token_type") == "Pledge OTP" %}
+                  Use OTP doc.get("token") to securely Pledge your securities.<br />
                   <br />
-                  Do not share your token_type with anyone. Your OTP is valid for 10 minutes.<br />
+                  DO NOT disclose it to anyone to keep your account safe. Valid for 10 mins<br />
                   <br />
+                {% endif %}
+                {% if doc.get("token_type") == "Unpledge OTP" %}
+                  Use OTP doc.get("token") for un-pledging securities at Spark Loans.<br />
+                  <br />
+                  Keep it confidential and enter to complete the request.Valid for 10 mins<br />
+                  <br />
+                {% endif}
                   You can reach to us through 'Contact Us' on the app.<br />
                   We look forward to serve you soon.<br />
                   <br />
+
                 </span>
             </td>
         </tr>
@@ -61,6 +71,7 @@
           <td height="25">&nbsp;</td>
         </tr>
       </table></td>
+
   </tr>
   <tr>
     <td height="138" bgcolor="#ff6565"><table width="700" border="0" align="center" cellpadding="0" cellspacing="0">

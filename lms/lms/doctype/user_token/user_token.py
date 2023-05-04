@@ -33,6 +33,9 @@ class UserToken(Document):
                 doc = frappe.get_all(
                     "User KYC", filters={"user": frappe.session.user}, fields=["*"]
                 )[0]
+                doc["token_type"] = token_type
+                doc["token"] = self.token
+                print("doc", doc)
                 if doc:
                     email_otp = frappe.db.sql(
                         "select message from `tabNotification` where name='OTP for Spark Loans';"
