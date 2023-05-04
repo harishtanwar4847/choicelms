@@ -185,12 +185,8 @@ class UserKYC(Document):
             frappe.db.commit()
 
         for i in self.bank_account:
-            if (
-                i.notification_sent == 0
-                and i.bank_status in ["Approved", "Rejected"]
-                and not loan_customer.offline_customer
-            ):
-                if i.bank_status == "Approved":
+            if i.notification_sent == 0 and i.bank_status in ["Approved", "Rejected"]:
+                if i.bank_status == "Approved" and not loan_customer.offline_customer:
                     msg = "Your Bank details request has been approved; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                         las_settings.app_login_dashboard
                     )
@@ -203,12 +199,8 @@ class UserKYC(Document):
                     i.notification_sent = 1
                     i.save(ignore_permissions=True)
                     frappe.db.commit()
-                    if check and not loan_customer.bank_update:
-                        loan_customer.bank_update = 1
-                        loan_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
 
-                elif i.bank_status == "Rejected":
+                elif i.bank_status == "Rejected" and not loan_customer.offline_customer:
                     msg = "Your Bank request has been rejected due to mismatch in the details; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                         las_settings.app_login_dashboard
                     )
@@ -222,6 +214,17 @@ class UserKYC(Document):
                     i.save(ignore_permissions=True)
                     frappe.db.commit()
 
+                if (
+                    check
+                    and not loan_customer.bank_update
+                    and i.bank_status == "Approved"
+                    and loan_customer.offline_customer
+                ):
+                    i.notification_sent = 1
+                    i.save(ignore_permissions=True)
+                    loan_customer.bank_update = 1
+                    loan_customer.save(ignore_permissions=True)
+                frappe.db.commit()
         if msg:
             receiver_list = [str(loan_customer.phone)]
             if self.mob_num:
@@ -484,3 +487,10 @@ class UserKYC(Document):
                             )
                 else:
                     frappe.throw("Please approve User KYC")
+            else:
+                frappe.log_error(
+                    message=frappe.get_traceback()
+                    + "\n\nUser kyc :\n"
+                    + str(self.name),
+                    title="Offline penny error",
+                )
