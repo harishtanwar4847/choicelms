@@ -256,11 +256,11 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                         self.old_is_default
                         and wef_date > frappe.utils.now_datetime().date()
                     ):
-                        custom_base_interest = loan.old_interest
-                        custom_rebate_interest = loan.old_rebate_interest
+                        base_interest = int_config.base_interest
+                        rebate_interest = int_config.rebait_interest
                     else:
-                        custom_base_interest = loan.custom_base_interest
-                        custom_rebate_interest = loan.custom_rebate_interest
+                        base_interest = loan.old_interest
+                        rebate_interest = loan.old_rebate_interest
 
                     frappe.get_doc(
                         dict(
@@ -1987,11 +1987,11 @@ You have received a loan renewal extension of 7 days from the current expiry dat
             ) and (
                 loan.old_is_default and wef_date > frappe.utils.now_datetime().date()
             ):
+                custom_base_interest = int_config.base_interest
+                custom_rebate_interest = int_config.rebait_interest
+            else:
                 custom_base_interest = loan.old_interest
                 custom_rebate_interest = loan.old_rebate_interest
-            else:
-                custom_base_interest = loan.custom_base_interest
-                custom_rebate_interest = loan.custom_rebate_interest
             renewal_doc = frappe.get_doc(
                 dict(
                     doctype="Spark Loan Renewal Application",
