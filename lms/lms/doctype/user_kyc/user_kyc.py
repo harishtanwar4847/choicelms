@@ -326,7 +326,124 @@ class UserKYC(Document):
                     if reg:
                         frappe.throw(_("Special Characters not allowed."))
 
-                    res_json = lms.au_pennydrop_api(data, self.fullname)
+                    bank_acc = frappe.get_all(
+                        "User Bank Account",
+                        {
+                            "account_number": data.get("account_number"),
+                            "is_repeated": 0,
+                            # "is_mismatched": 0,
+                        },
+                        "*",
+                        order_by="creation desc",
+                    )
+                    mismatch_bank_acc = frappe.db.count(
+                        "User Bank Account",
+                        {
+                            "account_number": data.get("account_number"),
+                            "is_mismatched": 1,
+                        },
+                    )
+                    penny_name_mismatch = frappe.get_all(
+                        "Penny Name Mismatch",
+                        {"account_number": data.get("account_number")},
+                        "*",
+                    )
+
+                    if not mismatch_bank_acc and penny_name_mismatch:
+                        bank_account_list_ = frappe.get_all(
+                            "User Bank Account",
+                            filters={"parent": self.name},
+                            fields="*",
+                        )
+                        for b in bank_account_list_:
+                            other_bank_ = frappe.get_doc("User Bank Account", b.name)
+                            if other_bank_.is_default == 1:
+                                other_bank_.is_default = 0
+                                other_bank_.save(ignore_permissions=True)
+                                frappe.db.commit()
+                        frappe.get_doc(
+                            {
+                                "doctype": "User Bank Account",
+                                "parentfield": "bank_account",
+                                "parenttype": "User KYC",
+                                "bank": data.get("bank"),
+                                "branch": data.get("branch"),
+                                "account_type": data.get("bank_account_type"),
+                                "account_number": data.get("account_number"),
+                                "ifsc": data.get("ifsc"),
+                                "city": data.get("city"),
+                                "parent": self.name,
+                                "is_default": True,
+                                "bank_status": "Pending",
+                                "penny_request_id": penny_name_mismatch[
+                                    0
+                                ].penny_request_id,
+                                "bank_transaction_status": penny_name_mismatch[
+                                    0
+                                ].bank_transaction_status,
+                                "is_mismatched": 1,
+                            }
+                        ).insert(ignore_permissions=True)
+                        frappe.db.commit()
+                        return utils.respondWithSuccess(
+                            status=201,
+                            message="Your bank details are under the verification process",
+                        )
+
+                    if bank_acc and not penny_name_mismatch:
+                        if bank_acc[0].ifsc == data.get("ifsc"):
+                            if frappe.utils.now_datetime().date() >= (
+                                bank_acc[0].creation.date()
+                                + timedelta(days=las_settings.pennydrop_days_passed)
+                            ):
+                                res_json = lms.au_pennydrop_api(data, self.fullname)
+                            else:
+                                bank_account_list_ = frappe.get_all(
+                                    "User Bank Account",
+                                    filters={"parent": self.name},
+                                    fields="*",
+                                )
+                                for b in bank_account_list_:
+                                    other_bank_ = frappe.get_doc(
+                                        "User Bank Account", b.name
+                                    )
+                                    if other_bank_.is_default == 1:
+                                        other_bank_.is_default = 0
+                                        other_bank_.save(ignore_permissions=True)
+                                        frappe.db.commit()
+                                frappe.get_doc(
+                                    {
+                                        "doctype": "User Bank Account",
+                                        "parentfield": "bank_account",
+                                        "parenttype": "User KYC",
+                                        "bank": data.get("bank"),
+                                        "branch": data.get("branch"),
+                                        "account_type": data.get("bank_account_type"),
+                                        "account_number": data.get("account_number"),
+                                        "ifsc": data.get("ifsc"),
+                                        "city": data.get("city"),
+                                        "parent": self.name,
+                                        "is_default": True,
+                                        "bank_status": "Pending",
+                                        "penny_request_id": bank_acc[
+                                            0
+                                        ].penny_request_id,
+                                        "bank_transaction_status": bank_acc[
+                                            0
+                                        ].bank_transaction_status,
+                                        "is_repeated": 1,
+                                    }
+                                ).insert(ignore_permissions=True)
+                                frappe.db.commit()
+                                return utils.respondWithSuccess(
+                                    message="Your account details have been successfully verified"
+                                )
+                        else:
+                            res_json = lms.au_pennydrop_api(data, self.fullname)
+                    else:
+                        res_json = lms.au_pennydrop_api(data, self.fullname)
+
+                    # res_json = lms.au_pennydrop_api(data, self.fullname)
                     if res_json:
                         if (
                             res_json.get("status_code") == 200
