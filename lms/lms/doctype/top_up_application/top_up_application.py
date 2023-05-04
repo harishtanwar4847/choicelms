@@ -23,14 +23,6 @@ class TopupApplication(Document):
 
     def on_submit(self):
         loan = self.get_loan()
-        frappe.log_error(
-            message="\nTopup ammount: {}".format(self.top_up_amount)
-            + "\nsanction limit: {}\n max topup amt {}".format(
-                loan.sanctioned_limit + self.top_up_amount, loan.max_topup_amount()
-            ),
-            title="Topup amount checking",
-        )
-
         # apply loan charges
         self.apply_loan_charges(loan)
         loan.reload()
@@ -1055,15 +1047,14 @@ class TopupApplication(Document):
                 file_base_name = pdf_file_path.replace(".pdf", "")
                 pdf = PdfReader(pdf_file_path)
                 pages = [
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
                     30,
-                    31,
-                    32,
-                    33,
-                    34,
-                    35,
-                    36,
-                    37,
-                    38,
                 ]  # page 1, 3, 5
                 pdfWriter = PdfWriter()
                 for page_num in pages:
