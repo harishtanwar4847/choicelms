@@ -36,8 +36,7 @@ class UserToken(Document):
                 doc["token_type"] = token_type
                 doc["token"] = self.token
                 frappe.log_error(
-                    message="\ntoken {}".format(doc.get("token"))
-                    + "\ntoken_type {}".format(doc.get("token_type")),
+                    message="\Doc {}".format(doc),
                     title="email checking",
                 )
                 if doc:
