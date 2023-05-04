@@ -94,7 +94,7 @@ class Cart(Document):
                 )
                 int_config = frappe.get_doc("Interest Configuration", interest_config)
                 if (
-                    wef_date == frappe.utils.now_datetime().date() and loan.is_default
+                    wef_date <= frappe.utils.now_datetime().date() and loan.is_default
                 ) or (
                     not loan.is_default
                     and wef_date > frappe.utils.now_datetime().date()
@@ -139,7 +139,7 @@ class Cart(Document):
                 )
                 int_config = frappe.get_doc("Interest Configuration", interest_config)
                 if (
-                    wef_date == frappe.utils.now_datetime().date() and loan.is_default
+                    wef_date <= frappe.utils.now_datetime().date() and loan.is_default
                 ) or (
                     not loan.is_default
                     and wef_date > frappe.utils.now_datetime().date()
@@ -507,7 +507,7 @@ class Cart(Document):
             wef_date = loan.wef_date
             if type(wef_date) is str:
                 wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-            if (wef_date == frappe.utils.now_datetime().date() and loan.is_default) or (
+            if (wef_date <= frappe.utils.now_datetime().date() and loan.is_default) or (
                 not loan.is_default and wef_date > frappe.utils.now_datetime().date()
             ):  # custom
                 base_interest = int_config.base_interest
