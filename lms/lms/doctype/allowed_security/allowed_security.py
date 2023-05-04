@@ -21,7 +21,10 @@ import lms
 
 class AllowedSecurity(Document):
     def before_save(self):
-        if self.eligible_percentage <= 0 or self.eligible_percentage > 100:
+        if (
+            float(self.eligible_percentage) <= 0
+            or float(self.eligible_percentage) > 100
+        ):
             frappe.throw(
                 "Eligible Percentage cannot be less than zero or greater than 100"
             )
