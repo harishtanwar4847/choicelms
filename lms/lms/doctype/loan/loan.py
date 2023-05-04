@@ -2205,9 +2205,9 @@ class Loan(Document):
         if type(wef_date) is str:
             wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
         if (
-            wef_date >= frappe.utils.now_datetime().date() and self.is_default == 0
-        ) or (
-            self.old_is_default == 0 and wef_date >= frappe.utils.now_datetime().date()
+            wef_date > frappe.utils.now_datetime().date() and self.is_default == 0
+        ) and (
+            self.old_is_default and wef_date > frappe.utils.now_datetime().date()
         ):  # custom
             base_interest = self.old_interest
             rebate_interest = self.old_rebate_interest

@@ -250,11 +250,11 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                     if type(wef_date) is str:
                         wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
                     if (
-                        wef_date >= frappe.utils.now_datetime().date()
+                        wef_date > frappe.utils.now_datetime().date()
                         and self.is_default == 0
-                    ) or (
-                        self.old_is_default == 0
-                        and wef_date >= frappe.utils.now_datetime().date()
+                    ) and (
+                        self.old_is_default
+                        and wef_date > frappe.utils.now_datetime().date()
                     ):
                         custom_base_interest = loan.old_interest
                         custom_rebate_interest = loan.old_rebate_interest
@@ -1983,10 +1983,9 @@ You have received a loan renewal extension of 7 days from the current expiry dat
             if type(wef_date) is str:
                 wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
             if (
-                wef_date >= frappe.utils.now_datetime().date() and loan.is_default == 0
-            ) or (
-                loan.old_is_default == 0
-                and wef_date >= frappe.utils.now_datetime().date()
+                wef_date > frappe.utils.now_datetime().date() and loan.is_default == 0
+            ) and (
+                loan.old_is_default and wef_date > frappe.utils.now_datetime().date()
             ):
                 custom_base_interest = loan.old_interest
                 custom_rebate_interest = loan.old_rebate_interest
@@ -2316,12 +2315,12 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 #                     wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
 #                 custom_base_interest = (
 #                     loan.old_interest
-#                     if wef_date >= frappe.utils.now_datetime().date()
+#                     if wef_date > frappe.utils.now_datetime().date()
 #                     else loan.custom_base_interest
 #                 )
 #                 custom_rebate_interest = (
 #                     loan.old_rebate_interest
-#                     if wef_date >= frappe.utils.now_datetime().date()
+#                     if wef_date > frappe.utils.now_datetime().date()
 #                     else loan.custom_rebate_interest
 #                 )
 #                 renewal_doc = frappe.get_doc(
