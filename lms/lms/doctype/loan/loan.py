@@ -2209,11 +2209,11 @@ class Loan(Document):
         ) and (
             self.old_is_default and wef_date > frappe.utils.now_datetime().date()
         ):  # custom
-            base_interest = self.old_interest
-            rebate_interest = self.old_rebate_interest
-        else:
             base_interest = int_config.base_interest
             rebate_interest = int_config.rebait_interest
+        else:
+            base_interest = self.old_interest
+            rebate_interest = self.old_rebate_interest
 
         roi_ = round((base_interest * 12), 2)
         charges = lms.charges_for_apr(

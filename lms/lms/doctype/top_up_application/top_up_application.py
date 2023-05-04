@@ -281,11 +281,11 @@ class TopupApplication(Document):
             ) and (
                 loan.old_is_default and wef_date > frappe.utils.now_datetime().date()
             ):  # custom
-                base_interest = loan.old_interest
-                rebate_interest = loan.old_rebate_interest
-            else:
                 base_interest = int_config.base_interest
                 rebate_interest = int_config.rebait_interest
+            else:
+                base_interest = loan.old_interest
+                rebate_interest = loan.old_rebate_interest
         else:
             base_interest = int_config.base_interest
             rebate_interest = int_config.rebait_interest
@@ -746,11 +746,11 @@ class TopupApplication(Document):
                     loan.old_is_default
                     and wef_date > frappe.utils.now_datetime().date()
                 ):  # custom
-                    base_interest = loan.old_interest
-                    rebate_interest = loan.old_rebate_interest
-                else:
                     base_interest = int_config.base_interest
                     rebate_interest = int_config.rebait_interest
+                else:
+                    base_interest = loan.old_interest
+                    rebate_interest = loan.old_rebate_interest
             else:
                 base_interest = int_config.base_interest
                 rebate_interest = int_config.rebait_interest

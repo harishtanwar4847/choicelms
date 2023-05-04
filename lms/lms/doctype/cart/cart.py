@@ -100,12 +100,12 @@ class Cart(Document):
                     loan.old_is_default
                     and wef_date > frappe.utils.now_datetime().date()
                 ):  # custom
-                    base_interest = loan.old_interest
-                    rebate_interest = loan.old_rebate_interest
-                else:
                     base_interest = int_config.base_interest
                     rebate_interest = int_config.rebait_interest
                     is_default = 1
+                else:
+                    base_interest = loan.old_interest
+                    rebate_interest = loan.old_rebate_interest
 
             elif self.loan and self.loan_margin_shortfall:
                 application_type = "Margin Shortfall"
@@ -141,11 +141,11 @@ class Cart(Document):
                     loan.old_is_default
                     and wef_date > frappe.utils.now_datetime().date()
                 ):  # custom
-                    base_interest = loan.old_interest
-                    rebate_interest = loan.old_rebate_interest
-                else:
                     base_interest = int_config.base_interest
                     rebate_interest = int_config.rebait_interest
+                else:
+                    base_interest = loan.old_interest
+                    rebate_interest = loan.old_rebate_interest
                 is_default = loan.is_default
 
             items = []
@@ -503,11 +503,11 @@ class Cart(Document):
             ) and (
                 loan.old_is_default and wef_date > frappe.utils.now_datetime().date()
             ):  # custom
-                base_interest = loan.old_interest
-                rebate_interest = loan.old_rebate_interest
-            else:
                 base_interest = int_config.base_interest
                 rebate_interest = int_config.rebait_interest
+            else:
+                base_interest = loan.old_interest
+                rebate_interest = loan.old_rebate_interest
         else:
             base_interest = int_config.base_interest
             rebate_interest = int_config.rebait_interest
