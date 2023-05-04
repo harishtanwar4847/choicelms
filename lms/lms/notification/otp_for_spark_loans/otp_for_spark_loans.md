@@ -51,7 +51,7 @@
                   <br />
                   Keep it confidential and enter to complete the request.Valid for 10 mins<br />
                   <br />
-                {% endif}
+                {% endif %}
                   You can reach to us through 'Contact Us' on the app.<br />
                   We look forward to serve you soon.<br />
                   <br />
