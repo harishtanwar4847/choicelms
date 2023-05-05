@@ -24,7 +24,7 @@ frappe.listview_settings["Loan Customer"] = {
           ],
           primary_action_label: "Submit",
           primary_action(values) {
-            if (values.file.split(".")[1].toLowerCase() == "csv") {
+            if (values.file.split(".").slice(-1)[0].toLowerCase() == "csv") {
               // pass
             } else {
               frappe.throw("Other than CSV file format not supported");
