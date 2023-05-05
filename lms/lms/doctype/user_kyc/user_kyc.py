@@ -363,33 +363,19 @@ class UserKYC(Document):
                                 other_bank_.is_default = 0
                                 other_bank_.save(ignore_permissions=True)
                                 frappe.db.commit()
-                        frappe.get_doc(
-                            {
-                                "doctype": "User Bank Account",
-                                "parentfield": "bank_account",
-                                "parenttype": "User KYC",
-                                "bank": data.get("bank"),
-                                "branch": data.get("branch"),
-                                "account_type": data.get("bank_account_type"),
-                                "account_number": data.get("account_number"),
-                                "ifsc": data.get("ifsc"),
-                                "city": data.get("city"),
-                                "parent": self.name,
-                                "is_default": True,
-                                "bank_status": "Pending",
-                                "penny_request_id": penny_name_mismatch[
-                                    0
-                                ].penny_request_id,
-                                "bank_transaction_status": penny_name_mismatch[
-                                    0
-                                ].bank_transaction_status,
-                                "is_mismatched": 1,
-                            }
-                        ).insert(ignore_permissions=True)
+                        i.is_default = 1
+                        i.bank_status = "Pending"
+                        i.penny_request_id = (penny_name_mismatch[0].penny_request_id,)
+                        i.bank_transaction_status = (
+                            penny_name_mismatch[0].bank_transaction_status,
+                        )
+                        i.is_mismatched = 1
+                        i.save(ignore_permissions=True)
                         frappe.db.commit()
                         frappe.msgprint(
                             "Your bank details are under the verification process",
                         )
+                        break
 
                     if bank_acc and not penny_name_mismatch:
                         if bank_acc[0].ifsc == data.get("ifsc"):
@@ -412,29 +398,18 @@ class UserKYC(Document):
                                         other_bank_.is_default = 0
                                         other_bank_.save(ignore_permissions=True)
                                         frappe.db.commit()
-                                frappe.get_doc(
-                                    {
-                                        "doctype": "User Bank Account",
-                                        "parentfield": "bank_account",
-                                        "parenttype": "User KYC",
-                                        "bank": data.get("bank"),
-                                        "branch": data.get("branch"),
-                                        "account_type": data.get("bank_account_type"),
-                                        "account_number": data.get("account_number"),
-                                        "ifsc": data.get("ifsc"),
-                                        "city": data.get("city"),
-                                        "parent": self.name,
-                                        "is_default": True,
-                                        "bank_status": "Pending",
-                                        "penny_request_id": bank_acc[
-                                            0
-                                        ].penny_request_id,
-                                        "bank_transaction_status": bank_acc[
-                                            0
-                                        ].bank_transaction_status,
-                                        "is_repeated": 1,
-                                    }
-                                ).insert(ignore_permissions=True)
+                                        i.is_default = 1
+                                        i.bank_status = "Pending"
+                                        i.penny_request_id = (
+                                            penny_name_mismatch[0].penny_request_id,
+                                        )
+                                        i.bank_transaction_status = (
+                                            penny_name_mismatch[
+                                                0
+                                            ].bank_transaction_status,
+                                        )
+                                        i.is_repeated: 1
+                                        i.save(ignore_permissions=True)
                                 frappe.db.commit()
                                 frappe.msgprint(
                                     "Your account details have been successfully verified"
