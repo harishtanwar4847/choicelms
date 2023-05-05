@@ -101,6 +101,7 @@ class Cart(Document):
                 ):  # custom
                     base_interest = int_config.base_interest
                     rebate_interest = int_config.rebait_interest
+                    is_default = 1
                 elif (
                     loan.is_default == 0
                     and wef_date == frappe.utils.now_datetime().date()
@@ -205,7 +206,7 @@ class Cart(Document):
                     "scheme_type": self.scheme_type,
                     "base_interest": base_interest,
                     "rebate_interest": rebate_interest,
-                    "is_default": is_default,
+                    "is_default": is_default if application_type != "New Loan" else 1,
                     "custom_base_interest": base_interest,
                     "custom_rebate_interest": rebate_interest,
                 }
