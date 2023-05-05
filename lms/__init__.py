@@ -2115,8 +2115,11 @@ def download_file(dataframe, file_name, file_extention, sheet_name):
     file_path = frappe.utils.get_files_path(file_name)
     if os.path.exists(file_path):
         os.remove(file_path)
-    file_path = frappe.utils.get_files_path(file_name)
-    dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+        file_path = frappe.utils.get_files_path(file_name)
+    if file_extention == "xlsx":
+        dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+    else:
+        dataframe.to_csv(file_path)
     file_url = frappe.utils.get_url("files/{}".format(file_name))
     return file_url
 
