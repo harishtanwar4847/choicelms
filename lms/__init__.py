@@ -2119,7 +2119,7 @@ def download_file(dataframe, file_name, file_extention, sheet_name):
     if file_extention == "xlsx":
         dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
     else:
-        dataframe.to_csv(file_path)
+        dataframe.to_csv(file_path, index=False)
     file_url = frappe.utils.get_url("files/{}".format(file_name))
     return file_url
 

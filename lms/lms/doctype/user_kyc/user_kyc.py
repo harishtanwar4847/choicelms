@@ -371,6 +371,13 @@ class UserKYC(Document):
                         )
                         i.is_mismatched = 1
                         i.save(ignore_permissions=True)
+                        if offline_cust:
+                            doc = frappe.get_doc(
+                                "Spark Offline Customer Log",
+                                offline_cust[0].name,
+                            )
+                            doc.bank_status = "Success"
+                            doc.save(ignore_permissions=True)
                         frappe.db.commit()
                         frappe.msgprint(
                             "Your bank details are under the verification process",
@@ -410,6 +417,13 @@ class UserKYC(Document):
                                         )
                                         i.is_repeated: 1
                                         i.save(ignore_permissions=True)
+                                        if offline_cust:
+                                            doc = frappe.get_doc(
+                                                "Spark Offline Customer Log",
+                                                offline_cust[0].name,
+                                            )
+                                            doc.bank_status = "Success"
+                                            doc.save(ignore_permissions=True)
                                 frappe.db.commit()
                                 frappe.msgprint(
                                     "Your account details have been successfully verified"
