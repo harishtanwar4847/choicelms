@@ -301,6 +301,7 @@ class UserKYC(Document):
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         user = frappe.get_all("User", filters={"email": self.user})
         las_settings = frappe.get_single("LAS Settings")
+        res_json = ""
         for i in self.bank_account:
             if (
                 i.personalized_cheque
@@ -331,6 +332,7 @@ class UserKYC(Document):
                         {
                             "account_number": data.get("account_number"),
                             "is_repeated": 0,
+                            "parent": ["!=", self.name]
                             # "is_mismatched": 0,
                         },
                         "*",
@@ -385,9 +387,8 @@ class UserKYC(Document):
                             }
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
-                        return utils.respondWithSuccess(
-                            status=201,
-                            message="Your bank details are under the verification process",
+                        frappe.msgprint(
+                            "Your bank details are under the verification process",
                         )
 
                     if bank_acc and not penny_name_mismatch:
@@ -435,8 +436,8 @@ class UserKYC(Document):
                                     }
                                 ).insert(ignore_permissions=True)
                                 frappe.db.commit()
-                                return utils.respondWithSuccess(
-                                    message="Your account details have been successfully verified"
+                                frappe.msgprint(
+                                    "Your account details have been successfully verified"
                                 )
                         else:
                             res_json = lms.au_pennydrop_api(data, self.fullname)

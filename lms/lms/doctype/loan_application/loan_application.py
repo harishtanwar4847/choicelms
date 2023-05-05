@@ -785,7 +785,34 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.db.commit()
                 file_.reload()
             self.lender_esigned_document = file_.file_url
+
         if self.is_offline_loan:
+            if (
+                self.application_type in ["Increase Loan", "Margin Shortfall"]
+                and not self.loan
+            ):
+                frappe.throw("Loan name is required")
+
+            if (
+                self.application_type == "Margin Shortfall"
+                and not self.loan_margin_shortfall
+            ):
+                frappe.throw("Loan Margin Shortfall Name is required")
+
+            if not self.lender or self.lender != "Choice Finserv":
+                frappe.throw("Lender required")
+
+            if not self.instrument_type or self.instrument_type not in [
+                "Shares",
+                "Mutual Fund",
+            ]:
+                frappe.throw("Instrument Type required")
+
+            if self.instrument_type == "Mutual Fund" and (
+                not self.scheme_type or self.scheme_type not in ["Equity", "Debt"]
+            ):
+                frappe.throw("Scheme Type required")
+
             for i in self.items:
                 if i.date_of_pledge and i.date_of_pledge >= self.expiry_date:
                     frappe.throw("Date of pledge should be less than expiry date")
