@@ -218,7 +218,6 @@ class UserKYC(Document):
                     check
                     and not loan_customer.bank_update
                     and i.bank_status == "Approved"
-                    and loan_customer.offline_customer
                 ):
                     i.notification_sent = 1
                     i.save(ignore_permissions=True)
