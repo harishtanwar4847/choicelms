@@ -46,23 +46,22 @@
    "default": "0",
    "fieldname": "registeration",
    "fieldtype": "Check",
-   "label": "Registration",
-   "read_only": 1
+   "label": "Registration"
   },
   {
    "default": "0",
    "fieldname": "is_email_verified",
    "fieldtype": "Check",
    "label": "Email Verified?",
-   "read_only": 1
+   "read_only_depends_on": "eval:window.location.href.includes(\"https://spark.loans/\")"
   },
   {
    "default": "0",
    "fieldname": "kyc_update",
    "fieldtype": "Check",
    "label": "KYC Update",
-   "read_only": 1
-},
+   "read_only_depends_on": "eval:window.location.href.includes(\"https://spark.loans/\")"
+  },
   {
    "fieldname": "column_break_65",
    "fieldtype": "Column Break"
@@ -72,22 +71,22 @@
    "fieldname": "credit_check",
    "fieldtype": "Check",
    "label": "Credit Check",
-   "read_only": 1
-},
+   "read_only_depends_on": "eval:window.location.href.includes(\"https://spark.loans/\")"
+  },
   {
    "default": "0",
    "fieldname": "pledge_securities",
    "fieldtype": "Check",
    "label": "Pledge Securities",
-   "read_only": 1
-},
+   "read_only_depends_on": "eval:window.location.href.includes(\"https://spark.loans/\")"
+  },
   {
    "default": "0",
    "fieldname": "loan_open",
    "fieldtype": "Check",
    "label": "Loan Open",
-   "read_only": 1
-},
+   "read_only_depends_on": "eval:window.location.href.includes(\"https://spark.loans/\")"
+  },
   {
    "fieldname": "kyc_status_section",
    "fieldtype": "Section Break",
@@ -221,8 +220,8 @@
    "fieldname": "bank_update",
    "fieldtype": "Check",
    "label": "Bank Update",
-   "read_only": 1
-},
+   "read_only_depends_on": "eval:window.location.href.includes(\"https://spark.loans/\")"
+  },
   {
    "default": "0",
    "fieldname": "offline_customer",
@@ -239,7 +238,7 @@
   }
  ],
  "links": [],
- "modified": "2022-09-29 00:32:29.541021",
+ "modified": "2023-05-08 16:35:56.432427",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Customer",
