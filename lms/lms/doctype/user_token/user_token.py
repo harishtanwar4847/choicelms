@@ -64,7 +64,7 @@ class UserToken(Document):
                     "User", filters={"username": self.entity}, fields=["*"]
                 )
                 if user_doc:
-                    doc = frappe.get_doc("User", user_doc.name).as_dict()
+                    doc = frappe.get_doc("User", user_doc[0].name).as_dict()
                     doc["token_type"] = token_type
                     doc["token"] = self.token
                     if doc:
