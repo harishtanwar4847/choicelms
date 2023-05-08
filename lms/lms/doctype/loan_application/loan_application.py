@@ -787,6 +787,19 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             self.lender_esigned_document = file_.file_url
 
         if self.is_offline_loan:
+            # existing_new_loan_app = frappe.get_all(
+            #     "Loan Application",
+            #     filters={"customer": self.customer, "instrument_type": "Shares"},
+            #     order_by="creation asc",
+            # )
+            existing_new_loan_app = frappe.db.count(
+                "Loan Application",
+                {"customer": self.customer, "application_type": "New Loan"},
+            )
+            if existing_new_loan_app > 1:
+                frappe.throw(
+                    ("""Loan Application for {} already exists""".format(self.customer))
+                )
             if (
                 self.application_type in ["Increase Loan", "Margin Shortfall"]
                 and not self.loan
