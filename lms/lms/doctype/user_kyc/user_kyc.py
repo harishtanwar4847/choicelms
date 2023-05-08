@@ -308,6 +308,14 @@ class UserKYC(Document):
                 and not i.penny_request_id
                 and loan_customer.offline_customer
             ):
+                offline_cust = frappe.get_all(
+                    "Spark Offline Customer Log",
+                    filters={
+                        "ckyc_status": "Success",
+                        "email_id": user[0].name,
+                    },
+                    fields=["name"],
+                )
                 if self.kyc_status == "Approved":
                     data = {
                         "ifsc": i.ifsc,
@@ -558,14 +566,6 @@ class UserKYC(Document):
 
                                         frappe.msgprint(
                                             "Your account details have been successfully verified"
-                                        )
-                                        offline_cust = frappe.get_all(
-                                            "Spark Offline Customer Log",
-                                            filters={
-                                                "ckyc_status": "Success",
-                                                "email_id": user[0].name,
-                                            },
-                                            fields=["name"],
                                         )
                                         if offline_cust:
                                             doc = frappe.get_doc(
