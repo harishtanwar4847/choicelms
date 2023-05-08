@@ -65,20 +65,20 @@ class UserToken(Document):
                 )
                 if user_doc:
                     doc = frappe.get_doc("User", user_doc.name).as_dict()
-                doc["token_type"] = token_type
-                doc["token"] = self.token
-                if doc:
-                    # doc[0]["doctype"] = "User"
-                    # doc[0]["otp_info"] = {
-                    #     "token_type": self.token_type.replace(" ", ""),
-                    #     "token": self.token,
-                    # }
-                    frappe.enqueue_doc(
-                        "Notification",
-                        "Other OTP for Spark Loans",
-                        method="send",
-                        doc=doc,
-                    )
+                    doc["token_type"] = token_type
+                    doc["token"] = self.token
+                    if doc:
+                        # doc[0]["doctype"] = "User"
+                        # doc[0]["otp_info"] = {
+                        #     "token_type": self.token_type.replace(" ", ""),
+                        #     "token": self.token,
+                        # }
+                        frappe.enqueue_doc(
+                            "Notification",
+                            "Other OTP for Spark Loans",
+                            method="send",
+                            doc=doc,
+                        )
                     # email_otp = frappe.db.sql(
                     #     "select message from `tabNotification` where name='Other OTP for Spark Loans';"
                     # )[0][0]
