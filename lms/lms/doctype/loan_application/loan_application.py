@@ -803,7 +803,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         )
                     )
                 )
-
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nLoan Application : {}".format(pending_loan_application),
+                title=(_("pending_loan_application")),
+            )
             existing_new_loan_app = frappe.db.count(
                 "Loan Application",
                 {"customer": self.customer, "application_type": "New Loan"},
