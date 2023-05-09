@@ -786,6 +786,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 file_.reload()
             self.lender_esigned_document = file_.file_url
 
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nLoan Application : {}".format(pending_loan_application),
+            title=(_("!!!!pending_loan_application")),
+        )
+
         if self.is_offline_loan:
             pending_loan_application = frappe.get_all(
                 "Loan Application",
