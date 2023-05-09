@@ -787,11 +787,23 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             self.lender_esigned_document = file_.file_url
 
         if self.is_offline_loan:
-            # existing_new_loan_app = frappe.get_all(
-            #     "Loan Application",
-            #     filters={"customer": self.customer, "instrument_type": "Shares"},
-            #     order_by="creation asc",
-            # )
+            pending_loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "customer": self.customer,
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                order_by="creation asc",
+            )
+            if pending_loan_application:
+                frappe.throw(
+                    (
+                        """Loan Application for this customer id {} is pending .""".format(
+                            self.customer
+                        )
+                    )
+                )
+
             existing_new_loan_app = frappe.db.count(
                 "Loan Application",
                 {"customer": self.customer, "application_type": "New Loan"},
