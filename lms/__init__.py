@@ -2643,7 +2643,7 @@ def customer_file_upload(upload_file):
                 offline_customer.user_remarks = message
                 offline_customer.customer_status = "Failure"
                 offline_customer.ckyc_status = "Failure"
-                offline_customer.bank_status = "Failure"
+                offline_customer.bank_status = "Pending"
                 offline_customer.save(ignore_permissions=True)
                 frappe.db.commit()
                 # frappe.throw(_("Please Enter valid data"))
