@@ -493,6 +493,7 @@ class UserKYC(Document):
                                                     "account_type": data.get(
                                                         "bank_account_type"
                                                     ),
+                                                    "penny_name_mismatch_percentage": matching,
                                                 }
                                             ).insert()
                                             frappe.db.commit()
