@@ -85,7 +85,7 @@ class Cart(Document):
                     {
                         "to_amount": [
                             ">=",
-                            lms.validate_rupees(self.increased_sanctioned_limit),
+                            cart.increased_sanctioned_limit,
                         ],
                     },
                     order_by="to_amount asc",

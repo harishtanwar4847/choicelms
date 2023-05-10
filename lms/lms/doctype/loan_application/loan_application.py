@@ -1061,8 +1061,18 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             "Interest Configuration",
             {
                 "lender": self.lender,
-                "from_amount": ["<=", self.drawing_power],
-                "to_amount": [">=", self.drawing_power],
+                "from_amount": [
+                    "<=",
+                    self.drawing_power
+                    if self.application_type != "Increase Loan"
+                    else self.increased_sanctioned_limit,
+                ],
+                "to_amount": [
+                    ">=",
+                    self.drawing_power
+                    if self.application_type != "Increase Loan"
+                    else self.increased_sanctioned_limit,
+                ],
             },
             ["name", "base_interest", "rebait_interest"],
             as_dict=1,
@@ -1073,7 +1083,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
         if (
             self.custom_base_interest != self.base_interest
-            or self.custom_rebate_interest != self.custom_rebate_interest
+            or self.custom_rebate_interest != self.rebate_interest
         ):
             self.base_interest = self.custom_base_interest
             self.rebate_interest = self.custom_rebate_interest
@@ -1081,10 +1091,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
     def on_update(self):
         if self.status == "Approved":
             customer = self.get_customer()
-            if self.application_type == "New Loan":
-                pdf_doc_name = "Loan_Agreement_{}".format(self.name)
-            else:
-                pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
 
             if not self.loan:
                 loan = self.create_loan()
@@ -1092,15 +1098,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
                 if not self.is_offline_loan and self.lender_esigned_document:
-                    # signed_doc = lms.pdf_editor(
-                    #     self.lender_esigned_document,
-                    #     pdf_doc_name,
-                    #     loan.name,
-                    # )
-                    # self.lender_esigned_document = signed_doc
-                    # frappe.db.set_value(
-                    #     self.doctype, self.name, "lender_esigned_document", signed_doc
-                    # )
                     self.sanction_letter(check=loan.name)
             else:
                 loan = self.update_existing_loan()
