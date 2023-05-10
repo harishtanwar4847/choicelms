@@ -1981,9 +1981,7 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                 wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
             if (
                 wef_date > frappe.utils.now_datetime().date() and loan.is_default == 0
-            ) and (
-                loan.old_is_default and wef_date > frappe.utils.now_datetime().date()
-            ):
+            ) and (loan.is_default and wef_date > frappe.utils.now_datetime().date()):
                 custom_base_interest = loan.old_interest
                 custom_rebate_interest = loan.old_rebate_interest
             else:
