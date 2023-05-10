@@ -141,16 +141,10 @@ class SellCollateralApplication(Document):
         )
 
         for i in self.sell_items:
-            # psn = frappe.db.sql(
-            #     """select psn from `tabSell Collateral Application Sell Item` where name = '{name}' and isin = '{isin}' and folio = '{folio}'""".format(
-            #         name=i.name, isin=i.isin, folio=i.folio
-            #     )
-            # )
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
                 i.psn if self.instrument_type == "Mutual Fund" else "",
-                # psn[0][0] if psn else "",
             )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
@@ -352,7 +346,6 @@ class SellCollateralApplication(Document):
                     frappe.db.commit()
 
     def on_submit(self):
-        las_settings = frappe.get_single("LAS Settings")
         for i in self.sell_items:
             if i.sell_quantity > 0 and i.invoke_initiate_remarks == "SUCCESS":
                 collateral_ledger_data = {
@@ -423,17 +416,15 @@ class SellCollateralApplication(Document):
             # DP Reimbursement(Sell) Charges
             # Sell Collateral Charges
             if total_dp_reimburse_sell_charges > 0:
-                total_dp_reimburse_sell_charges_reference = (
-                    loan.create_loan_transaction(
-                        transaction_type="DP Reimbursement(Sell) Charges",
-                        amount=total_dp_reimburse_sell_charges,
-                        approve=True,
-                        loan_margin_shortfall_name=self.loan_margin_shortfall,
-                    )
+                loan.create_loan_transaction(
+                    transaction_type="DP Reimbursement(Sell) Charges",
+                    amount=total_dp_reimburse_sell_charges,
+                    approve=True,
+                    loan_margin_shortfall_name=self.loan_margin_shortfall,
                 )
 
             if sell_collateral_charges > 0:
-                sell_collateral_charges_reference = loan.create_loan_transaction(
+                loan.create_loan_transaction(
                     transaction_type="Sell Collateral Charges",
                     amount=sell_collateral_charges,
                     approve=True,
@@ -457,7 +448,7 @@ class SellCollateralApplication(Document):
                     )
 
                 if invoke_charges > 0:
-                    invoke_charges_reference = loan.create_loan_transaction(
+                    loan.create_loan_transaction(
                         transaction_type="Invocation Charges",
                         amount=invoke_charges,
                         approve=True,
@@ -602,9 +593,6 @@ def validate_invoc(sell_collateral_application_name):
             )
         except frappe.DoesNotExistError as e:
             raise utils.exceptions.APIException(str(e))
-        collateral_ledger = frappe.get_last_doc(
-            "Collateral Ledger", filters={"loan": sell_collateral_application_doc.loan}
-        )
         customer = frappe.get_doc(
             "Loan Customer", sell_collateral_application_doc.customer
         )
@@ -748,17 +736,12 @@ def validate_invoc(sell_collateral_application_name):
                                         "invocvalidate"
                                     ).get("reqrefno")
 
-                            # if (
-                            #     dict_decrypted_response.get("invocvalidate").get("message")
-                            #     == "SUCCESS"
-                            # ):
-                            #     sell_collateral_application_doc.is_validated = True
                             success.append(
                                 dict_decrypted_response.get("invocvalidate").get(
                                     "message"
                                 )
                             )
-                            (success)
+                            # (success)
                             token_dict.update(
                                 {
                                     str(
@@ -784,30 +767,6 @@ def validate_invoc(sell_collateral_application_name):
                                 ignore_permissions=True
                             )
                             frappe.db.commit()
-                            # for i in prf:
-                            #     i = frappe.get_doc(
-                            #         "Sell Collateral Application Sell Item", i.name
-                            #     )
-                            #     # i.invoke_token = dict_decrypted_response.get(
-                            #     #     "invocvalidate"
-                            #     # ).get("invoctoken")
-                            #     # i.invoke_ref_no = dict_decrypted_response.get(
-                            #     #     "invocvalidate"
-                            #     # ).get("reqrefno")
-                            #     i.save(ignore_permissions=True)
-                            #     frappe.db.commit()
-                            # frappe.db.set_value(
-                            #     "Sell Collateral Application Sell Item",
-                            #     i.name,
-                            #     {
-                            #         "invoke_token": dict_decrypted_response.get(
-                            #             "invocvalidate"
-                            #         ).get("invoctoken"),
-                            #         "invoke_ref_no": dict_decrypted_response.get(
-                            #             "invocvalidate"
-                            #         ).get("reqrefno"),
-                            #     },
-                            # )
 
                         else:
                             frappe.db.sql(
@@ -842,9 +801,6 @@ def initiate_invoc(sell_collateral_application_name):
             )
         except frappe.DoesNotExistError as e:
             raise utils.exceptions.APIException(str(e))
-        collateral_ledger = frappe.get_last_doc(
-            "Collateral Ledger", filters={"loan": sell_collateral_application_doc.loan}
-        )
         customer = frappe.get_doc(
             "Loan Customer", sell_collateral_application_doc.customer
         )
@@ -854,7 +810,6 @@ def initiate_invoc(sell_collateral_application_name):
             customer.mycams_email_id
             and sell_collateral_application_doc.instrument_type == "Mutual Fund"
         ):
-            success = []
             prf_list = []
             for i in sell_collateral_application_doc.sell_items:
                 prf = frappe.get_all(
@@ -953,14 +908,6 @@ def initiate_invoc(sell_collateral_application_name):
                                     "message"
                                 )
                             )
-                            # frappe.db.set_value(
-                            #     "Sell Collateral Application",
-                            #     sell_collateral_application_doc.name,
-                            #     "initiate_message",
-                            #     dict_decrypted_response.get("invocinitiate").get(
-                            #         "message"
-                            #     ),
-                            # )
 
                             isin_details = {}
                             schemedetails_res = dict_decrypted_response.get(
@@ -990,15 +937,8 @@ def initiate_invoc(sell_collateral_application_name):
                                         )
                                         else "FAILURE"
                                     )
-                                    # if (
-                                    #     isin_details.get(isin_folio_combo).get(
-                                    #         "remarks"
-                                    #     )
-                                    #     == "SUCCESS"
-                                    # ):
 
                                     old_psn = i.psn
-                                    # i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "invocrefno"
                                     )

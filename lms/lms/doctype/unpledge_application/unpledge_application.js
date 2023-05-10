@@ -7,39 +7,7 @@ frappe.ui.form.on("Unpledge Application", {
     if (frm.doc.status != "Pending") {
       frm.clear_custom_buttons();
     }
-    // console.log(frm.fields_dict["items"].grid.wrapper);
-    // $(".grid-add-row").hide();
-    // $(".grid-remove-rows").hide();
-    // $(".grid-remove-all-rows").hide();
   },
-  // items_on_form_rendered(frm, cdt, cdn) {
-  //   frm.fields_dict["items"].grid.wrapper.find(".grid-shortcuts").hide();
-  //   frm.fields_dict["items"].grid.wrapper.find(".grid-delete-row").hide();
-  //   frm.fields_dict["items"].grid.wrapper.find(".grid-insert-row-below").hide();
-  //   frm.fields_dict["items"].grid.wrapper.find(".grid-insert-row").hide();
-  //   frm.fields_dict["items"].grid.wrapper.find(".grid-duplicate-row").hide();
-  //   frm.fields_dict["items"].grid.wrapper.find(".grid-append-row").hide();
-  // },
-  // unpledge_items_on_form_rendered(frm, cdt, cdn) {
-  //   frm.fields_dict["unpledge_items"].grid.wrapper
-  //     .find(".grid-shortcuts")
-  //     .hide();
-  //   frm.fields_dict["unpledge_items"].grid.wrapper
-  //     .find(".grid-delete-row")
-  //     .hide();
-  //   frm.fields_dict["unpledge_items"].grid.wrapper
-  //     .find(".grid-insert-row-below")
-  //     .hide();
-  //   frm.fields_dict["unpledge_items"].grid.wrapper
-  //     .find(".grid-insert-row")
-  //     .hide();
-  //   frm.fields_dict["unpledge_items"].grid.wrapper
-  //     .find(".grid-duplicate-row")
-  //     .hide();
-  //   frm.fields_dict["unpledge_items"].grid.wrapper
-  //     .find(".grid-append-row")
-  //     .hide();
-  // },
 });
 
 frappe.ui.form.on("Unpledge Application Unpledged Item", {

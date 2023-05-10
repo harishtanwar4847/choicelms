@@ -57,7 +57,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.17.0"
+__version__ = "5.17.1"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -535,8 +535,6 @@ def __banks(user_kyc=None):
         fields=["*"],
         order_by="is_default desc",
     )
-    # for i in res:
-    #     i.account_number = user_details_hashing(i.account_number)
 
     for i in res:
         i.account_number = user_details_hashing(i.account_number)
@@ -882,13 +880,6 @@ def send_spark_push_notification(
 
                 create_log(log, "Send_Spark_Push_Notification_Log")
 
-                # fa.send_android_message(
-                #     title=fcm_notification.title,
-                #     body=message,
-                #     data=data,
-                #     tokens=get_firebase_tokens(customer.user),
-                #     priority="high",
-                # )
                 if res.ok and res.status_code == 200:
                     # Save log for Spark Push Notification
                     frappe.get_doc(
@@ -1033,7 +1024,6 @@ def number_to_word(number):
         if len(arr) > 1:
             if len(arr[1]) == 1:
                 arr[1] += "0"
-            # word +="Rupees "+ get_all_word(int(arr[1])) + " paise"
             word += get_all_word(int(arr[1])) + " paise"
     return word
 
@@ -1295,11 +1285,6 @@ def rzp_payment_webhook_callback(**kwargs):
                     and data["entity"] == "event"
                     and data["event"] in ["payment.captured", "payment.failed"]
                 ):
-                    # frappe.enqueue(
-                    #     method="lms.update_rzp_payment_transaction",
-                    #     data=data,
-                    #     job_name="Payment Webhook",
-                    # )
                     update_rzp_payment_transaction(data)
                 else:
                     create_log({"authorized_log": data}, "rzp_authorized_log")
@@ -1473,13 +1458,6 @@ def update_rzp_payment_transaction(data):
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
                 # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
-                    loan_margin_shortfall = frappe.get_doc(
-                        "Loan Margin Shortfall", loan_transaction.loan_margin_shortfall
-                    )
-                    # if loan_margin_shortfall.status == "Pending":
-                    #     loan_margin_shortfall.status = "Request Pending"
-                    #     loan_margin_shortfall.save(ignore_permissions=True)
-                    #     frappe.db.commit()
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                     frappe.enqueue_doc(
                         "Notification",
@@ -1581,7 +1559,6 @@ def cart_permission_query(user):
     if not user:
         user = frappe.session.user
     # todos that belong to user or assigned by user
-    # return "(`tabLender`.name = {lender})".format(lender=frappe.db.escape("Demo"))
     user_doc = frappe.get_doc("User", user).as_dict()
     if "Lender" in [r.role for r in user_doc.roles]:
         if user_doc.get("lender"):
@@ -1605,7 +1582,6 @@ def collateral_ledger_permission_query(user):
     if not user:
         user = frappe.session.user
     # todos that belong to user or assigned by user
-    # return "(`tabLender`.name = {lender})".format(lender=frappe.db.escape("Demo"))
     user_doc = frappe.get_doc("User", user).as_dict()
     if "Lender" in [r.role for r in user_doc.roles]:
         if user_doc.get("lender"):
@@ -2115,8 +2091,11 @@ def download_file(dataframe, file_name, file_extention, sheet_name):
     file_path = frappe.utils.get_files_path(file_name)
     if os.path.exists(file_path):
         os.remove(file_path)
-    file_path = frappe.utils.get_files_path(file_name)
-    dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+        file_path = frappe.utils.get_files_path(file_name)
+    if file_extention == "xlsx":
+        dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+    else:
+        dataframe.to_csv(file_path, index=False)
     file_url = frappe.utils.get_url("files/{}".format(file_name))
     return file_url
 
@@ -2664,7 +2643,7 @@ def customer_file_upload(upload_file):
                 offline_customer.user_remarks = message
                 offline_customer.customer_status = "Failure"
                 offline_customer.ckyc_status = "Failure"
-                offline_customer.bank_status = "Failure"
+                offline_customer.bank_status = "Pending"
                 offline_customer.save(ignore_permissions=True)
                 frappe.db.commit()
                 # frappe.throw(_("Please Enter valid data"))
@@ -2730,19 +2709,10 @@ def customer_file_upload(upload_file):
                     )
                     cust_status = ""
                     if res or res_user:
-                        doc_name = res[0].name if res else res_user[0].name
-                        # frappe.throw(
-                        #     _(
-                        #         "Loan Customer already exists".format(
-                        #             offline_customer.mobile_no
-                        #         )
-                        #     )
-                        # )
                         offline_customer.customer_status = "Failure"
                         offline_customer.customer_remarks = (
                             "Loan Customer already exists"
                         )
-                        # offline_customer.user_name == doc_name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
                     else:
@@ -2799,17 +2769,12 @@ def penny_call_create_contact(user=None, customer=None, user_kyc=None):
                 user = __user()
                 user_name = user.name
         except UserNotFoundException:
-            # return utils.respondNotFound(message=frappe._("User not found."))
-            # raise exceptions.NotFoundException(_("User not found"))
             data = {"message": "User not found"}
             return data
 
         # check Loan Customer
-        # if not customer:
         customer = __customer(user_name)
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
-            # raise exceptions.NotFoundException(_("Customer not found"))
             data = {"message": "Customer not found"}
             return data
 
@@ -2820,7 +2785,6 @@ def penny_call_create_contact(user=None, customer=None, user_kyc=None):
                 title="Penny Drop Create contact Error",
                 message="Penny Drop Create contact Error - Razorpay Key Secret Missing",
             )
-            # return utils.respondWithFailure()
             data = {
                 "message": "Penny Drop Create contact Error - Razorpay Key Secret Missing"
             }
@@ -2855,18 +2819,15 @@ def penny_call_create_contact(user=None, customer=None, user_kyc=None):
                     "response": data_res.get("error"),
                 }
                 create_log(log, "rzp_penny_contact_error_log")
-                # return utils.respondWithFailure(message=frappe._("failed"))
                 data = {"message": "failed"}
                 return data
 
             # User KYC save
             """since CKYC development not done yet, using existing user kyc to update contact ID"""
 
-            # if not user_kyc:
             try:
                 user_kyc = __user_kyc(user_name)
             except UserKYCNotFoundException:
-                # return utils.respondWithFailure(message=frappe._("User KYC not found"))
                 data = {"message": "User KYC not found"}
                 return data
 
@@ -2875,10 +2836,6 @@ def penny_call_create_contact(user=None, customer=None, user_kyc=None):
             create_log(data_res, "rzp_penny_contact_success_log")
             data = {"message": contact_id}
             return data
-            # user_kyc.save(ignore_permissions=True)
-            # frappe.db.commit()
-
-            # return utils.respondWithSuccess(message=frappe._("success"),data = contact_id)
 
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
@@ -2899,22 +2856,10 @@ def call_penny_create_fund_account(
 ):
     try:
         utils.validator.validate_http_method("POST")
-        # data = utils.validator.validate(
-        #     kwargs,
-        #     {
-        #         "ifsc": "required",
-        #         "account_holder_name": "required",
-        #         "account_number": ["required", "decimal"],
-        #     },
-        # )
 
         # ifsc and account holder name validation
         reg = regex_special_characters(search=account_holder_name + ifsc)
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             data = {"message": "Special Characters not allowed"}
             return data
 
@@ -2926,7 +2871,6 @@ def call_penny_create_fund_account(
                 user_name = user.name
 
         except UserNotFoundException:
-            # return utils.respondNotFound(message=frappe._("User not found."))
             data = {"message": "User not found"}
             return data
 
@@ -2937,7 +2881,6 @@ def call_penny_create_fund_account(
                 title="Penny Drop Fund Account Error",
                 message="Penny Drop Fund Account Error - Razorpay Key Secret Missing",
             )
-            # return utils.respondWithFailure()
             data = {
                 "message": "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
             }
@@ -2950,7 +2893,6 @@ def call_penny_create_fund_account(
         try:
             user_kyc = __user_kyc(user_name)
         except UserKYCNotFoundException:
-            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
             data = {"message": "User KYC not found"}
             return data
 
@@ -2980,7 +2922,6 @@ def call_penny_create_fund_account(
                     "response": data_res.get("error"),
                 }
                 create_log(log, "rzp_penny_fund_account_error_log")
-                # return utils.respondWithFailure(message=frappe._("failed"))
                 data = {"message": "failed"}
                 return data
             # if not get error
@@ -3011,18 +2952,6 @@ def call_penny_create_fund_account_validation(
     personalized_cheque=None,
 ):
     try:
-        # utils.validator.validate_http_method("POST")
-        # data = utils.validator.validate(
-        #     kwargs,
-        #     {
-        #         "fa_id": "required",
-        #         "bank_account_type": "",
-        #         "branch": "required",
-        #         "city": "required",
-        #         "personalized_cheque": "required",
-        #     },
-        # )
-
         # check user
         try:
             user_name = user
@@ -3030,14 +2959,12 @@ def call_penny_create_fund_account_validation(
                 user = __user()
                 user_name = user.name
         except UserNotFoundException:
-            # return utils.respondNotFound(message=frappe._("User not found."))
             data = {"message": "User not found"}
             return data
 
         # check Loan Customer
         customer = __customer(user_name)
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
             data = {"message": "Customer not found"}
             return data
 
@@ -3045,8 +2972,6 @@ def call_penny_create_fund_account_validation(
         try:
             user_kyc = __user_kyc(user_name)
         except UserKYCNotFoundException:
-            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
-            # raise exceptions.RespondWithFailureException(_("User KYC not found"))
             data = {"message": "User KYC not found"}
             return data
 
@@ -3057,8 +2982,6 @@ def call_penny_create_fund_account_validation(
                 title="Penny Drop Fund Account Validation Error",
                 message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
             )
-            # return utils.respondWithFailure()
-            # raise exceptions.RespondWithFailureException()
             data = {
                 "message": "Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing"
             }
@@ -3069,7 +2992,6 @@ def call_penny_create_fund_account_validation(
                 title="Penny Drop Fund Account Validation Error",
                 message="Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing",
             )
-            # return utils.respondWithFailure()
             raise lms.exceptions.RespondWithFailureException()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
@@ -3188,36 +3110,18 @@ def call_penny_create_fund_account_validation_by_id(
     personalized_cheque=None,
 ):
     try:
-        # utils.validator.validate_http_method("POST")
-        # data = utils.validator.validate(
-        #     kwargs,
-        #     {
-        #         "fav_id": "required",
-        #         "personalized_cheque": "required",
-        #     },
-        # )
-        # check user
-        # try:
-        #     user = lms.__user()
-        # except UserNotFoundException:
-        #     # return utils.respondNotFound(message=frappe._("User not found."))
-        #     raise lms.exceptions.NotFoundException(_("User not found"))
-
         try:
             user_name = user
             if not user:
                 user = __user()
                 user_name = user.name
         except UserNotFoundException:
-            # return utils.respondNotFound(message=frappe._("User not found."))
             data = {"message": "User not found"}
             return data
 
         # check Loan Customer
         customer = __customer(user_name)
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
-            # raise exceptions.NotFoundException(_("Customer not found"))
             data = {"message": "Customer not found"}
             return data
 
@@ -3225,8 +3129,6 @@ def call_penny_create_fund_account_validation_by_id(
         try:
             user_kyc = __user_kyc(user_name)
         except UserKYCNotFoundException:
-            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
-            # raise exceptions.RespondWithFailureException(_("User KYC not found"))
             data = {"message": "User KYC not found"}
             return data
 
@@ -3237,8 +3139,6 @@ def call_penny_create_fund_account_validation_by_id(
                 title="Penny Drop Fund Account Validation Error",
                 message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
             )
-            # return utils.respondWithFailure()
-            # raise exceptions.RespondWithFailureException()
             data = {
                 "message": "Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing"
             }
@@ -3282,11 +3182,7 @@ def call_penny_create_fund_account_validation_by_id(
                     "status": "completed",
                     "amount": 100,
                     "currency": "INR",
-                    "notes": {
-                        # "branch": data.get("branch"),
-                        # "city": data.get("city"),
-                        # "bank_account_type": data.get("bank_account_type"),
-                    },
+                    "notes": {},
                     "results": {
                         "account_status": "active",
                         "registered_name": user_kyc.fname,
@@ -3316,7 +3212,6 @@ def call_penny_create_fund_account_validation_by_id(
                     "response": data_res,
                 }
 
-                # create_log(log, "rzp_pennydrop_create_fund_account_validation_by_id")
             validation_by_id = penny_api_response_handle(
                 data,
                 user_kyc,
@@ -3356,8 +3251,6 @@ def penny_api_response_handle(
                 "response": data_res,
             }
             create_log(log, "rzp_penny_fund_account_validation_error_log")
-            # raise utils.respondWithFailure(message=message)
-            # raise exceptions.RespondWithFailureException(message=message)
             data = {
                 "message": "Your account details have not been successfully verified"
             }
@@ -3368,8 +3261,6 @@ def penny_api_response_handle(
                 "message": "Your account details have not been successfully verified"
             }
             return data
-            # return utils.respondWithFailuremessage=message, data=data_resp)
-            # raise exceptions.RespondFailureException(message, data_resp)
 
         if data_res.get("status") == "created":
             data = {"message": "waiting for response from bank"}
@@ -3377,14 +3268,6 @@ def penny_api_response_handle(
 
         account_status = data_res.get("results").get("account_status")
         if data_res.get("status") == "completed" and account_status == "active":
-            # name validation - check user entered account holder name is same with registered name
-            # account_holder_name = (
-            #     data_res.get("fund_account")
-            #     .get("bank_account")
-            #     .get("name")
-            #     .lower()
-            #     .split(" ")
-            # )
             registered_name = data_res.get("results").get("registered_name").lower()
             account_status = data_res.get("results").get("account_status")
             photos_ = personalized_cheque
@@ -3409,9 +3292,6 @@ def penny_api_response_handle(
                         "User Bank Account",
                         {
                             "parentfield": "bank_account",
-                            # "razorpay_fund_account_id": data_res.get(
-                            #     "fund_account"
-                            # ).get("id"),
                             "account_number": data_res.get("fund_account")
                             .get("bank_account")
                             .get("account_number"),
@@ -3465,7 +3345,6 @@ def penny_api_response_handle(
                                 "bank_status": "Pending",
                             }
                         ).insert(ignore_permissions=True)
-                        # frappe.db.commit()
                     else:
                         # For existing choice bank entries
                         bank_account = frappe.get_doc(

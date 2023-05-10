@@ -185,12 +185,8 @@ class UserKYC(Document):
             frappe.db.commit()
 
         for i in self.bank_account:
-            if (
-                i.notification_sent == 0
-                and i.bank_status in ["Approved", "Rejected"]
-                and not loan_customer.offline_customer
-            ):
-                if i.bank_status == "Approved":
+            if i.notification_sent == 0 and i.bank_status in ["Approved", "Rejected"]:
+                if i.bank_status == "Approved" and not loan_customer.offline_customer:
                     msg = "Your Bank details request has been approved; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                         las_settings.app_login_dashboard
                     )
@@ -203,12 +199,8 @@ class UserKYC(Document):
                     i.notification_sent = 1
                     i.save(ignore_permissions=True)
                     frappe.db.commit()
-                    if check and not loan_customer.bank_update:
-                        loan_customer.bank_update = 1
-                        loan_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
 
-                elif i.bank_status == "Rejected":
+                elif i.bank_status == "Rejected" and not loan_customer.offline_customer:
                     msg = "Your Bank request has been rejected due to mismatch in the details; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                         las_settings.app_login_dashboard
                     )
@@ -222,6 +214,16 @@ class UserKYC(Document):
                     i.save(ignore_permissions=True)
                     frappe.db.commit()
 
+                if (
+                    check
+                    and not loan_customer.bank_update
+                    and i.bank_status == "Approved"
+                ):
+                    i.notification_sent = 1
+                    i.save(ignore_permissions=True)
+                    loan_customer.bank_update = 1
+                    loan_customer.save(ignore_permissions=True)
+                frappe.db.commit()
         if msg:
             receiver_list = [str(loan_customer.phone)]
             if self.mob_num:
@@ -298,12 +300,21 @@ class UserKYC(Document):
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         user = frappe.get_all("User", filters={"email": self.user})
         las_settings = frappe.get_single("LAS Settings")
+        res_json = ""
         for i in self.bank_account:
             if (
                 i.personalized_cheque
                 and not i.penny_request_id
-                and not loan_customer.offline_customer
+                and loan_customer.offline_customer
             ):
+                offline_cust = frappe.get_all(
+                    "Spark Offline Customer Log",
+                    filters={
+                        "ckyc_status": "Success",
+                        "email_id": user[0].name,
+                    },
+                    fields=["name"],
+                )
                 if self.kyc_status == "Approved":
                     data = {
                         "ifsc": i.ifsc,
@@ -323,7 +334,113 @@ class UserKYC(Document):
                     if reg:
                         frappe.throw(_("Special Characters not allowed."))
 
-                    res_json = lms.au_pennydrop_api(data, self.fullname)
+                    bank_acc = frappe.get_all(
+                        "User Bank Account",
+                        {
+                            "account_number": data.get("account_number"),
+                            "is_repeated": 0,
+                            "parent": ["!=", self.name]
+                            # "is_mismatched": 0,
+                        },
+                        "*",
+                        order_by="creation desc",
+                    )
+                    mismatch_bank_acc = frappe.db.count(
+                        "User Bank Account",
+                        {
+                            "account_number": data.get("account_number"),
+                            "is_mismatched": 1,
+                        },
+                    )
+                    penny_name_mismatch = frappe.get_all(
+                        "Penny Name Mismatch",
+                        {"account_number": data.get("account_number")},
+                        "*",
+                    )
+
+                    if not mismatch_bank_acc and penny_name_mismatch:
+                        bank_account_list_ = frappe.get_all(
+                            "User Bank Account",
+                            filters={"parent": self.name},
+                            fields="*",
+                        )
+                        for b in bank_account_list_:
+                            other_bank_ = frappe.get_doc("User Bank Account", b.name)
+                            if other_bank_.is_default == 1:
+                                other_bank_.is_default = 0
+                                other_bank_.save(ignore_permissions=True)
+                                frappe.db.commit()
+                        i.is_default = 1
+                        i.bank_status = "Pending"
+                        i.penny_request_id = (penny_name_mismatch[0].penny_request_id,)
+                        i.bank_transaction_status = (
+                            penny_name_mismatch[0].bank_transaction_status,
+                        )
+                        i.is_mismatched = 1
+                        i.save(ignore_permissions=True)
+                        if offline_cust:
+                            doc = frappe.get_doc(
+                                "Spark Offline Customer Log",
+                                offline_cust[0].name,
+                            )
+                            doc.bank_status = "Success"
+                            doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+                        frappe.msgprint(
+                            "Your bank details are under the verification process",
+                        )
+                        break
+
+                    if bank_acc and not penny_name_mismatch:
+                        if bank_acc[0].ifsc == data.get("ifsc"):
+                            if frappe.utils.now_datetime().date() >= (
+                                bank_acc[0].creation.date()
+                                + timedelta(days=las_settings.pennydrop_days_passed)
+                            ):
+                                res_json = lms.au_pennydrop_api(data, self.fullname)
+                            else:
+                                bank_account_list_ = frappe.get_all(
+                                    "User Bank Account",
+                                    filters={"parent": self.name},
+                                    fields="*",
+                                )
+                                for b in bank_account_list_:
+                                    other_bank_ = frappe.get_doc(
+                                        "User Bank Account", b.name
+                                    )
+                                    if other_bank_.is_default == 1:
+                                        other_bank_.is_default = 0
+                                        other_bank_.save(ignore_permissions=True)
+                                        frappe.db.commit()
+                                        i.is_default = 1
+                                        i.bank_status = "Pending"
+                                        i.penny_request_id = (
+                                            penny_name_mismatch[0].penny_request_id,
+                                        )
+                                        i.bank_transaction_status = (
+                                            penny_name_mismatch[
+                                                0
+                                            ].bank_transaction_status,
+                                        )
+                                        i.is_repeated: 1
+                                        i.save(ignore_permissions=True)
+                                        if offline_cust:
+                                            doc = frappe.get_doc(
+                                                "Spark Offline Customer Log",
+                                                offline_cust[0].name,
+                                            )
+                                            doc.bank_status = "Success"
+                                            doc.save(ignore_permissions=True)
+                                frappe.db.commit()
+                                frappe.msgprint(
+                                    "Your account details have been successfully verified"
+                                )
+                        else:
+                            res_json = lms.au_pennydrop_api(data, self.fullname)
+                    else:
+                        res_json = lms.au_pennydrop_api(data, self.fullname)
+
+                    # res_json = lms.au_pennydrop_api(data, self.fullname)
                     if res_json:
                         if (
                             res_json.get("status_code") == 200
@@ -376,6 +493,7 @@ class UserKYC(Document):
                                                     "account_type": data.get(
                                                         "bank_account_type"
                                                     ),
+                                                    "penny_name_mismatch_percentage": matching,
                                                 }
                                             ).insert()
                                             frappe.db.commit()
@@ -449,14 +567,6 @@ class UserKYC(Document):
                                         frappe.msgprint(
                                             "Your account details have been successfully verified"
                                         )
-                                        offline_cust = frappe.get_all(
-                                            "Spark Offline Customer Log",
-                                            filters={
-                                                "ckyc_status": "Success",
-                                                "email_id": user[0].name,
-                                            },
-                                            fields=["name"],
-                                        )
                                         if offline_cust:
                                             doc = frappe.get_doc(
                                                 "Spark Offline Customer Log",
@@ -484,3 +594,10 @@ class UserKYC(Document):
                             )
                 else:
                     frappe.throw("Please approve User KYC")
+            else:
+                frappe.log_error(
+                    message=frappe.get_traceback()
+                    + "\n\nUser kyc :\n"
+                    + str(self.name),
+                    title="Offline penny error",
+                )

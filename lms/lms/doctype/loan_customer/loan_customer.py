@@ -104,7 +104,7 @@ def loan_customer_template():
         return lms.download_file(
             dataframe=df,
             file_name=file_name,
-            file_extention="xlsx",
+            file_extention="csv",
             sheet_name=sheet_name,
         )
     except Exception as e:

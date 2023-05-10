@@ -12,7 +12,6 @@ import utils
 from frappe.model.document import Document
 
 import lms
-from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 from lms.lms.doctype.user_token.user_token import send_sms
 
@@ -66,10 +65,6 @@ class UnpledgeApplication(Document):
         self.customer = loan.customer
         if not self.customer_name:
             self.customer_name = loan.customer_name
-        # For ltv on shares
-        # if self.instrument_type == "Shares":
-        #     allowable_value = loan.max_unpledge_amount()
-        #     self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
 
         pending_sell_request_id = frappe.db.get_value(
             "Sell Collateral Application",
@@ -316,12 +311,10 @@ class UnpledgeApplication(Document):
                 )
 
             if total_dp_reimburse_unpledge_charges > 0:
-                total_dp_reimburse_unpledge_charges_reference = (
-                    loan.create_loan_transaction(
-                        transaction_type="DP Reimbursement(Unpledge) Charges",
-                        amount=total_dp_reimburse_unpledge_charges,
-                        approve=True,
-                    )
+                loan.create_loan_transaction(
+                    transaction_type="DP Reimbursement(Unpledge) Charges",
+                    amount=total_dp_reimburse_unpledge_charges,
+                    approve=True,
                 )
 
         else:
@@ -341,7 +334,7 @@ class UnpledgeApplication(Document):
                     )
 
                 if revoke_charges > 0:
-                    revoke_charges_reference = loan.create_loan_transaction(
+                    loan.create_loan_transaction(
                         transaction_type="Revocation Charges",
                         amount=revoke_charges,
                         approve=True,
@@ -500,9 +493,6 @@ def validate_revoc(unpledge_application_name):
             )
         except frappe.DoesNotExistError as e:
             raise utils.exceptions.APIException(str(e))
-        collateral_ledger = frappe.get_last_doc(
-            "Collateral Ledger", filters={"loan": unpledge_application_doc.loan}
-        )
         customer = frappe.get_doc("Loan Customer", unpledge_application_doc.customer)
         user_kyc = lms.__user_kyc(customer.user)
 
@@ -570,7 +560,7 @@ def validate_revoc(unpledge_application_name):
                             data["revocvalidate"]["schemedetails"].append(
                                 schemedetails[0]
                             )
-                        ("data", data)
+                        # ("data", data)
 
                         encrypted_data = lms.AESCBC(
                             las_settings.encryption_key, las_settings.iv
@@ -623,17 +613,6 @@ def validate_revoc(unpledge_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
-                                lms.create_log(
-                                    {
-                                        "revoc_token": dict_decrypted_response.get(
-                                            "revocvalidate"
-                                        ).get("revoctoken"),
-                                        "revoc_ref_no": dict_decrypted_response.get(
-                                            "revocvalidate"
-                                        ).get("reqrefno"),
-                                    },
-                                    "asach",
-                                )
 
                                 if isin_folio_combo in isin_details:
                                     i.revoke_validate_remarks = isin_details.get(
@@ -646,12 +625,6 @@ def validate_revoc(unpledge_application_name):
                                         "revocvalidate"
                                     ).get("reqrefno")
 
-                            # success.append(dict_decrypted_response.get("revocvalidate").get("message"))
-                            # if (
-                            #     dict_decrypted_response.get("revocvalidate").get("message")
-                            #     == "SUCCESS"
-                            # ):
-                            #     unpledge_application_doc.is_validated = True
                             success.append(
                                 dict_decrypted_response.get("revocvalidate").get(
                                     "message"
@@ -687,7 +660,6 @@ def validate_revoc(unpledge_application_name):
                             schemedetails_res_res = dict_decrypted_response.get(
                                 "revocvalidate"
                             ).get("schemedetails")
-                            # isin_details_ = {}
                             for i in schemedetails_res_res:
                                 revoc_response_list.append(
                                     {
@@ -706,35 +678,6 @@ def validate_revoc(unpledge_application_name):
                                     }
                                 )
 
-                            # for i in prf:
-                            #     i = frappe.get_doc(
-                            #         "Unpledge Application Unpledged Item", i.name
-                            #     )
-                            #     i.revoc_token = (
-                            #         dict_decrypted_response.get("revocvalidate").get(
-                            #             "revoctoken"
-                            #         ),
-                            #     )
-                            #     i.revoc_ref_no = (
-                            #         dict_decrypted_response.get("revocvalidate").get(
-                            #             "reqrefno"
-                            #         ),
-                            #     )
-                            #     i.save(ignore_permissions=True)
-                            #     frappe.db.commit()
-                            # frappe.db.set_value(
-                            #     "Unpledge Application Unpledged Item",
-                            #     i.name,
-                            #     {
-                            #         "revoc_token": dict_decrypted_response.get(
-                            #             "revocvalidate"
-                            #         ).get("revoctoken"),
-                            #         "revoc_ref_no": dict_decrypted_response.get(
-                            #             "revocvalidate"
-                            #         ).get("reqrefno"),
-                            #     },
-                            # )
-
                         else:
                             frappe.db.sql(
                                 """update `tabUnpledge Application` set validate_message = '{message}' where name ='{name}'""".format(
@@ -744,58 +687,11 @@ def validate_revoc(unpledge_application_name):
                                     name=unpledge_application_doc.name,
                                 )
                             )
-                            # unpledge_application_doc.validate_message = (
-                            #     dict_decrypted_response.get("status")[0].get("error")
-                            # )
-                            # unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
 
                         prf_list.append(prf[0].prf)
                     except requests.RequestException as e:
                         raise utils.exceptions.APIException(str(e))
-
-                # isinfoliocombo = "{}{}{}".format(
-                #     i.get("isin"), i.get("folio"), i.get("psn")
-                # )
-                # if isinfoliocombo in revoc_response_list:
-                #     i.revoke_token = revoc_response_list.get(isinfoliocombo).get(
-                #         "revoc_token"
-                #     )
-                #     i.revoc_ref_no = revoc_response_list.get(isinfoliocombo).get(
-                #         "revoc_ref_no"
-                #     )
-                #     i.save(ignore_permissions=True)
-                # frappe.db.commit()
-
-                # if unpledge_application_doc.is_validated == True:
-                #     for i in unpledge_application_doc.unpledge_items:
-                #         psn = frappe.db.sql(
-                #             """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
-                #                 isin=i.isin,
-                #                 folio=i.folio,
-                #                 loan=unpledge_application_doc.loan,
-                #                 type="Pledge",
-                #             ),
-                #             as_dict=1,
-                #         )
-                #         print("psn",psn)
-                #         print("psn11111",psn[0].psn)
-                #         unpledge_item_doc_list = frappe.get_all(
-                #             "Unpledge Application Unpledged Item",
-                #             filters={
-                #                 "parent": unpledge_application_doc.name,
-                #                 "isin": i.isin,
-                #                 "folio": i.folio,
-                #             },
-                #             fields=["name"],
-                #         )
-                #         unpledge_item_doc = frappe.get_doc(
-                #             "Unpledge Application Unpledged Item",
-                #             unpledge_item_doc_list[0].name,
-                #         )
-                #         unpledge_item_doc.psn = psn[0].psn
-                #         unpledge_item_doc.save(ignore_permissions=True)
-                #         frappe.db.commit()
 
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
@@ -817,9 +713,6 @@ def initiate_revoc(unpledge_application_name):
             )
         except frappe.DoesNotExistError as e:
             raise utils.exceptions.APIException(str(e))
-        collateral_ledger = frappe.get_last_doc(
-            "Collateral Ledger", filters={"loan": unpledge_application_doc.loan}
-        )
         customer = frappe.get_doc("Loan Customer", unpledge_application_doc.customer)
         user_kyc = lms.__user_kyc(customer.user)
 
@@ -827,7 +720,6 @@ def initiate_revoc(unpledge_application_name):
             customer.mycams_email_id
             and unpledge_application_doc.instrument_type == "Mutual Fund"
         ):
-            success = []
             prf_list = []
             for i in unpledge_application_doc.unpledge_items:
                 prf = frappe.get_all(
@@ -948,17 +840,8 @@ def initiate_revoc(unpledge_application_name):
                                         )
                                         else "FAILURE"
                                     )
-                                    # if (
-                                    #     isin_details.get(isin_folio_combo).get(
-                                    #         "remarks"
-                                    #     )
-                                    #     == "SUCCESS"
-                                    # ):
 
                                     old_psn = i.psn
-                                    # i.psn = isin_details.get(isin_folio_combo).get(
-                                    # "revoc_refno"
-                                    # )
                                     new_psn = isin_details.get(isin_folio_combo).get(
                                         "revoc_refno"
                                     )

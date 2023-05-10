@@ -24,63 +24,6 @@ from lms.lms.doctype.user_token.user_token import send_sms
 
 
 @frappe.whitelist()
-def esign_old(**kwargs):
-    try:
-        utils.validator.validate_http_method("POST")
-
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "loan_application_name": "required",
-            },
-        )
-
-        customer = lms.__customer()
-        loan_application = frappe.get_doc(
-            "Loan Application", data.get("loan_application_name")
-        )
-        if not loan_application:
-            # return utils.respondNotFound(message=_("Loan Application not found."))
-            raise lms.exceptions.NotFoundException(_("Loan Application not found"))
-        if loan_application.customer != customer.name:
-            # return utils.respondForbidden(
-            #     message=_("Please use your own Loan Application.")
-            # )
-            raise lms.exceptions.ForbiddenException(
-                _("Please use your own Loan Application")
-            )
-
-        user = lms.__user()
-
-        esign_request = loan_application.esign_request()
-        try:
-            res = requests.post(
-                esign_request.get("file_upload_url"),
-                files=esign_request.get("files"),
-                headers=esign_request.get("headers"),
-            )
-
-            if not res.ok:
-                raise utils.exceptions.APIException(res.text)
-
-            data = res.json()
-
-            esign_url_dict = esign_request.get("esign_url_dict")
-            esign_url_dict["id"] = data.get("id")
-            url = esign_request.get("esign_url").format(**esign_url_dict)
-
-            return utils.respondWithSuccess(
-                message=_("Esign URL."),
-                data={"esign_url": url, "file_id": data.get("id")},
-            )
-        except requests.RequestException as e:
-            raise utils.exceptions.APIException(str(e))
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        return e.respond()
-
-
-@frappe.whitelist()
 def esign(**kwargs):
     res_params = {}
     try:
@@ -101,10 +44,6 @@ def esign(**kwargs):
             + data.get("loan_renewal_application_name")
         )
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
@@ -119,9 +58,6 @@ def esign(**kwargs):
             or data.get("loan_application_name")
             and data.get("loan_renewal_application_name")
         ):
-            # return utils.respondForbidden(
-            #     message=_("Can not use both application at once, please use one.")
-            # )
             raise lms.exceptions.ForbiddenException(
                 _("Can not use both application at once, please use one.")
             )
@@ -131,11 +67,6 @@ def esign(**kwargs):
             and not data.get("topup_application_name")
             and not data.get("loan_renewal_application_name")
         ):
-            # return utils.respondForbidden(
-            #     message=_(
-            #         "Loan Application and Top up Application not found. Please use atleast one."
-            #     )
-            # )
             raise lms.exceptions.ForbiddenException(
                 _(
                     "Loan Application , Top up Application and Loan Renewal Application not found. Please use atleast one."
@@ -147,12 +78,8 @@ def esign(**kwargs):
                 "Loan Application", data.get("loan_application_name")
             )
             if not loan_application:
-                # return utils.respondNotFound(message=_("Loan Application not found."))
                 raise lms.exceptions.NotFoundException(_("Loan Application not found"))
             if loan_application.customer != customer.name:
-                # return utils.respondForbidden(
-                #     message=_("Please use your own Loan Application.")
-                # )
                 raise lms.exceptions.ForbiddenException(
                     _("Please user your own Loan Application.")
                 )
@@ -167,12 +94,8 @@ def esign(**kwargs):
                 "Top up Application", data.get("topup_application_name")
             )
             if not topup_application:
-                # return utils.respondNotFound(message=_("Topup Application not found."))
                 raise lms.exceptions.NotFoundException(_("Topup Application not found"))
             if topup_application.customer != customer.name:
-                # return utils.respondForbidden(
-                #     message=_("Please use your own Topup Application.")
-                # )
                 raise lms.exceptions.ForbiddenException(
                     _("Please use yor own Topup Application")
                 )
@@ -194,8 +117,6 @@ def esign(**kwargs):
                 )
             esign_request = loan_renewal_application.esign_request(increase_loan=1)
             application = loan_renewal_application
-
-        user = lms.__user()
 
         try:
             res = requests.post(
@@ -289,10 +210,6 @@ def esign_done(**kwargs):
             + data.get("file_id")
         )
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if data.get("file_id").isspace():
@@ -306,31 +223,10 @@ def esign_done(**kwargs):
         las_settings = frappe.get_single("LAS Settings")
 
         if (
-            data.get("loan_application_name")
-            and data.get("topup_application_name")
-            and data.get("loan_renewal_application_name")
-            or data.get("loan_application_name")
-            and data.get("topup_application_name")
-            or data.get("topup_application_name")
-            and data.get("loan_renewal_application_name")
-            or data.get("loan_application_name")
-            and data.get("loan_renewal_application_name")
-        ):
-            # return utils.respondForbidden(
-            #     message=_("Can not use both application at once, please use one.")
-            # )
-            raise lms.exceptions.ForbiddenException(
-                _("Can not use multiple application at once, please use one.")
-            )
-
-        elif (
             not data.get("loan_application_name")
             and not data.get("topup_application_name")
             and not data.get("loan_renewal_application_name")
         ):
-            # return utils.respondForbidden(
-            #     "Loan Application and Top up Application not found. Please use atleast one."
-            # )
             raise lms.exceptions.ForbiddenException(
                 _(
                     "Loan Application, Top up Application and Loan Renewal Application not found. Please use atleast one."
@@ -342,13 +238,9 @@ def esign_done(**kwargs):
                 "Loan Application", data.get("loan_application_name")
             )
             if not loan_application:
-                # return utils.respondNotFound(message=_("Loan Application not found."))
                 raise lms.exceptions.NotFoundException(_("Loan Application not found"))
 
             if loan_application.customer != customer.name:
-                # return utils.respondForbidden(
-                #     message=_("Please use your own Loan Application.")
-                # )
                 raise lms.exceptions.ForbiddenException(
                     _("Please use your own Loan Application")
                 )
@@ -371,13 +263,9 @@ def esign_done(**kwargs):
                 "Top up Application", data.get("topup_application_name")
             )
             if not topup_application:
-                # return utils.respondNotFound(message=_("Topup Application not found."))
                 raise lms.exceptions.NotFoundException(_("Topup Application not found"))
 
             if topup_application.customer != customer.name:
-                # return utils.respondForbidden(
-                #     message=_("Please use your own Topup Application.")
-                # )
                 raise lms.exceptions.ForbiddenException(
                     _("Please use your own Topup Application.")
                 )
@@ -407,7 +295,6 @@ def esign_done(**kwargs):
 
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
-            # frappe.db.begin()
             res_params = {
                 "loan_application_name": data.get("loan_application_name"),
                 "topup_application_name": data.get("topup_application_name"),
@@ -659,188 +546,6 @@ def my_loans():
         return lms.generateResponse(is_success=False, error=e)
 
 
-# TODO: review. it has a query for tabLoan Collateral which has been deleted in Beta.1
-@frappe.whitelist()
-def create_unpledge_old(loan_name, securities_array):
-    try:
-        lms.validate_http_method("POST")
-
-        if not loan_name:
-            raise lms.ValidationError(_("Loan name required."))
-
-        if not securities_array and type(securities_array) is not list:
-            raise lms.ValidationError(_("Securities required."))
-
-        securities_valid = True
-
-        for i in securities_array:
-            if type(i) is not dict:
-                securities_valid = False
-                message = _("items in securities need to be dictionaries")
-                break
-
-            keys = i.keys()
-            if "isin" not in keys or "quantity" not in keys:
-                securities_valid = False
-                message = _("any/all of isin, quantity not present")
-                break
-
-            if type(i["isin"]) is not str or len(i["isin"]) > 12:
-                securities_valid = False
-                message = _("isin not correct")
-                break
-
-            if not frappe.db.exists("Allowed Security", i["isin"]):
-                securities_valid = False
-                message = _("{} isin not found").format(i["isin"])
-                break
-
-            valid_isin = frappe.db.sql(
-                "select sum(quantity) total_pledged from `tabLoan Collateral` where request_type='Pledge' and loan={} and isin={}".format(
-                    loan_name, i["isin"]
-                ),
-                as_dict=1,
-            )
-            if not valid_isin:
-                securities_valid = False
-                message = _("invalid isin")
-                break
-            elif i["quantity"] <= valid_isin[0].total_pledged:
-                securities_valid = False
-                message = _("invalid unpledge quantity")
-                break
-
-        if securities_valid:
-            securities_list = [i["isin"] for i in securities]
-
-            if len(set(securities_list)) != len(securities_list):
-                securities_valid = False
-                message = _("duplicate isin")
-
-        if not securities_valid:
-            raise lms.ValidationError(message)
-
-        loan = frappe.get_doc("Loan", loan_name)
-        if not loan:
-            return lms.generateResponse(
-                status=404, message=_("Loan {} does not exist.".format(loan_name))
-            )
-
-        customer = lms.get_customer(frappe.session.user)
-        if loan.customer != customer.name:
-            return lms.generateResponse(
-                status=403, message=_("Please use your own loan.")
-            )
-
-        UNPLDGDTLS = []
-        for unpledge in securities_array:
-            isin_data = frappe.db.sql(
-                "select isin, psn, quantity from `tabLoan Collateral` where request_type='Pledge' and loan={} and isin={} order by creation ASC".format(
-                    loan_name, unpledge["isin"]
-                ),
-                as_dict=1,
-            )
-            unpledge_qty = unpledge.quantity
-
-            for pledged_item in isin_data:
-                if unpledge_qty == 0:
-                    break
-
-                removed_qty_from_current_pledge_entity = 0
-
-                if unpledge_qty >= pledged_item.quantity:
-                    removed_qty_from_current_pledge_entity = pledged_item.quantity
-                else:
-                    removed_qty_from_current_pledge_entity = (
-                        pledged_item.quantity - unpledge_qty
-                    )
-
-                body_item = {
-                    "PRNumber": pledged_item.prn,
-                    "PartQuantity": removed_qty_from_current_pledge_entity,
-                }
-                UNPLDGDTLS.append(body_item)
-
-                unpledge_qty -= removed_qty_from_current_pledge_entity
-
-        las_settings = frappe.get_single("LAS Settings")
-        API_URL = "{}{}".format(las_settings.cdsl_host, las_settings.unpledge_setup_uri)
-        payload = {
-            "URN": "URN" + lms.random_token(length=13, is_numeric=True),
-            "UNPLDGDTLS": json.loads(UNPLDGDTLS),
-        }
-
-        response = requests.post(
-            API_URL, headers=las_settings.cdsl_headers(), json=payload
-        )
-
-        response_json = response.json()
-        frappe.logger().info(
-            {
-                "CDSL UNPLEDGE HEADERS": las_settings.cdsl_headers(),
-                "CDSL UNPLEDGE PAYLOAD": payload,
-                "CDSL UNPLEDGE RESPONSE": response_json,
-            }
-        )
-
-        if response_json and response_json.get("Success") == True:
-            return lms.generateResponse(message="CDSL", data=response_json)
-        else:
-            return lms.generateResponse(
-                is_success=False, message="CDSL UnPledge Error", data=response_json
-            )
-    except (lms.ValidationError, lms.ServerError) as e:
-        return lms.generateResponse(status=e.http_status_code, message=str(e))
-    except Exception as e:
-        lms.log_api_error()
-        return generateResponse(is_success=False, error=e)
-
-
-@frappe.whitelist()
-def create_topup_old(loan_name, file_id):
-    try:
-        lms.validate_http_method("POST")
-
-        if not loan_name:
-            raise lms.ValidationError(_("Loan name required."))
-
-        loan = frappe.get_doc("Loan", loan_name)
-        if not loan:
-            return lms.generateResponse(
-                status=404, message=_("Loan {} does not exist".format(loan_name))
-            )
-
-        customer = lms.__customer()
-        if loan.customer != customer.name:
-            return lms.generateResponse(
-                status=403, message=_("Please use your own loan")
-            )
-
-        # check if topup available
-        top_up_available = (
-            loan.total_collateral_value * loan.allowable_ltv / 100
-        ) > loan.sanctioned_limit
-        if not top_up_available:
-            raise lms.ValidationError(_("Topup not available."))
-
-        topup_amt = (
-            loan.total_collateral_value * (loan.allowable_ltv / 100)
-        ) - loan.sanctioned_limit
-        loan.drawing_power += topup_amt
-        loan.sanctioned_limit += topup_amt
-        loan.save(ignore_permissions=True)
-
-        lms.save_signed_document(file_id, doctype="Loan", docname=loan.name)
-
-        return lms.generateResponse(message="Topup added successfully.", data=loan)
-
-    except (lms.ValidationError, lms.ServerError) as e:
-        return lms.generateResponse(status=e.http_status_code, message=str(e))
-    except Exception as e:
-        lms.log_api_error()
-        return generateResponse(is_success=False, error=e)
-
-
 @frappe.whitelist()
 def create_topup(**kwargs):
     try:
@@ -856,10 +561,6 @@ def create_topup(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
@@ -867,10 +568,8 @@ def create_topup(**kwargs):
 
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
-            # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
         if loan.customer != customer.name:
-            # return utils.respondForbidden(message=_("Please use your own Loan."))
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan"))
 
         topup_amt = loan.max_topup_amount()
@@ -886,27 +585,16 @@ def create_topup(**kwargs):
         )
 
         if existing_topup_application[0]["in_process"] > 0:
-            # return utils.respondForbidden(
-            #     message=_("Top up for {} is already in process.".format(loan.name))
-            # )
             raise lms.exceptions.ForbiddenException(
                 _("Top up for {} is already in process.".format(loan.name))
             )
         elif not topup_amt:
-            # return utils.respondWithFailure(status=417, message="Top up not available")
             raise lms.exceptions.RespondFailureException(_("Top up not available."))
         elif data.get("topup_amount") <= 0:
-            # return utils.respondWithFailure(
-            #     status=417, message="Top up amount can not be 0 or less than 0"
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Top up amount can not be 0 or less than 0.")
             )
         elif data.get("topup_amount") > topup_amt:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message="Top up amount can not be more than Rs. {}".format(topup_amt),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _(
                     "Top up amount can not be more than Rs. {}".format(topup_amt),
@@ -916,7 +604,6 @@ def create_topup(**kwargs):
             current = frappe.utils.now_datetime()
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
-            # frappe.db.begin()
             topup_application = frappe.get_doc(
                 {
                     "doctype": "Top up Application",
@@ -948,8 +635,6 @@ def create_topup(**kwargs):
                 ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
                 frappe.db.commit()
 
-            # loan = frappe.get_doc("Loan", topup_application.loan)
-            # lender = frappe.get_doc("Lender", loan.lender)
             frappe.enqueue_doc(
                 "Notification", "Top up Request", method="send", doc=user_kyc
             )
@@ -994,32 +679,15 @@ def loan_details(**kwargs):
         )
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
-            # for i in loan.items:
-            #     psn_no = frappe.db.sql(
-            #         """select psn from `tabCollateral Ledger` where isin = '{isin}' and loan = '{loan}' and
-            #           application_doctype = 'Loan Application' and request_type = 'Pledge'""".format(
-            #             isin=i.isin,
-            #             loan=loan.name,
-            #         ),
-            #         as_dict=True,
-            #     )
-            #     print("psn_no",psn_no)
-            # i["psn"] = psn_no
         except frappe.DoesNotExistError:
-            # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
 
         if loan.customer != customer.name:
-            # return utils.respondForbidden(message=_("Please use your own Loan."))
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan."))
 
         if not data.get("transactions_per_page", None):
@@ -1054,9 +722,7 @@ def loan_details(**kwargs):
             loan_transactions_list = list(
                 map(
                     lambda item: dict(
-                        item,
-                        amount=frappe.utils.fmt_money(item["amount"])
-                        # item, amount=lms.amount_formatter(item["amount"])
+                        item, amount=frappe.utils.fmt_money(item["amount"])
                     ),
                     loan_transactions_list,
                 )
@@ -1074,7 +740,6 @@ def loan_details(**kwargs):
         payment_in_process = 0
         if loan_margin_shortfall:
             loan_margin_shortfall = loan_margin_shortfall.as_dict()
-            # loan_margin_shortfall = loan_margin_shortfall[0]
             loan_margin_shortfall["action_taken_msg"] = None
             loan_margin_shortfall["linked_application"] = None
             loan_margin_shortfall["deadline_in_hrs"] = None
@@ -1222,19 +887,9 @@ def loan_details(**kwargs):
                 "Request Pending",
                 "Sell Triggered",
             ]:
-                mg_shortfall_action = frappe.get_doc(
-                    "Margin Shortfall Action",
-                    loan_margin_shortfall.margin_shortfall_action,
-                )
                 hrs_difference = (
                     loan_margin_shortfall.deadline - frappe.utils.now_datetime()
                 )
-                # if mg_shortfall_action.sell_off_after_hours:
-                # if mg_shortfall_action.sell_off_after_hours or (
-                #     mg_shortfall_action.sell_off_deadline_eod
-                #     and loan_margin_shortfall.creation.date()
-                #     in holiday_list(is_bank_holiday=1)
-                # ):
                 if (
                     loan_margin_shortfall.creation.date()
                     != loan_margin_shortfall.deadline.date()
@@ -1455,7 +1110,6 @@ def loan_details(**kwargs):
                 )
                 if loan_margin_shortfall
                 else None,
-                # unpledge=loan.max_unpledge_amount(),
             )
 
         res["amount_available_for_withdrawal"] = loan.maximum_withdrawable_amount()
@@ -1497,21 +1151,13 @@ def loan_withdraw_details(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
-            # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
         if loan.customer != customer.name:
-            # return utils.respondForbidden(
-            #     message=_("Please use your own Loan Application.")
-            # )
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan."))
 
         # set amount_available_for_withdrawal
@@ -1544,7 +1190,6 @@ def request_loan_withdraw_otp():
             user.username, user.name, check_valid=True
         )
         if not is_dummy_account:
-            # frappe.db.begin()
             lms.create_user_token(
                 entity=user.username,
                 token_type="Withdraw OTP",
@@ -1576,10 +1221,6 @@ def loan_withdraw_request(**kwargs):
             search=data.get("loan_name") + data.get("bank_account_name")
         )
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
@@ -1595,9 +1236,6 @@ def loan_withdraw_request(**kwargs):
             )
 
             if token.expiry <= frappe.utils.now_datetime():
-                # return utils.respondUnauthorized(
-                #     message=frappe._("Withdraw OTP Expired.")
-                # )
                 raise lms.exceptions.UnauthorizedException("Withdraw OTP Expired.")
 
             lms.token_mark_as_used(token)
@@ -1608,12 +1246,8 @@ def loan_withdraw_request(**kwargs):
 
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
-            # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
         if loan.customer != customer.name:
-            # return utils.respondForbidden(
-            #     message=_("Please use your own Loan Application.")
-            # )
             raise lms.exceptions.ForbiddenException(_("Loan Application not found"))
 
         # need bank if first withdrawal transaction
@@ -1621,9 +1255,6 @@ def loan_withdraw_request(**kwargs):
         if frappe.db.count("Loan Transaction", filters) == 0 and not data.get(
             "bank_account_name", None
         ):
-            # return utils.respondWithFailure(
-            #     status=417, message="Need bank account for first withdrawal"
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Need bank account for first withdrawal.")
             )
@@ -1639,12 +1270,8 @@ def loan_withdraw_request(**kwargs):
             "User Bank Account", data.get("bank_account_name")
         )
         if not bank_account:
-            # return utils.respondNotFound(message=frappe._("Bank Account not found."))
             raise lms.exceptions.NotFoundException(_("Bank Account not found"))
         if data.get("bank_account_name") not in [i.name for i in banks]:
-            # return utils.respondForbidden(
-            #     message=_("Please use your own Bank Account.")
-            # )
             raise lms.exceptions.ForbiddenException(
                 _("Please use your own Bank Account.")
             )
@@ -1652,26 +1279,16 @@ def loan_withdraw_request(**kwargs):
         # amount validation
         amount = data.get("amount", 0)
         if amount <= 0:
-            # return utils.respondWithFailure(
-            #     status=417, message="Amount should be more than 0"
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Special Characters not allowed.")
             )
 
         max_withdraw_amount = loan.maximum_withdrawable_amount()
         if amount > max_withdraw_amount:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message="Amount can not be more than {}".format(
-            #         round(max_withdraw_amount, 2)
-            #     ),
-            # )
             raise lms.exceptions.RespondFailureException(
                 "Amount can not be more than {}".format(round(max_withdraw_amount, 2)),
             )
 
-        # frappe.db.begin()
         withdrawal_transaction = frappe.get_doc(
             {
                 "doctype": "Loan Transaction",
@@ -1691,8 +1308,6 @@ def loan_withdraw_request(**kwargs):
         )
         withdrawal_transaction.save(ignore_permissions=True)
 
-        # bank_account.is_spark_default = 1
-        # bank_account.save(ignore_permissions=True)
         frappe.db.commit()
 
         data = {"loan_transaction_name": withdrawal_transaction.name}
@@ -1748,10 +1363,6 @@ def loan_payment(**kwargs):
             search=data.get("loan_name") + data.get("loan_margin_shortfall_name")
         )
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if data.get("order_id"):
@@ -1761,10 +1372,6 @@ def loan_payment(**kwargs):
                 regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
             )
             if reg:
-                # return utils.respondWithFailure(
-                #     status=422,
-                #     message=frappe._("Special Characters not allowed."),
-                # )
                 raise lms.exceptions.FailureException(
                     _("Special Characters not allowed.")
                 )
@@ -1773,10 +1380,8 @@ def loan_payment(**kwargs):
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         except frappe.DoesNotExistError:
-            # raise utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
         if loan.customer != customer.name:
-            # return utils.respondForbidden(message=_("Please use your own Loan."))
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan"))
 
         msg = ""
@@ -1848,28 +1453,17 @@ def loan_payment(**kwargs):
                     "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
                 )
             except frappe.DoesNotExistError:
-                # raise utils.respondNotFound(
-                #     message=_("Loan Margin Shortfall not found.")
-                # )
                 raise lms.exceptions.NotFoundException(
                     _("Loan Margin Shortfall not found")
                 )
             if loan.name != loan_margin_shortfall.loan:
-                # return utils.respondForbidden(
-                #     message=_("Loan Margin Shortfall should be for the provided loan.")
-                # )
                 raise lms.exceptions.ForbiddenException(
                     _("Loan Margin Shortfall should be for the provided loan")
                 )
             if loan_margin_shortfall.status == "Sell Triggered":
-                # return utils.respondWithFailure(
-                #     status=417,
-                #     message=frappe._("Sale is Triggered"),
-                # )
                 raise lms.exceptions.RespondFailureException(_("Sale is Triggered."))
 
         if not data.get("is_failed"):
-            # frappe.db.begin()
             loan_transaction = loan.create_loan_transaction(
                 transaction_type="Payment",
                 amount=data.get("amount"),
@@ -1921,10 +1515,6 @@ def loan_statement(**kwargs):
             search=data.get("loan_name") + data.get("file_format") + data.get("type")
         )
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if isinstance(data.get("is_download"), str):
@@ -1938,17 +1528,14 @@ def loan_statement(**kwargs):
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         except frappe.DoesNotExistError:
-            # raise utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
 
         if loan.customer != customer.name:
-            # return utils.respondForbidden(message=_("Please use your own Loan."))
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan"))
         if data.get("type") not in [
             "Account Statement",
             "Pledged Securities Transactions",
         ]:
-            # return utils.respondNotFound(message=_("Request Type not found."))
             raise lms.exceptions.NotFoundException(_("Request Type not found"))
 
         filter = (
@@ -1958,11 +1545,6 @@ def loan_statement(**kwargs):
         )
 
         if data.get("is_download") and data.get("is_email"):
-            # return utils.respondWithFailure(
-            #     message=frappe._(
-            #         "Please choose one between download or email transactions at a time."
-            #     )
-            # )
             raise lms.exceptions.RespondWithFailureException(
                 _("Please choose one between download or email transactions at a time.")
             )
@@ -1972,11 +1554,6 @@ def loan_statement(**kwargs):
             and (data.get("from_date") or data.get("to_date"))
             and data.get("duration")
         ):
-            # return utils.respondWithFailure(
-            #     message=frappe._(
-            #         "Please use either 'From date and To date' or Duration"
-            #     )
-            # )
             raise lms.exceptions.RespondWithFailureException(
                 _("Please use either 'From date and To date' or Duration.")
             )
@@ -1984,9 +1561,6 @@ def loan_statement(**kwargs):
         elif (data.get("from_date") and not data.get("to_date")) or (
             not data.get("from_date") and data.get("to_date")
         ):
-            # return utils.respondWithFailure(
-            #     message=frappe._("Please use both 'From date and To date'")
-            # )
             raise lms.exceptions.RespondWithFailureException(
                 _("Please use both 'From date and To date'")
             )
@@ -1995,9 +1569,6 @@ def loan_statement(**kwargs):
             not data.get("file_format")
             or data.get("file_format") not in ["pdf", "excel"]
         ):
-            # return utils.respondWithFailure(
-            #     message=frappe._("Please select PDF/Excel file format")
-            # )
             raise lms.exceptions.RespondWithFailureException(
                 _("Please select PDF/Excel file format")
             )
@@ -2008,18 +1579,11 @@ def loan_statement(**kwargs):
                 from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
                 to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
             except ValueError:
-                # raise utils.respondWithFailure(
-                #     status=417,
-                #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
-                # )
                 raise lms.exceptions.RespondFailureException(
                     _("Incorrect date format, should be DD-MM-YYYY")
                 )
 
             if from_date > to_date:
-                # return utils.respondWithFailure(
-                #     message=frappe._("From date cannot be greater than To date")
-                # )
                 raise lms.exceptions.RespondWithFailureException(
                     _("From date cannot be greater than to date")
                 )
@@ -2044,9 +1608,6 @@ def loan_statement(**kwargs):
                 "prev_6",
                 "current_year",
             ]:
-                # return utils.respondWithFailure(
-                #     message=frappe._("Please provide valid Duration")
-                # )
                 raise lms.exceptions.RespondWithFailureException(
                     _("Please provide valid Duration.")
                 )
@@ -2133,11 +1694,6 @@ def loan_statement(**kwargs):
                 )
         else:
             if data.get("is_download") or data.get("is_email"):
-                # return utils.respondWithFailure(
-                #     message=frappe._(
-                #         "Please use either 'From date and To date' or Duration to proceed"
-                #     )
-                # )
                 raise lms.exceptions.RespondWithFailureException(
                     _(
                         "Please use either 'From date and To date' or Duration to proceed"
@@ -2234,20 +1790,16 @@ def loan_statement(**kwargs):
                     "record_type",
                     "amount",
                     "gst_percent",
-                    # "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
-                    # "status",
                     "opening_balance",
                     "closing_balance",
                 ],
                 page_length=page_length,
             )
             if len(loan_transaction_list) <= 0:
-                # return utils.respondNotFound(message=_("No Record Found"))
                 raise lms.exceptions.NotFoundException(_("No Record found"))
 
             for list in loan_transaction_list:
                 list["amount"] = frappe.utils.fmt_money(list["amount"])
-                # list["amount"] = lms.amount_formatter(list["amount"])
                 list["time"] = list["time"].strftime("%Y-%m-%d %H:%M")
                 if "GST" in list["transaction_type"]:
                     list["transaction_type"] = list[
@@ -2257,17 +1809,14 @@ def loan_statement(**kwargs):
                     )
                 lt_list.append(list.values())
                 del list["gst_percent"]
-            # lt_list = [lst.values() for lst in loan_transaction_list]
             res["loan_transaction_list"] = loan_transaction_list
             df = pd.DataFrame(lt_list)
             df.columns = loan_transaction_list[0].keys()
             df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
 
-            # credit_debit_details = loan.get_transaction_summary()
             loan_account_statement_template = (
                 lender.get_loan_account_statement_template()
             )
-            # print(sum(df["Amount"].apply(lambda x: float(x))))
             df["Amount"] = (df["Amount"].str.replace(",", "")).apply(lambda x: float(x))
             doc["statement_period"] = statement_period
             doc["summary"] = {
@@ -2320,7 +1869,6 @@ def loan_statement(**kwargs):
                 as_dict=1,
             )
             if not pledged_securities_transactions:
-                # return utils.respondNotFound(message=_("No Record Found"))
                 raise lms.exceptions.NotFoundException(_("No Record Found"))
             res["pledged_securities_transactions"] = pledged_securities_transactions
             for list in pledged_securities_transactions:
@@ -2356,8 +1904,6 @@ def loan_statement(**kwargs):
 
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
                 df.index += 1
-
-                # from frappe.utils.pdf import get_pdf
 
                 if data.get("is_email"):
                     # password content for password protected pdf
@@ -2459,8 +2005,6 @@ def loan_statement(**kwargs):
                 footer_lines = [last_txt.text for last_txt in email_soup]
                 footer_lines[-1] += e_text
                 email_df = pd.Series(footer_lines)
-                # email_df = pd.Series([last_txt.text for last_txt in email_soup])
-                # e_df = pd.Series([e_text])
                 dfs.extend([email_df])
 
                 multiple_dfs(
@@ -2607,7 +2151,6 @@ def request_unpledge_otp():
             token_type = "Revoke OTP"
             entity = customer.phone
         if not is_dummy_account:
-            # frappe.db.begin()
             lms.create_user_token(
                 entity=entity,
                 token_type=token_type,
@@ -2629,10 +2172,6 @@ def loan_unpledge_details(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
@@ -2641,10 +2180,8 @@ def loan_unpledge_details(**kwargs):
             msg_type = ["revoke", "lien schemes"]
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
-            # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
         if loan.customer != customer.name:
-            # return utils.respondForbidden(message=_("Please use your own Loan."))
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan."))
 
         lender = frappe.get_doc("Lender", loan.lender)
@@ -2712,9 +2249,7 @@ def loan_unpledge_details(**kwargs):
                 )
                 if loan_margin_shortfall
                 else None,
-                # unpledge=loan.max_unpledge_amount(),
             )
-        # data = {"loan": loan, "unpledge": unpledge}
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
@@ -2817,19 +2352,6 @@ def validate_securities_for_unpledge(securities, loan):
         if diff:
             securities_valid = False
             message = frappe._("{} isin not found".format(",".join(diff)))
-        # else:
-        #     securities_obj = {}
-        #     for i in securities_list_from_db_:
-        #         securities_obj[i[0]] = i[1]
-        #     for i in securities:
-        #         if i["quantity"] > securities_obj[i["isin"]]:
-        #             securities_valid = False
-        #             message = frappe._(
-        #                 "{} quantity for isin {} should not be greater than {}".format(
-        #                     applicaion_type, i["isin"], securities_obj[i["isin"]]
-        #                 )
-        #             )
-        #             break
 
     if securities_valid:
         for i in securities:
@@ -2873,10 +2395,6 @@ def loan_unpledge_request(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Character not allowed."))
 
         customer = lms.__customer()
@@ -2900,21 +2418,13 @@ def loan_unpledge_request(**kwargs):
             email_subject = "Revoke Request"
 
         if not loan:
-            # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
         if loan.customer != customer.name:
-            # return utils.respondForbidden(message=_("Please use your own Loan."))
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan"))
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
         if loan_margin_shortfall:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-            #         loan.get_customer().first_name, msg_type[0], msg_type[1]
-            #     ),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _(
                     """OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
@@ -2930,12 +2440,6 @@ def loan_unpledge_request(**kwargs):
             page_length=1,
         )
         if len(unpledge_application_exist):
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message="{} Application for {} is already in process.".format(
-            #         msg_type[0].title(), loan.name
-            #     ),
-            # )
             raise lms.exceptions.RespondFailureException(
                 "{} Application for {} is already in process.".format(
                     msg_type[0].title(), loan.name
@@ -2943,8 +2447,6 @@ def loan_unpledge_request(**kwargs):
             )
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
-
-        # frappe.db.begin()
 
         user = lms.__user()
         is_dummy_account = lms.validate_spark_dummy_account(
@@ -2958,9 +2460,6 @@ def loan_unpledge_request(**kwargs):
             )
 
             if token.expiry <= frappe.utils.now_datetime():
-                # return utils.respondUnauthorized(
-                #     message=frappe._("{} Expired.".format(token_type))
-                # )
                 raise lms.exceptions.UnauthorizedException(
                     _(
                         "{} Expired.".format(token_type),
@@ -3059,7 +2558,6 @@ def request_sell_collateral_otp():
         if customer.mycams_email_id and loan:
             token_type = "Invoke OTP"
         if not is_dummy_account:
-            # frappe.db.begin()
             lms.create_user_token(
                 entity=user.username,
                 token_type=token_type,
@@ -3091,10 +2589,6 @@ def sell_collateral_request(**kwargs):
             search=data.get("loan_name") + data.get("loan_margin_shortfall_name")
         )
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed"))
 
         user = lms.__user()
@@ -3102,17 +2596,13 @@ def sell_collateral_request(**kwargs):
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         except frappe.DoesNotExistError:
-            # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
         if loan.customer != customer.name:
-            # return utils.respondForbidden(message=_("Please use your own Loan."))
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan"))
 
-        # application_type = "Sell Collateral"
         email_subject = "Sell Collateral Request"
         msg_type = "sell collateral"
         if loan.instrument_type == "Mutual Fund":
-            # application_type = "Invoke"
             email_subject = "Invoke Request"
             msg_type = "invoke"
 
@@ -3123,12 +2613,6 @@ def sell_collateral_request(**kwargs):
             page_length=1,
         )
         if len(sell_application_exist):
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message="{} Application for {} is already in process.".format(
-            #         msg_type.title(), loan.name
-            #     ),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _(
                     "{} Application for {} is already in process.".format(
@@ -3152,9 +2636,6 @@ def sell_collateral_request(**kwargs):
             )
 
             if token.expiry <= frappe.utils.now_datetime():
-                # return utils.respondUnauthorized(
-                #     message=frappe._("{} OTP Expired.".format(msg_type.title()))
-                # )
                 raise lms.exceptions.UnauthorizedException(
                     _(
                         "{} OTP Expired.".format(msg_type.title()),
@@ -3167,8 +2648,6 @@ def sell_collateral_request(**kwargs):
                 data.get("otp"),
                 token_type="{} OTP".format(msg_type.title()),
             )
-
-        # frappe.db.begin()
 
         items = []
         for i in securities:
@@ -3201,10 +2680,6 @@ def sell_collateral_request(**kwargs):
                 "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
             )
             if loan_margin_shortfall.status == "Sell Triggered":
-                # return utils.respondWithFailure(
-                #     status=417,
-                #     message=frappe._("Sale is Triggered"),
-                # )
                 raise lms.exceptions.RespondFailureException(_("Sale is Triggered"))
 
             pending_sell_collateral_application = frappe.get_all(
@@ -3216,12 +2691,6 @@ def sell_collateral_request(**kwargs):
                 },
             )
             if pending_sell_collateral_application:
-                # return utils.respondWithFailure(
-                #     status=417,
-                #     message="Payment for Margin Shortfall of Loan {} is already in process.".format(
-                #         loan.name
-                #     ),
-                # )
                 raise lms.exceptions.RespondFailureException(
                     _(
                         message="Payment for Margin Shortfall of Loan {} is already in process.".format(
@@ -3502,9 +2971,6 @@ def verify_loan_renewal_otp(**kwargs):
                 token=data.get("otp"),
                 token_type="Loan Renewal OTP",
             )
-
-            # if token.expiry <= frappe.utils.now_datetime():
-            #     raise lms.exceptions.UnauthorizedException("Loan Renewal OTP Expired.")
 
             lms.token_mark_as_used(token)
         else:
