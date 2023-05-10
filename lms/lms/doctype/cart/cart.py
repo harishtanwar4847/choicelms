@@ -10,7 +10,6 @@ import frappe
 from frappe.model.document import Document
 
 import lms
-from lms.exceptions import PledgeSetupFailureException
 from lms.lms.doctype.user_token.user_token import send_sms
 
 
@@ -63,7 +62,6 @@ class Cart(Document):
                 return
 
             current = frappe.utils.now_datetime()
-            # expiry = current.replace(year=current.year + 1)
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
             # Set application type
@@ -192,7 +190,6 @@ class Cart(Document):
                     "drawing_power": self.eligible_loan,
                     "lender": self.lender,
                     "expiry_date": expiry,
-                    # "allowable_ltv": self.allowable_ltv,
                     "customer": self.customer,
                     "customer_name": self.customer_name,
                     "pledgor_boid": self.pledgor_boid,
@@ -256,11 +253,6 @@ class Cart(Document):
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-            # if self.loan_margin_shortfall:
-            #     loan_application.status = "Ready for Approval"
-            #     loan_application.workflow_state = "Ready for Approval"
-            #     loan_application.save(ignore_permissions=True)
-
             if not self.loan_margin_shortfall:
                 customer = frappe.get_doc("Loan Customer", self.customer)
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
@@ -268,9 +260,6 @@ class Cart(Document):
                 doc[
                     "minimum_sanctioned_limit"
                 ] = loan_application.minimum_sanctioned_limit
-                # frappe.enqueue_doc(
-                #     "Notification", "Loan Application Creation", method="send", doc=doc
-                # )
                 if not loan_application.remarks:
                     msg_type = "pledge"
                     email_subject = "Pledge Application Success"
@@ -324,11 +313,6 @@ class Cart(Document):
                         method=send_sms, receiver_list=receiver_list, msg=msg
                     )
 
-                # if self.loan_margin_shortfall:
-                #     loan_application.status = "Ready for Approval"
-                #     loan_application.workflow_state = "Ready for Approval"
-                #     loan_application.save(ignore_permissions=True)
-
                 if not self.loan_margin_shortfall:
                     customer = frappe.get_doc("Loan Customer", self.customer)
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
@@ -336,9 +320,6 @@ class Cart(Document):
                     doc[
                         "minimum_sanctioned_limit"
                     ] = loan_application.minimum_sanctioned_limit
-                    # frappe.enqueue_doc(
-                    #     "Notification", "Loan Application Creation", method="send", doc=doc
-                    # )
                     if not loan_application.remarks:
                         msg_type = "pledge"
                         email_subject = "Pledge Application Success"
@@ -403,11 +384,6 @@ class Cart(Document):
         diff = self.eligible_loan
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
-            # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-            #     (self.total_collateral_value + loan.total_collateral_value)
-            #     * self.allowable_ltv
-            #     / 100
-            # )
             actual_dp = lms.round_down_amount_to_nearest_thousand(
                 loan.actual_drawing_power
             )
@@ -544,21 +520,7 @@ class Cart(Document):
             lender.name,
             lms.validate_rupees(diff),
         )
-        # apr = lms.calculate_apr(
-        #     self.name,
-        #     roi_,
-        #     12,
-        #     (
-        #         int(
-        #             lms.validate_rupees(
-        #                 self.increased_sanctioned_limit
-        #                 if self.loan and not self.loan_margin_shortfall
-        #                 else self.eligible_loan
-        #             )
-        #         )
-        #     ),
-        #     charges.get("total"),
-        # )
+
         sanction_l = (
             self.increased_sanctioned_limit
             if self.loan and not self.loan_margin_shortfall
@@ -623,7 +585,6 @@ class Cart(Document):
             ).title()
             if lender.renewal_charge_type == "Fix"
             else "",
-            # else num2words(lender.renewal_charges).title(),
             "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
             "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
             "documentation_charges_kfs": frappe.utils.fmt_money(
@@ -638,7 +599,6 @@ class Cart(Document):
             "total_amount_to_be_paid": frappe.utils.fmt_money(
                 float(sanction_l) + charges.get("total") + interest_charges_in_amount
             ),
-            # "stamp_duty_kfs":frappe.utils.fmt_money(charges.get("stamp_duty")),
             "documentation_charge": lms.validate_rupees(lender.documentation_charges)
             if lender.documentation_charge_type == "Fix"
             else lms.validate_percent(lender.documentation_charges),
@@ -670,7 +630,6 @@ class Cart(Document):
                 lender.lender_processing_maximum_amount
             ),
             ""
-            # "stamp_duty_charges": lms.validate_rupees(lender.lender_stamp_duty_minimum_amount),
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
@@ -768,10 +727,6 @@ class Cart(Document):
                 i.eligible_percentage = security.eligible_percentage
 
                 i.price = price_map.get(i.isin, 0)
-                # i.amount = i.pledged_quantity * i.price
-                # amount = i.pledged_quantity * i.price
-                # i.amount = amount
-                # if i.type != "Shares":
                 i.amount = round(i.pledged_quantity, 3) * i.price
                 i.eligible_amount = (
                     round(i.pledged_quantity, 3)

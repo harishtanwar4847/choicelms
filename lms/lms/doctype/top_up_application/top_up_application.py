@@ -162,10 +162,6 @@ class TopupApplication(Document):
         loan = self.get_loan()
         for i in list(user_roles):
             user_role.append(i[0])
-        if "Loan Customer" not in user_role:
-            self.instrument_type = loan.instrument_type
-            if self.instrument_type == "Mutual Fund":
-                self.scheme_type = loan.scheme_type
         if not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
 

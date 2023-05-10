@@ -62,49 +62,6 @@ class Loan(Document):
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
 
-    def create_loan_charges_old(self):
-        lender = self.get_lender()
-
-        # Processing fees
-        amount = lender.lender_processing_fees
-        if lender.lender_processing_fees_type == "Percentage":
-            amount = (amount / 100) * self.sanctioned_limit
-        self.create_loan_transaction(
-            "Processing Fees",
-            amount,
-            approve=True,
-        )
-
-        # Stamp Duty
-        amount = lender.stamp_duty
-        if lender.stamp_duty_type == "Percentage":
-            amount = (amount / 100) * self.sanctioned_limit
-        self.create_loan_transaction(
-            "Stamp Duty",
-            amount,
-            approve=True,
-        )
-
-        # Documentation Charges
-        amount = lender.documentation_charges
-        if lender.documentation_charge_type == "Percentage":
-            amount = (amount / 100) * self.sanctioned_limit
-        self.create_loan_transaction(
-            "Documentation Charges",
-            amount,
-            approve=True,
-        )
-
-        # Mortgage Charges
-        amount = lender.mortgage_charges
-        if lender.mortgage_charge_type == "Percentage":
-            amount = (amount / 100) * self.sanctioned_limit
-        self.create_loan_transaction(
-            "Mortgage Charges",
-            amount,
-            approve=True,
-        )
-
     def create_loan_charges(self):
         lender = self.get_lender()
         # Processing fees
@@ -128,46 +85,11 @@ class Loan(Document):
                 "lender_processing_maximum_amount",
             )
         if processing_fees > 0:
-            processing_fees_reference = self.create_loan_transaction(
+            self.create_loan_transaction(
                 "Processing Fees",
                 processing_fees,
                 approve=True,
             )
-
-            # # GST on Charges
-            # if lender.cgst_on_processing_fees > 0:
-            #     cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
-            #     gst_percent = lender.cgst_on_processing_fees
-            #     # charge_reference.charge_reference.db_set(
-            #     #     "charge_reference", reference.transaction_type
-            #     # )
-            #     self.create_loan_transaction(
-            #         "CGST on Processing Fees",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_processing_fees > 0:
-            #     sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
-            #     gst_percent = lender.sgst_on_processing_fees
-            #     self.create_loan_transaction(
-            #         "SGST on Processing Fees",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_processing_fees > 0:
-            #     igst = processing_fees * (lender.igst_on_processing_fees / 100)
-            #     gst_percent = lender.igst_on_processing_fees
-            #     self.create_loan_transaction(
-            #         "IGST on Processing Fees",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty
@@ -181,43 +103,12 @@ class Loan(Document):
             )
 
         if stamp_duty > 0:
-            stamp_duty_reference = self.create_loan_transaction(
+            self.create_loan_transaction(
                 "Stamp Duty",
                 stamp_duty,
                 approve=True,
             )
             # Charges on GST
-            # if lender.cgst_on_stamp_duty > 0:
-            #     cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
-            #     gst_percent = lender.cgst_on_stamp_duty
-            #     self.create_loan_transaction(
-            #         "CGST on Stamp Duty",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_stamp_duty > 0:
-            #     sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
-            #     gst_percent = lender.sgst_on_stamp_duty
-            #     self.create_loan_transaction(
-            #         "SGST on Stamp Duty",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_stamp_duty > 0:
-            #     igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
-            #     gst_percent = lender.igst_on_stamp_duty
-            #     self.create_loan_transaction(
-            #         "IGST on Stamp Duty",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
-
         # Documentation Charges
         documentation_charges = lender.documentation_charges
         if lender.documentation_charge_type == "Percentage":
@@ -230,49 +121,11 @@ class Loan(Document):
             )
 
         if documentation_charges > 0:
-            documentation_charges_reference = self.create_loan_transaction(
+            self.create_loan_transaction(
                 "Documentation Charges",
                 documentation_charges,
                 approve=True,
             )
-            # GST Charges on
-            # if lender.cgst_on_documentation_charges > 0:
-            #     cgst = documentation_charges * (
-            #         lender.cgst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.cgst_on_documentation_charges
-            #     self.create_loan_transaction(
-            #         "CGST on Documentation Charges",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_documentation_charges > 0:
-            #     sgst = documentation_charges * (
-            #         lender.sgst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.sgst_on_documentation_charges
-            #     self.create_loan_transaction(
-            #         "SGST on Documentation Charges",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_documentation_charges > 0:
-            #     igst = documentation_charges * (
-            #         lender.igst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.igst_on_documentation_charges
-            #     self.create_loan_transaction(
-            #         "IGST on Documentation Charges",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
-
         # Mortgage Charges
         mortgage_charges = lender.mortgage_charges
         if lender.mortgage_charge_type == "Percentage":
@@ -284,43 +137,11 @@ class Loan(Document):
                 "lender_mortgage_maximum_amount",
             )
         if mortgage_charges > 0:
-            mortgage_charges_reference = self.create_loan_transaction(
+            self.create_loan_transaction(
                 "Mortgage Charges",
                 mortgage_charges,
                 approve=True,
             )
-            # Charges on GST
-            # if lender.cgst_on_mortgage_charges > 0:
-            #     cgst = mortgage_charges * (lender.cgst_on_mortgage_charges / 100)
-            #     gst_percent = lender.cgst_on_mortgage_charges
-            #     self.create_loan_transaction(
-            #         "CGST on Mortgage Charges",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=mortgage_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_mortgage_charges > 0:
-            #     sgst = mortgage_charges * (lender.sgst_on_mortgage_charges / 100)
-            #     gst_percent = lender.sgst_on_mortgage_charges
-            #     self.create_loan_transaction(
-            #         "SGST on Mortgage Charges",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=mortgage_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_mortgage_charges > 0:
-            #     igst = mortgage_charges * (lender.igst_on_mortgage_charges / 100)
-            #     gst_percent = lender.igst_on_mortgage_charges
-            #     self.create_loan_transaction(
-            #         "IGST on Mortgage Charges",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=mortgage_charges_reference.name,
-            #         approve=True,
-            #     )
-
         if self.instrument_type == "Mutual Fund":
             lien_initiate_charges = lender.lien_initiate_charges
             if lender.lien_initiate_charge_type == "Percentage":
@@ -339,42 +160,11 @@ class Loan(Document):
                 )
 
             if lien_initiate_charges > 0:
-                lien_initiate_charges_reference = self.create_loan_transaction(
+                self.create_loan_transaction(
                     "Lien Charges",
                     lien_initiate_charges,
                     approve=True,
                 )
-                # Charges on GST
-                # if lender.cgst_on_lien_charges > 0:
-                #     cgst = lien_initiate_charges * (lender.cgst_on_lien_charges / 100)
-                #     gst_percent = lender.cgst_on_lien_charges
-                #     self.create_loan_transaction(
-                #         "CGST on Lien Charges",
-                #         cgst,
-                #         gst_percent,
-                #         charge_reference=lien_initiate_charges_reference.name,
-                #         approve=True,
-                #     )
-                # if lender.sgst_on_lien_charges > 0:
-                #     sgst = lien_initiate_charges * (lender.sgst_on_lien_charges / 100)
-                #     gst_percent = lender.sgst_on_lien_charges
-                #     self.create_loan_transaction(
-                #         "SGST on Lien Charges",
-                #         sgst,
-                #         gst_percent,
-                #         charge_reference=lien_initiate_charges_reference.name,
-                #         approve=True,
-                #     )
-                # if lender.igst_on_lien_charges > 0:
-                #     igst = lien_initiate_charges * (lender.igst_on_lien_charges / 100)
-                #     gst_percent = lender.igst_on_lien_charges
-                #     self.create_loan_transaction(
-                #         "IGST on Lien Charges",
-                #         igst,
-                #         gst_percent,
-                #         charge_reference=lien_initiate_charges_reference.name,
-                #         approve=True,
-                #     )
 
     def validate_loan_charges_amount(self, lender_doc, amount, min_field, max_field):
         lender_dict = lender_doc.as_dict()
@@ -445,30 +235,12 @@ class Loan(Document):
 
     def update_loan_balance(self, check_for_shortfall=True):
         summary = self.get_transaction_summary()
-        # frappe.db.set_value(
-        #     self.doctype,
-        #     self.name,
-        #     "balance",
-        #     round(summary.get("outstanding"), 2),
-        #     update_modified=False,
-        # )
-        # frappe.db.set_value(
-        #     self.doctype,
-        #     self.name,
-        #     "balance_str",
-        #     lms.amount_formatter(round(summary.get("outstanding"), 2)),
-        #     update_modified=False,
-        # )
         self.balance = round(summary.get("outstanding"), 2)
         self.balance_str = lms.amount_formatter(round(summary.get("outstanding"), 2))
         self.save(ignore_permissions=True)
         if check_for_shortfall:
             # TODO: Change this in min max branch also increase loan scenario
             self.check_for_shortfall(on_approval=True)
-
-    # def on_update(self):
-    #     self.notify_customer_roi()
-    #     frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
 
     def get_transaction_summary(self):
         # sauce: https://stackoverflow.com/a/23827026/9403680
@@ -561,34 +333,6 @@ class Loan(Document):
 
         return frappe.db.sql(sql, debug=True, as_dict=1)
 
-    def get_collateral_list_old(
-        self, group_by_psn=False, where_clause="", having_clause=""
-    ):
-        # sauce: https://stackoverflow.com/a/23827026/9403680
-        sql = """
-			SELECT
-				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.scheme_code, cl.folio, cl.amc_code,
-				s.price, s.security_name,
-				als.security_category
-				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
-				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
-				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
-			FROM `tabCollateral Ledger` cl
-			LEFT JOIN `tabSecurity` s
-				ON cl.isin = s.isin
-			LEFT JOIN `tabAllowed Security` als
-				ON cl.isin = als.isin AND cl.lender = als.lender
-			WHERE cl.loan = '{loan}' {where_clause} AND cl.lender_approval_status = 'Approved'
-			GROUP BY cl.isin{group_by_psn_clause}{having_clause};
-		""".format(
-            loan=self.name,
-            where_clause=where_clause if where_clause else "",
-            group_by_psn_clause=" ,cl.psn" if group_by_psn else "",
-            having_clause=having_clause if having_clause else "",
-        )
-
-        return frappe.db.sql(sql, debug=True, as_dict=1)
-
     def update_collateral_ledger(self, price, isin):
         sql = """Update `tabCollateral Ledger`
         set price = {}, value = ({}*quantity)
@@ -647,41 +391,6 @@ class Loan(Document):
                 + "\n\nScheme details-\n{}".format(str(self.name)),
                 title="Update Items",
             )
-
-    def update_items_old(self):
-        check = False
-
-        collateral_list = self.get_collateral_list()
-        collateral_list_map = {i.isin: i for i in collateral_list}
-        # updating existing and
-        # setting check flag
-        for i in self.items:
-            curr = collateral_list_map.get(i.isin)
-            if (not check or i.price != curr.price) and i.pledged_quantity > 0:
-                check = True
-                self.update_collateral_ledger(curr.price, curr.isin)
-
-            i.price = curr.price
-            i.pledged_quantity = curr.quantity
-
-            del collateral_list_map[curr.isin]
-
-        # adding new items if any
-        for i in collateral_list_map.values():
-            loan_item = frappe.get_doc(
-                {
-                    "doctype": "Loan Item",
-                    "isin": i.isin,
-                    "security_name": i.security_name,
-                    "security_category": i.security_category,
-                    "pledged_quantity": i.quantity,
-                    "price": i.price,
-                }
-            )
-
-            self.append("items", loan_item)
-
-        return check
 
     def check_for_shortfall(self, on_approval=False):
         try:
@@ -1108,7 +817,7 @@ class Loan(Document):
                     # calculate daily base interest
                     base_interest = (
                         self.old_interest
-                        if self.wef_date >= wef_current_date
+                        if self.wef_date > wef_current_date
                         else self.base_interest
                     )
                     base_interest_daily = base_interest / num_of_days_in_month
@@ -1117,7 +826,7 @@ class Loan(Document):
                     # calculate daily rebate interest
                     rebate_interest = (
                         self.old_rebate_interest
-                        if self.wef_date >= wef_current_date
+                        if self.wef_date > wef_current_date
                         else self.rebate_interest
                     )
                     rebate_interest_daily = rebate_interest / num_of_days_in_month
@@ -1500,165 +1209,6 @@ class Loan(Document):
                 title=frappe._("Booked Interest Error"),
             )
 
-    def add_penal_interest_old(self, input_date=None):
-        try:
-            # daily scheduler - executes at start of day i.e 00:00
-            # get not paid booked interest
-            if input_date:
-                current_date = datetime.strptime(input_date, "%Y-%m-%d")
-            else:
-                current_date = frappe.utils.now_datetime()
-
-            penal_interest_transaction_list = frappe.get_all(
-                "Loan Transaction",
-                filters={
-                    "loan": self.name,
-                    "lender": self.lender,
-                    "transaction_type": "Penal Interest",
-                },
-                fields=["time"],
-            )
-
-            # current_date = (current_date - timedelta(days=1)).replace(
-            #     hour=23, minute=59, second=59, microsecond=999999
-            # )
-            last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
-            # num_of_days_in_prev_month = last_day_of_prev_month.day
-            prev_month = last_day_of_prev_month.month
-            prev_month_year = last_day_of_prev_month.year
-
-            last_day_of_current_month = (
-                current_date.replace(day=1) + timedelta(days=32)
-            ).replace(day=1) - timedelta(days=1)
-            num_of_days_in_current_month = last_day_of_current_month.day
-
-            # check if any not paid booked interest exist
-            booked_interest = frappe.db.sql(
-                "select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(
-                    self.name, self.lender, prev_month, prev_month_year
-                ),
-                as_dict=1,
-            )
-
-            if booked_interest:
-                # get default threshold
-                default_threshold = int(self.get_default_threshold())
-                if default_threshold:
-                    transaction_time = booked_interest[0]["time"] + timedelta(
-                        days=default_threshold
-                    )
-                    # check if interest booked time is more than default threshold
-                    if current_date > transaction_time and not current_date in [
-                        fields["time"] for fields in penal_interest_transaction_list
-                    ]:
-                        # if yes, apply penalty interest
-                        # calculate daily penalty interest
-                        default_interest = int(self.get_default_interest())
-                        if default_interest:
-                            default_interest_daily = (
-                                default_interest / num_of_days_in_current_month
-                            )
-                            amount = self.balance * default_interest_daily / 100
-
-                            # frappe.db.begin()
-                            # Penal Interest Entry
-                            penal_interest_transaction = frappe.get_doc(
-                                {
-                                    "doctype": "Loan Transaction",
-                                    "loan": self.name,
-                                    "lender": self.lender,
-                                    "transaction_type": "Penal Interest",
-                                    "record_type": "DR",
-                                    "amount": round(amount, 2),
-                                    "unpaid_interest": round(amount, 2),
-                                    "time": current_date,
-                                }
-                            )
-                            penal_interest_transaction.insert(ignore_permissions=True)
-                            penal_interest_transaction.transaction_id = (
-                                penal_interest_transaction.name
-                            )
-                            penal_interest_transaction.status = "Approved"
-                            penal_interest_transaction.workflow_state = "Approved"
-                            penal_interest_transaction.docstatus = 1
-                            penal_interest_transaction.save(ignore_permissions=True)
-
-                            frappe.db.commit()
-
-                            doc = frappe.get_doc(
-                                "User KYC", self.get_customer().choice_kyc
-                            ).as_dict()
-                            doc["loan_name"] = self.name
-                            doc[
-                                "transaction_type"
-                            ] = penal_interest_transaction.transaction_type
-                            doc["unpaid_interest"] = round(
-                                penal_interest_transaction.unpaid_interest, 2
-                            )
-
-                            frappe.enqueue_doc(
-                                "Notification", "Interest Due", method="send", doc=doc
-                            )
-                            # msg = frappe.get_doc(
-                            #     "Spark SMS Notification", "Penal interest charged"
-                            # ).message.format(
-                            #     round(penal_interest_transaction.unpaid_interest, 2),
-                            #     self.name,
-                            # )
-                            msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
-                                round(penal_interest_transaction.unpaid_interest, 2),
-                                self.name,
-                            )
-                            fcm_notification = frappe.get_doc(
-                                "Spark Push Notification",
-                                "Penal interest charged",
-                                fields=["*"],
-                            )
-                            message = fcm_notification.message.format(
-                                unpaid_interest=round(
-                                    penal_interest_transaction.unpaid_interest, 2
-                                ),
-                                loan=self.name,
-                            )
-
-                            if msg:
-                                # lms.send_sms_notification(customer=self.get_customer,msg=msg)
-                                receiver_list = [str(self.get_customer().phone)]
-                                if doc.mob_num:
-                                    receiver_list.append(str(doc.mob_num))
-                                if doc.choice_mob_no:
-                                    receiver_list.append(str(doc.choice_mob_no))
-
-                                receiver_list = list(set(receiver_list))
-
-                                frappe.enqueue(
-                                    method=send_sms,
-                                    receiver_list=receiver_list,
-                                    msg=msg,
-                                )
-
-                            lms.send_spark_push_notification(
-                                fcm_notification=fcm_notification,
-                                message=message,
-                                loan=self.name,
-                                customer=self.get_customer(),
-                            )
-
-                            return penal_interest_transaction.as_dict()
-        except Exception:
-            frappe.log_error(
-                message=frappe.get_traceback()
-                + "\nPenal Interest Details:\n"
-                + json.dumps(
-                    {
-                        "loan": self.name,
-                        "customer_id": self.customer,
-                        "customer_name": self.customer_name,
-                    }
-                ),
-                title=frappe._("Penal Interest Error"),
-            )
-
     def add_penal_interest(self, input_date=None):
         try:
             # daily scheduler - executes at start of day i.e 00:00
@@ -1858,100 +1408,79 @@ class Loan(Document):
         ) and self.is_default == 0:
             frappe.throw("Base interest and Rebate Interest should be greater than 0")
 
-        if type(self.wef_date) == str:
-            exp = datetime.strptime(self.wef_date, "%Y-%m-%d").date()
-        else:
-            exp = self.wef_date
+        if self.balance and self.balance > 0:
+            interest_configuration = frappe.db.get_value(
+                "Interest Configuration",
+                {
+                    "lender": self.lender,
+                    "from_amount": ["<=", self.balance],
+                    "to_amount": [">=", self.balance],
+                },
+                ["name", "base_interest", "rebait_interest"],
+                as_dict=1,
+            )
+            if self.is_default == 1:
+                self.custom_base_interest = interest_configuration["base_interest"]
+                self.custom_rebate_interest = interest_configuration["rebait_interest"]
 
-        if type(self.wef_date) == str:
-            old_wef_date = datetime.strptime(self.old_wef_date, "%Y-%m-%d").date()
-        else:
-            old_wef_date = self.old_wef_date
-
-        # if exp: #live changes
-        #     if exp < frappe.utils.now_datetime().date():
-        #         frappe.throw("W.e.f date should be Current date or Future date")
-        # if exp and exp < frappe.utils.now_datetime().date():
-
-        # if exp != old_wef_date and exp < frappe.utils.now_datetime().date():
-        #     frappe.throw("W.e.f date should be Current date or Future date")
-
-        if self.balance:
-            if self.balance > 0:
-                interest_configuration = frappe.db.get_value(
-                    "Interest Configuration",
-                    {
-                        "lender": self.lender,
-                        "from_amount": ["<=", self.balance],
-                        "to_amount": [">=", self.balance],
-                    },
-                    ["name", "base_interest", "rebait_interest"],
-                    as_dict=1,
-                )
-                if self.is_default == 1:
-                    self.custom_base_interest = interest_configuration["base_interest"]
-                    self.custom_rebate_interest = interest_configuration[
-                        "rebait_interest"
-                    ]
-
-                if (
-                    self.custom_base_interest != self.base_interest
-                    or self.custom_rebate_interest != self.rebate_interest
-                ):
-                    loan_app = frappe.get_all(
-                        "Loan Application",
-                        filters={
-                            "status": [
-                                "IN",
-                                [
-                                    "Waiting to be pledged",
-                                    "Executing pledge",
-                                    "Pledge executed",
-                                    "Pledge accepted by Lender",
-                                    "Esign Done",
-                                    "Pledge Failure",
-                                    "Ready for Approval",
-                                ],
+            if (
+                self.custom_base_interest != self.base_interest
+                or self.custom_rebate_interest != self.rebate_interest
+            ):
+                loan_app = frappe.get_all(
+                    "Loan Application",
+                    filters={
+                        "status": [
+                            "IN",
+                            [
+                                "Waiting to be pledged",
+                                "Executing pledge",
+                                "Pledge executed",
+                                "Pledge accepted by Lender",
+                                "Esign Done",
+                                "Pledge Failure",
+                                "Ready for Approval",
                             ],
-                            "loan": self.name,
-                        },
-                        fields=["name"],
-                    )
+                        ],
+                        "loan": self.name,
+                    },
+                    fields=["name"],
+                )
 
-                    top_up = frappe.get_all(
-                        "Top up Application",
-                        filters={
-                            "status": ["IN", ["Pending", "Esign Done"]],
-                            "loan": self.name,
-                        },
-                        fields=["name"],
-                    )
+                top_up = frappe.get_all(
+                    "Top up Application",
+                    filters={
+                        "status": ["IN", ["Pending", "Esign Done"]],
+                        "loan": self.name,
+                    },
+                    fields=["name"],
+                )
 
-                    if loan_app:
-                        frappe.throw(
-                            (
-                                "Please Approve or Reject Loan Application {}".format(
-                                    loan_app[0].name
-                                )
+                if loan_app:
+                    frappe.throw(
+                        (
+                            "Please Approve or Reject Loan Application {}".format(
+                                loan_app[0].name
                             )
                         )
-                    elif top_up:
-                        frappe.throw(
-                            (
-                                "Please Approve or Reject Loan Application {}".format(
-                                    top_up[0].name
-                                )
+                    )
+                elif top_up:
+                    frappe.throw(
+                        (
+                            "Please Approve or Reject Loan Application {}".format(
+                                top_up[0].name
                             )
                         )
-                    else:
-                        self.old_interest = self.base_interest
-                        self.old_rebate_interest = self.rebate_interest
-                        self.base_interest = self.custom_base_interest
-                        self.rebate_interest = self.custom_rebate_interest
-                        self.old_wef_date = self.wef_date
-                        self.old_is_default = self.main_is_default
-                        self.main_is_default = self.is_default
-                        self.notify_customer_roi()
+                    )
+                else:
+                    self.old_interest = self.base_interest
+                    self.old_rebate_interest = self.rebate_interest
+                    self.base_interest = self.custom_base_interest
+                    self.rebate_interest = self.custom_rebate_interest
+                    self.old_wef_date = self.wef_date
+                    self.old_is_default = self.main_is_default
+                    self.main_is_default = self.is_default
+                    self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
@@ -1968,10 +1497,7 @@ class Loan(Document):
 
     def max_topup_amount(self):
         lender = self.get_lender()
-        # allowed_security = frappe.db.sql(
-        #         'select distinct isin from `tabAllowed Security` where allowed = 1',as_dict=True)
         actual_drawing_power = 0
-        total_collateral_value = 0
         if self.instrument_type == "Mutual Fund":
             allowed_security = frappe.db.sql_list(
                 """select distinct als.isin from `tabAllowed Security` als JOIN `tabLoan Item` l ON als.isin = l.isin where als.allowed = 1 and als.lender = '{}'  """.format(
@@ -1982,17 +1508,12 @@ class Loan(Document):
                 if i.isin in allowed_security:
                     i.amount = i.price * i.pledged_quantity
                     i.eligible_amount = (i.eligible_percentage / 100) * i.amount
-                    total_collateral_value += i.amount
                     actual_drawing_power += i.eligible_amount
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
         else:
-            # max_topup_amount = (
-            #     self.total_collateral_value * (self.allowable_ltv / 100)
-            # ) - self.sanctioned_limit
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
                 i.eligible_amount = ((i.eligible_percentage or 0) / 100) * i.amount
-                # total_collateral_value += i.amount
                 actual_drawing_power += i.eligible_amount
 
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
@@ -2004,11 +1525,6 @@ class Loan(Document):
         elif (
             actual_drawing_power / self.sanctioned_limit * 100
         ) - 100 >= 10 and max_topup_amount >= 1000:
-            # ) or (
-            #     actual_drawing_power > (self.sanctioned_limit * 0.1)
-            #     and max_topup_amount >= 1000
-            #     and self.instrument_type == "Shares"
-            # ):
             if (
                 max_topup_amount + self.sanctioned_limit
             ) > lender.maximum_sanctioned_limit:
@@ -2017,21 +1533,6 @@ class Loan(Document):
                 )
         else:
             max_topup_amount = 0
-        # else:  # for Share Topup
-        #     if self.sanctioned_limit > lender.maximum_sanctioned_limit:
-        #         max_topup_amount = 0
-        #     elif (
-        #         max_topup_amount > (self.sanctioned_limit * 0.1)
-        #         and max_topup_amount >= 1000
-        #     ):
-        #         if (
-        #             max_topup_amount + self.sanctioned_limit
-        #         ) > lender.maximum_sanctioned_limit:
-        #             max_topup_amount = (
-        #                 lender.maximum_sanctioned_limit - self.sanctioned_limit
-        # #             )
-        #     else:
-        #         max_topup_amount = 0
         return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
@@ -2065,24 +1566,6 @@ class Loan(Document):
                 topup_doc.db_set("top_up_amount", 0)
             frappe.db.commit()
 
-    # def max_unpledge_amount(self):
-    #     if self.instrument_type == "Shares":
-    #         minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
-    #         maximum_unpledge_amount = (
-    #             self.total_collateral_value - minimum_collateral_value
-    #         )
-
-    #         return {
-    #             "minimum_collateral_value": round(minimum_collateral_value, 2)
-    #             if minimum_collateral_value > 0
-    #             else 0.0,
-    #             "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
-    #             if maximum_unpledge_amount > 0
-    #             else 0.0,
-    #         }
-    #     else:
-    #         return {}
-
     def update_pending_sell_collateral_amount(self):
         all_pending_sell_collateral_applications = frappe.get_all(
             "Sell Collateral Application",
@@ -2113,17 +1596,10 @@ class Loan(Document):
             else None
         )
 
-    # def validate(self):
-    #     #remove row from items if pledge quantity is 0
-    #     for i in self.items:
-    #         if i.pledged_quantity <= 0:
-    #             self.items.remove(i)
-
     def create_tnc_file(self, topup_amount):
         lender = self.get_lender()
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
-        # loan = self.get_loan()
         logo_file_path_1 = lender.get_lender_logo_file()
         logo_file_path_2 = lender.get_lender_address_file()
         if user_kyc.address_details:
@@ -2220,16 +1696,7 @@ class Loan(Document):
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(topup_amount))
         )
-        # apr = round(
-        #     lms.calculate_apr(
-        #         self.name,
-        #         roi_,
-        #         12,
-        #         int(lms.validate_rupees(float(increased_sanction_limit))),
-        #         charges.get("total"),
-        #     ),
-        #     2,
-        # )
+
         annual_default_interest = lender.default_interest * 12
         interest_amount = int(
             (lms.validate_rupees(float(increased_sanction_limit))) * (roi_ / 100)
@@ -2337,10 +1804,6 @@ class Loan(Document):
             "processing_max_amt": lms.validate_rupees(
                 lender.lender_processing_maximum_amount
             ),
-            # "documentation_charges": lender.documentation_charges,
-            # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.sanctioned_limit,  # CR loan agreement changes
-            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
@@ -2715,12 +2178,6 @@ def check_all_loans_for_shortfall():
         )
 
 
-# @frappe.whitelist()
-# def check_single_loan_for_shortfall(loan_name):
-#     loan = frappe.get_doc("Loan", loan_name)
-#     loan.check_for_shortfall()
-
-
 @frappe.whitelist()
 def daily_virtual_job(loan_name, input_date=None):
     frappe.enqueue_doc(
@@ -2729,16 +2186,6 @@ def daily_virtual_job(loan_name, input_date=None):
         method="add_virtual_interest",
         input_date=input_date,
     )
-
-
-# @frappe.whitelist()
-# def daily_cron_job(loan_name, input_date=None):
-#     frappe.enqueue_doc(
-#         "Loan",
-#         loan_name,
-#         method="calculate_virtual_and_additional_interest",
-#         input_date=input_date,
-#     )
 
 
 @frappe.whitelist()
@@ -2771,8 +2218,6 @@ def add_loans_virtual_interest(loans):
     for loan in loans:
         l_name = int(loan.name[2:])
         queue = "default" if (l_name % 2) == 0 else "short"
-        # loan = frappe.get_doc("Loan", loan)
-        # loan.add_virtual_interest()
         frappe.enqueue_doc(
             "Loan", loan.name, method="add_virtual_interest", queue=queue
         )
