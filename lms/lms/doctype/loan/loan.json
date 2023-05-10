@@ -38,7 +38,6 @@
   "interest_due",
   "penal_interest_charges",
   "total_interest_incl_penal_due",
-  "main_is_default",
   "column_break_28",
   "rebate_interest",
   "rebate_interest_amount",
@@ -52,8 +51,7 @@
   "column_break_40",
   "custom_rebate_interest",
   "old_rebate_interest",
-  "old_wef_date",
-  "old_is_default"
+  "old_wef_date"
  ],
  "fields": [
   {
@@ -321,13 +319,6 @@
    "read_only": 1
   },
   {
-    "default": "0",
-    "fieldname": "main_is_default",
-    "fieldtype": "Check",
-    "label": "Is Default",
-    "read_only": 1
-   },
-  {
    "fieldname": "old_interest",
    "fieldtype": "Float",
    "label": "Old Base Interest",
@@ -343,13 +334,8 @@
    "fieldname": "old_wef_date",
    "fieldtype": "Date",
    "label": "Old w.e.f date",
+   "hidden": 1,
    "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "old_is_default",
-   "fieldtype": "Check",
-   "label": "Old Is Default"
   }
  ],
  "index_web_pages_for_search": 1,
