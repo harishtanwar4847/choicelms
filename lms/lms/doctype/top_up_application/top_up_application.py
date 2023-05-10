@@ -681,6 +681,12 @@ class TopupApplication(Document):
                 },
                 fields=["name"],
             )
+            frappe.log_error(
+                message="\nLoan application: {}".format(pending_loan_application)
+                + "\nCustomer: {}".format(self.customer)
+                + "\nLoan Customer: {}".format(loan.customer),
+                title=(("Checking")),
+            )
             if pending_loan_application:
                 pending_loan_app_link = """ <a target="_blank" rel="noreferrer noopener" href="/app/loan-application/{pending_loan_application}">{pending_loan_application}</a>""".format(
                     pending_loan_application=pending_loan_application[0].name
