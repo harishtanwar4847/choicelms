@@ -780,6 +780,28 @@ class Loan(Document):
 
             wef_current_date = input_date.date()
 
+            # custom base interest, custom rebate interest if wef date <= current date
+            # old base , old rebate if wef_date > current_date
+
+            if self.wef_date <= wef_current_date:
+                frappe.db.set_value(
+                    "Loan",
+                    self.name,
+                    {
+                        "base_interest_config": self.custom_base_interest,
+                        "rebate_interest_config": self.custom_rebate_interest,
+                    },
+                )
+            else:
+                frappe.db.set_value(
+                    "Loan",
+                    self.name,
+                    {
+                        "base_interest_config": self.old_interest,
+                        "rebate_interest_config": self.old_rebate_interest,
+                    },
+                )
+            frappe.db.commit()
             if self.balance > 0:
                 if self.is_default == 1:
                     interest_configuration = frappe.db.get_value(

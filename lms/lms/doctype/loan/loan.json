@@ -34,12 +34,15 @@
   "is_penalize",
   "interest_details_section",
   "base_interest",
+  "base_interest_config",
   "base_interest_amount",
   "interest_due",
   "penal_interest_charges",
   "total_interest_incl_penal_due",
+  "main_is_default",
   "column_break_28",
   "rebate_interest",
+  "rebate_interest_config",
   "rebate_interest_amount",
   "interest_overdue",
   "day_past_due",
@@ -51,7 +54,8 @@
   "column_break_40",
   "custom_rebate_interest",
   "old_rebate_interest",
-  "old_wef_date"
+  "old_wef_date",
+  "old_is_default"
  ],
  "fields": [
   {
@@ -309,12 +313,14 @@
   {
    "fieldname": "base_interest",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Base Interest (Per Month)",
    "read_only": 1
   },
   {
    "fieldname": "rebate_interest",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Rebate Interest",
    "read_only": 1
   },
@@ -334,13 +340,37 @@
    "fieldname": "old_wef_date",
    "fieldtype": "Date",
    "label": "Old w.e.f date",
-   "hidden": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "main_is_default",
+   "fieldtype": "Check",
+   "label": "Is Default",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "old_is_default",
+   "fieldtype": "Check",
+   "label": "Old Is Default"
+  },
+  {
+   "fieldname": "base_interest_config",
+   "fieldtype": "Float",
+   "label": "Base Interest Config",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rebate_interest_config",
+   "fieldtype": "Float",
+   "label": "Rebate Interest Config",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-05-03 15:53:09.878034",
+ "modified": "2023-05-10 16:44:35.431692",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
