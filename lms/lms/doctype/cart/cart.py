@@ -85,7 +85,7 @@ class Cart(Document):
                     {
                         "to_amount": [
                             ">=",
-                            cart.increased_sanctioned_limit,
+                            self.increased_sanctioned_limit,
                         ],
                     },
                     order_by="to_amount asc",
