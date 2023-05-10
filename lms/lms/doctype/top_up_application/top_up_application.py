@@ -670,6 +670,23 @@ class TopupApplication(Document):
         for i in list(user_roles):
             user_role.append(i[0])
         if "Loan Customer" not in user_role:
+            pending_loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "customer": loan.customer,
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+            if pending_loan_application:
+                pending_loan_app_link = """ <a target="_blank" rel="noreferrer noopener" href="/app/loan-application/{pending_loan_application}">{pending_loan_application}</a>""".format(
+                    pending_loan_application=pending_loan_application[0].name
+                )
+                frappe.throw(
+                    """Please approve/reject<br />\u2022 Loan Application {}""".format(
+                        pending_loan_app_link
+                    )
+                )
             updated_top_up_amt = loan.max_topup_amount()
             self.customer = loan.customer
             self.customer_name = loan.customer_name

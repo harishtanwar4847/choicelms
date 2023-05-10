@@ -793,7 +793,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     "customer": self.customer,
                     "status": ["Not IN", ["Approved", "Rejected"]],
                 },
-                order_by="creation asc",
             )
             if pending_loan_application:
                 frappe.throw(
