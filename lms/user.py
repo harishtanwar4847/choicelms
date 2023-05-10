@@ -3969,7 +3969,10 @@ def get_demat_details():
                 res = requests.post(
                     las_settings.choice_securities_list_api,
                     json=payload,
-                    headers={"Accept": "application/json"},
+                    headers={
+                        "Accept": "application/json",
+                        "Authorization": "jKW/RR7JMhigIpZbvEGiag==",
+                    },
                 )
                 log_1["end_time"]: str(frappe.utils.now_datetime())
                 lms.create_log(log_1, "get_demat_details_request_time")
@@ -4116,7 +4119,10 @@ def shares_eligibility(**kwargs):
                     res = requests.post(
                         las_settings.choice_securities_list_api,
                         json=payload,
-                        headers={"Accept": "application/json"},
+                        headers={
+                            "Accept": "application/json",
+                            "Authorization": "jKW/RR7JMhigIpZbvEGiag==",
+                        },
                     )
                     if not res.ok:
                         raise utils.exceptions.APIException(res.text)
@@ -4124,7 +4130,10 @@ def shares_eligibility(**kwargs):
                     res_json = res.json()
                     log = {
                         "url": las_settings.choice_securities_list_api,
-                        "headers": {"Accept": "application/json"},
+                        "headers": {
+                            "Accept": "application/json",
+                            "Authorization": "jKW/RR7JMhigIpZbvEGiag==",
+                        },
                         "request": payload,
                         "response": res_json,
                     }
