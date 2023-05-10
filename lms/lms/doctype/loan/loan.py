@@ -808,8 +808,8 @@ class Loan(Document):
                         "Interest Configuration",
                         {
                             "lender": self.lender,
-                            "from_amount": ["<=", self.balance],
-                            "to_amount": [">=", self.balance],
+                            "from_amount": ["<=", self.sanctioned_limit],
+                            "to_amount": [">=", self.sanctioned_limit],
                         },
                         "name",
                     )
@@ -1435,8 +1435,8 @@ class Loan(Document):
                 "Interest Configuration",
                 {
                     "lender": self.lender,
-                    "from_amount": ["<=", self.balance],
-                    "to_amount": [">=", self.balance],
+                    "from_amount": ["<=", self.sanctioned_limit],
+                    "to_amount": [">=", self.sanctioned_limit],
                 },
                 ["name", "base_interest", "rebait_interest"],
                 as_dict=1,
@@ -1691,7 +1691,7 @@ class Loan(Document):
             {
                 "to_amount": [
                     ">=",
-                    lms.validate_rupees(float(increased_sanction_limit)),
+                    increased_sanction_limit,
                 ],
             },
             order_by="to_amount asc",
