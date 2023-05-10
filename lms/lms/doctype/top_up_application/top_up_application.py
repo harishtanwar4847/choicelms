@@ -670,10 +670,13 @@ class TopupApplication(Document):
         for i in list(user_roles):
             user_role.append(i[0])
         if "Loan Customer" not in user_role:
+            updated_top_up_amt = loan.max_topup_amount()
+            self.customer = loan.customer
+            self.customer_name = loan.customer_name
             pending_loan_application = frappe.get_all(
                 "Loan Application",
                 filters={
-                    "customer": loan.customer,
+                    "customer": self.customer,
                     "status": ["Not IN", ["Approved", "Rejected"]],
                 },
                 fields=["name"],
@@ -687,9 +690,6 @@ class TopupApplication(Document):
                         pending_loan_app_link
                     )
                 )
-            updated_top_up_amt = loan.max_topup_amount()
-            self.customer = loan.customer
-            self.customer_name = loan.customer_name
             if (
                 not updated_top_up_amt or updated_top_up_amt < self.top_up_amount
             ) and not self.status == "Rejected":
