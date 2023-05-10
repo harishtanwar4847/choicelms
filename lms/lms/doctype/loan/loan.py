@@ -802,6 +802,7 @@ class Loan(Document):
                     },
                 )
             frappe.db.commit()
+            self.reload()
             if self.balance > 0:
                 if self.is_default == 1:
                     interest_configuration = frappe.db.get_value(
