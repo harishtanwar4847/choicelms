@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.17.1] - 2023-05-10
+
+## Added
+
+- [SPRK-43 - Offline customer traceback fixed and Custom Roi slab fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/585)
+
 ## [v5.17.0] - 2023-05-03
 
 ## Added
