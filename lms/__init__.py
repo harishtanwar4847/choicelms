@@ -37,7 +37,9 @@ from frappe.utils import scrub_urls
 # from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.csvutils import read_csv_content
 from PIL import Image
-from PyPDF2 import PdfReader, PdfWriter
+from PyPDF2 import PdfFileReader, PdfFileWriter
+
+# from PyPDF2 import PdfReader, PdfWriter
 from razorpay.errors import SignatureVerificationError
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
