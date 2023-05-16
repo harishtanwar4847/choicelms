@@ -123,7 +123,6 @@ frappe.ui.form.on("Loan", {
         frm.add_custom_button(
           __("Book Interest"),
           function () {
-            // frappe.msgprint("hii,  whatsup");
             frappe.prompt(
               {
                 label: "Date",
@@ -146,37 +145,8 @@ frappe.ui.form.on("Loan", {
           },
           __("Interest Jobs")
         );
-
-        //   frm.add_custom_button(__("Check for shortfall"), function () {
-        //     frappe.call({
-        //       method: "lms.lms.doctype.loan.loan.check_single_loan_for_shortfall",
-        //       freeze: true,
-        //       args: {
-        //         loan_name: frm.doc.name,
-        //       },
-        //     });
-        //   });
       }
     });
-    // frm.add_custom_button(__('Check Additional Interest'), function(){
-    // 	// frappe.msgprint("hii,  whatsup");
-    // 	frappe.prompt({
-    // 		label: 'Date',
-    // 		fieldname: 'date',
-    // 		fieldtype: 'Date',
-    // 		reqd: true
-    // 	}, (values) => {
-
-    // 		frappe.call({
-    // 			method: 'lms.lms.doctype.loan.loan.check_for_additional_interest',
-    // 			freeze: true,
-    // 			args: {
-    // 				loan_name: frm.doc.name,
-    // 				input_date: values.date
-    // 			}
-    // 		})
-    // 	})
-    // });
 
     // hiding loan item if pledged quantity is zero (0)
     cur_frm.doc.items.forEach((x) => {

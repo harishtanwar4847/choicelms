@@ -39,7 +39,7 @@ def security_transaction():
                         qty = -(i.quantity)
                     else:
                         qty = i.quantity
-                    security_transaction = frappe.get_doc(
+                    frappe.get_doc(
                         dict(
                             doctype="Security Transaction",
                             loan_no=loan.name,

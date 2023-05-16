@@ -70,7 +70,6 @@ def update_security_prices(securities_dict, session_id):
                     else frappe.utils.now_datetime()
                 )
                 price = float(security.get("LTP")) / security.get("PriceDivisor")
-                # if price:
                 values["{}-{}".format(isin, time)] = (
                     "{}-{}".format(isin, time),
                     isin,
@@ -162,14 +161,6 @@ def update_all_security_prices():
                 )
         except (RequestException, Exception) as e:
             frappe.log_error()
-    # else:
-    #     try:
-    #         frappe.enqueue(
-    #             method="lms.lms.doctype.loan.loan.check_all_loans_for_shortfall",
-    #             queue="long",
-    #         )
-    #     except Exception as e:
-    #         frappe.log_error()
 
 
 @frappe.whitelist()
@@ -260,17 +251,6 @@ def update_scheme_nav(schemes_list):
                 ignore_duplicates=True,
             )
 
-            # update price in security list
-            # frappe.db.sql(
-            #     """
-            #     update
-            #         `tabSecurity` s, `tabSecurity Price` sp
-            #     set
-            #         s.price = sp.price
-            #     where
-            #         s.isin = sp.security
-            # """
-            # )
             data = [str((i[1], i[4])) for i in values_dict.values()]
             query = """
                     INSERT INTO `tabSecurity`(name, price)

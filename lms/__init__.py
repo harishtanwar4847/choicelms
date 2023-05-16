@@ -51,12 +51,6 @@ from lms.lms.doctype.user_token.user_token import send_sms
 
 from .exceptions import *
 
-# from lms.exceptions.CustomerNotFoundException import CustomerNotFoundException
-# from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
-# from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
-
-# from lms.exceptions.UserNotFoundException import UserNotFoundException
-
 __version__ = "5.17.1"
 
 user_token_expiry_map = {
@@ -400,55 +394,6 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
     return security_map
 
 
-# def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
-#     group_by = ""
-#     select = "isin, security_name, eligible_percentage, {} as security_category, lender".format(
-#         "GROUP_CONCAT(category_name, '' order by lender)" if level else "category_name"
-#     )
-#     allowed = ""
-#     if instrument_type == "Mutual Fund":
-#         select += ", scheme_type, allowed"
-#         allowed = "and allowed = 1"
-
-#     if type(lender) == list:
-#         lender = convert_list_to_tuple_string(lender)
-#         filter = "in {}".format(lender)
-#     else:
-#         filter = "= '{}'".format(lender)
-
-#     if level:
-#         group_by = " group by isin"
-#         sub_query = "lender {lender_clause} and security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
-#             lender_clause=filter, lender=filter, level=level
-#         )
-#     else:
-#         sub_query = "lender {}".format(filter)
-
-#     query = """select
-#                 {select}
-#                 from `tabAllowed Security`
-#                 where
-#                 {sub_query}
-#                 {allowed} and
-#                 instrument_type = '{instrument_type}' and
-#                 isin in {isin}{group_by}""".format(
-#         select=select,
-#         sub_query=sub_query,
-#         allowed=allowed,
-#         instrument_type=instrument_type,
-#         isin=convert_list_to_tuple_string(securities),
-#         group_by=group_by,
-#     )
-
-#     results = frappe.db.sql(query, as_dict=1)
-#     security_map = {}
-
-#     for r in results:
-#         security_map[r.isin] = r
-
-#     return security_map
-
-
 def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
 
     select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
@@ -647,7 +592,6 @@ def amount_formatter(amount):
     denominations = {100000: "L", 10000000: "Cr", 1000000000: "Ar", 100000000000: "Kr"}
 
     amounts = sorted(denominations.keys())
-    # amounts.sort()
 
     if amount < amounts[0]:
         return "{:,.2f}".format(amount)
@@ -1340,8 +1284,6 @@ def update_rzp_payment_transaction(data):
             )
             older_razorpay_event = loan_transaction.razorpay_event
             # Assign RZP event to loan transaction
-            # if data["event"] == "payment.authorized":
-            #     razorpay_event = "Authorized"
             if data["event"] == "payment.captured":
                 razorpay_event = "Captured"
             if data["event"] == "payment.failed":
@@ -1455,7 +1397,6 @@ def update_rzp_payment_transaction(data):
 
             # Send notification depended on events
             if data["event"] == "payment.captured":
-                # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
                 # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
@@ -1764,7 +1705,6 @@ def decrypt_mycams_response():
             ).user
             cart = frappe.get_doc("Cart", res.get("addinfo1"))
             cart.reload()
-            # frappe.db.begin()
             cart.lien_reference_number = res.get("lienrefno")
             cart.items = []
             schemes = res.get("schemedetails").get("scheme")
@@ -1895,8 +1835,6 @@ def ckyc_dot_net(
             "dateTime": datetime.strftime(
                 frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S"
             ),
-            # "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
-            # + str(abs(randint(0, 9999) - randint(1, 99))),
             "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
             + str(las_settings.ckyc_request_id)[-4:],
         }
@@ -2024,7 +1962,7 @@ def client_sanction_details(loan, date):
                 loan.name
             )
         )
-        client_sanction_details = frappe.get_doc(
+        frappe.get_doc(
             dict(
                 doctype="Client Sanction Details",
                 client_code=customer.name,
@@ -2507,7 +2445,6 @@ def ckyc_offline(customer, offline_customer):
                     "account_type": offline_customer.account_type,
                 },
             ).insert(ignore_permissions=True)
-            # customer.kyc_update = 1
             customer.choice_kyc = user_kyc.name
             customer.offline_customer = 1
             customer.save(ignore_permissions=True)
@@ -2589,9 +2526,6 @@ def customer_file_upload(upload_file):
             if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
                 message += "Please enter valid CKYC Number or Account Number.\n"
 
-            # if i[11].isalpha() == False:
-            #     message += "Please enter valid city name.\n"
-
             # entry in Spark offline customer log doctype
             offline_customer = frappe.get_doc(
                 dict(
@@ -2608,13 +2542,9 @@ def customer_file_upload(upload_file):
                     ckyc_no=i[6],
                     dob=i[5],
                     bank=i[7],
-                    # branch=i[8],
                     account_no=i[8],
                     ifsc=i[9],
-                    # city=i[11],
                     account_holder_name=i[10],
-                    # bank_address=i[13],
-                    # account_type=i[11],
                     mycams_email_id=i[11],
                 )
             ).insert(ignore_permissions=True)
@@ -2665,7 +2595,6 @@ def customer_file_upload(upload_file):
                     offline_customer.user_remarks = "Duplicate Value"
                     offline_customer.customer_status = "Failure"
                     offline_customer.customer_remarks = "Duplicate Values"
-                    # offline_customer.user_name == res[0].name
                     offline_customer.save(ignore_permissions=True)
                     frappe.db.commit()
                 else:
@@ -4215,7 +4144,6 @@ def prepare_header_footer(soup):
             with open(fname, "wb") as f:
                 f.write(html.encode("utf-8"))
 
-            # {"header-html": "/tmp/frappe-pdf-random.html"}
             options[html_id] = fname
         else:
             if html_id == "header-html":

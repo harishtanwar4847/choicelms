@@ -4,7 +4,6 @@
 frappe.ui.form.on("Sell Collateral Application", {
   refresh: function (frm) {
     show_fetch_items_button(frm);
-    // if (frm.doc.status != "Pending" || frappe.session.user != frm.doc.owner) {
     if (frm.doc.status != "Pending") {
       frm.set_df_property("items", "read_only", 1);
     }
@@ -24,7 +23,6 @@ frappe.ui.form.on("Sell Collateral Application", {
   loan: function (frm) {
     var is_true = frappe.user_roles.find((role) => role === "Loan Customer");
     if ((!is_true || frappe.session.user == "Administrator") && frm.doc.loan) {
-      // if (frappe.session.user == frm.doc.owner) {
       frappe.db.get_value(
         "Loan Margin Shortfall",
         { loan: frm.doc.loan, status: "Sell Triggered" },

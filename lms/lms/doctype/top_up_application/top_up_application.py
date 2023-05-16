@@ -33,7 +33,6 @@ class TopupApplication(Document):
         loan.available_topup_amt = loan.max_topup_amount()
         loan.save(ignore_permissions=True)
         frappe.db.commit()
-        # self.notify_customer()
 
         date = frappe.utils.now_datetime().date()
         lms.client_sanction_details(loan, date)
@@ -174,12 +173,6 @@ class TopupApplication(Document):
             frappe.throw("Top up not available")
         if self.top_up_amount <= 0:
             frappe.throw("Top up can not be approved with Amount Rs. 0")
-        # if self.status == "Approved" and "Loan Customer" in user_role:
-        #     print("akash")
-        #     current = frappe.utils.now_datetime()
-        #     expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
-        #     self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
-        #     print("self.expiry_date",self.expiry_date)
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
@@ -292,16 +285,6 @@ class TopupApplication(Document):
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(self.top_up_amount))
         )
-        # apr = round(
-        #     lms.calculate_apr(
-        #         self.name,
-        #         roi_,
-        #         12,
-        #         int(lms.validate_rupees(float(increased_sanction_limit))),
-        #         charges.get("total"),
-        #     ),
-        #     2,
-        # )
         annual_default_interest = lender.default_interest * 12
         interest_charges_in_amount = int((float(increased_sanction_limit))) * (
             roi_ / 100
@@ -333,7 +316,6 @@ class TopupApplication(Document):
             ),
             "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
             "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
-            # "sanctioned_amount": (float(increased_sanction_limit)),
             "sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(float(increased_sanction_limit))
             ).title(),
@@ -411,7 +393,6 @@ class TopupApplication(Document):
             "processing_max_amt": lms.validate_rupees(
                 lender.lender_processing_maximum_amount
             ),
-            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
@@ -495,18 +476,8 @@ class TopupApplication(Document):
             "loan": self.loan,
             "top_up_amount": self.top_up_amount,
         }
-        # if self.status in ["Pending", "Approved", "Rejected"]:
         attachments = ""
         if doc.get("top_up_application").get("status") == "Approved":
-            pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
-            # edited = lms.pdf_editor(
-            #     self.lender_esigned_document,
-            #     pdf_doc_name,
-            # )
-            # frappe.db.set_value(
-            #     self.doctype, self.name, "lender_esigned_document", edited
-            # )
-            # self.lender_esigned_document = edited
             self.map_loan_agreement_file(loan)
             attachments = self.create_attachment()
             loan_email_message = frappe.db.sql(
@@ -521,7 +492,6 @@ class TopupApplication(Document):
                 "fb_icon",
                 frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
             )
-            # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
             loan_email_message = loan_email_message.replace(
                 "inst_icon",
                 frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
@@ -546,7 +516,6 @@ class TopupApplication(Document):
         loan = ""
         fcm_notification = {}
         if doc.get("top_up_application").get("status") == "Pending":
-            # mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
             mess = 'Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
 
             fcm_notification = frappe.get_doc(
@@ -567,8 +536,6 @@ class TopupApplication(Document):
             loan = self.loan
 
         if doc.get("top_up_application").get("status") == "Rejected":
-            # mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
-
             # mess = frappe.get_doc("Spark SMS Notification", "Top Up rejected").message
             mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
@@ -609,10 +576,6 @@ class TopupApplication(Document):
 
         is_private = 0
 
-        # loan_agreement_file_url = frappe.utils.get_files_path(
-        #     loan_agreement_file_name, is_private=is_private
-        # )
-
         loan_agreement_file = frappe.get_doc(
             {
                 "doctype": "File",
@@ -622,7 +585,6 @@ class TopupApplication(Document):
                 "attached_to_name": loan.name,
                 "attached_to_field": "loan_agreement",
                 "folder": "Home",
-                # "file_url": loan_agreement_file_url,
                 "is_private": is_private,
             }
         )
@@ -779,16 +741,6 @@ class TopupApplication(Document):
             charges = lms.charges_for_apr(
                 lender.name, lms.validate_rupees(float(self.top_up_amount))
             )
-            # apr = round(
-            #     lms.calculate_apr(
-            #         self.name,
-            #         roi_,
-            #         12,
-            #         int(lms.validate_rupees(float(increased_sanction_limit))),
-            #         charges.get("total"),
-            #     ),
-            #     2,
-            # )
             annual_default_interest = lender.default_interest * 12
             interest_charges_in_amount = int(
                 lms.validate_rupees(float(increased_sanction_limit))
@@ -815,7 +767,6 @@ class TopupApplication(Document):
                 "district": perm_dist,
                 "state": perm_state,
                 "pincode": perm_pin,
-                # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
                 "sanctioned_amount": frappe.utils.fmt_money(
                     float(increased_sanction_limit)
                 ),
@@ -900,7 +851,6 @@ class TopupApplication(Document):
                 "processing_max_amt": lms.validate_rupees(
                     lender.lender_processing_maximum_amount
                 ),
-                # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
                 "transaction_charges_per_request": lms.validate_rupees(
                     lender.transaction_charges_per_request
                 ),
@@ -955,10 +905,6 @@ class TopupApplication(Document):
             )
 
             sanction_letter_template = lender.get_sanction_letter_template()
-
-            # sanction_letter = frappe.render_template(
-            #     sanction_letter_template.get_content(), {"doc": doc}
-            # )
 
             s_letter = frappe.render_template(
                 sanction_letter_template.get_content(), {"doc": doc}
@@ -1036,22 +982,6 @@ class TopupApplication(Document):
                             }
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
-            # elif self.sl_entries and self.status != "Approved":
-            #     sl = frappe.get_doc("Sanction Letter and CIAL Log", self.sl_entries)
-            #     ssl = frappe.get_all(
-            #         "Sanction Letter Entries",
-            #         filters={
-            #             "topup_application_no": self.name,
-            #             "parent": self.sl_entries,
-            #         },
-            #         fields=["*"],
-            #     )
-            #     sl = frappe.get_doc("Sanction Letter Entries", ssl[0].name)
-            #     previous_letter = sl.sanction_letter
-            #     sl.sanction_letter = sL_letter
-            #     sl.save(ignore_permissions=True)
-            #     self.sl_entries = sl[0].name
-            #     frappe.db.commit()
 
             if self.status == "Approved":
                 import os

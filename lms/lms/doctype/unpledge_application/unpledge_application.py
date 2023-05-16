@@ -560,7 +560,6 @@ def validate_revoc(unpledge_application_name):
                             data["revocvalidate"]["schemedetails"].append(
                                 schemedetails[0]
                             )
-                        # ("data", data)
 
                         encrypted_data = lms.AESCBC(
                             las_settings.encryption_key, las_settings.iv

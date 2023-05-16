@@ -23,6 +23,8 @@ from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.user_token.user_token import send_sms
 
+special_char_not_allowed = "Special Characters not allowed."
+
 
 @frappe.whitelist()
 def set_pin(**kwargs):
@@ -71,7 +73,7 @@ def schemes(**kwargs):
             else ""
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         if data.get("scheme_type") not in ["Equity", "Debt"]:
             raise lms.exceptions.FailureException(
@@ -147,7 +149,7 @@ def isin_details(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("isin"))
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         isin_details = frappe.db.sql(
             """select als.isin, als.eligible_percentage as ltv, als.category_name as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}' Order by l.name""".format(
@@ -241,7 +243,7 @@ def approved_securities(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -445,7 +447,7 @@ def my_pledge_securities(**kwargs):
         customer = lms.__customer()
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         try:
             if data.get("loan_name"):
@@ -4067,7 +4069,7 @@ def shares_eligibility(**kwargs):
             else ""
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         if not data.get("lender", None):
             return utils.respondWithFailure(
@@ -4592,7 +4594,7 @@ def au_penny_drop(**kwargs):
             else "" + data.get("bank")
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         # check user
         try:

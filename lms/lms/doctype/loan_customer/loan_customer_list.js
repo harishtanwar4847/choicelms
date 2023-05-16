@@ -1,12 +1,6 @@
 // Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 // MIT License. See license.txt
 
-// frappe.listview_settings["Loan Customer"] = {
-//   onload: function (listview) {
-//     var is_true = frappe.user_roles.find((role) => role === "Lender");
-//     if (is_true || frappe.session.user == "Administrator") {
-//
-
 frappe.listview_settings["Loan Customer"] = {
   hide_name_column: true,
   refresh: function (listview) {
@@ -24,9 +18,7 @@ frappe.listview_settings["Loan Customer"] = {
           ],
           primary_action_label: "Submit",
           primary_action(values) {
-            if (values.file.split(".").slice(-1)[0].toLowerCase() == "csv") {
-              // pass
-            } else {
+            if (values.file.split(".").slice(-1)[0].toLowerCase() != "csv") {
               frappe.throw("Other than CSV file format not supported");
             }
             frappe.call({

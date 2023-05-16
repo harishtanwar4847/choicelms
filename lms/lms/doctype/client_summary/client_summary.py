@@ -39,10 +39,6 @@ def client_summary():
                     order_by="to_amount asc",
                 )
                 int_config = frappe.get_doc("Interest Configuration", interest_config)
-                if loan.margin_shortfall_amount:
-                    adp_shortfall = loan.margin_shortfall_amount
-                else:
-                    adp_shortfall = loan.actual_drawing_power
                 roi = round((int_config.base_interest * 12), 2)
                 if user_kyc.choice_mob_no:
                     phone = user_kyc.choice_mob_no
@@ -50,7 +46,7 @@ def client_summary():
                     phone = user_kyc.mob_num
                 else:
                     phone = customer.phone
-                client_summary = frappe.get_doc(
+                frappe.get_doc(
                     dict(
                         doctype="Client Summary",
                         loan_no=loan.name,
@@ -120,7 +116,6 @@ def excel_generator(doc_filters):
     final = pd.DataFrame([c.values() for c in client_summary_doc], index=None)
     final.columns = client_summary_doc[0].keys()
     final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
-    report = final.sum(numeric_only=True)
     report = final.iloc[:, 3:8].sum()
     final.loc["Total"] = report
     final.fillna("")

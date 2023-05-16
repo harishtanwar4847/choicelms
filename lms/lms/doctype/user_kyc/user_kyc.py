@@ -70,7 +70,6 @@ class UserKYC(Document):
                         loan_renewal_doc.new_kyc_name = self.name
                         loan_renewal_doc.updated_kyc_status = self.kyc_status
                         loan_renewal_doc.kyc_approval_date = frappe.utils.now_datetime()
-                        # loan_renewal_doc.two_days_grace_period()
                         loan_renewal_doc.save(ignore_permissions=True)
                         loan_customer.choice_kyc = self.name
                         loan_customer.save(ignore_permissions=True)
@@ -259,8 +258,6 @@ class UserKYC(Document):
             elif not cust_add.corres_poa_image:
                 frappe.throw("POA missing in address details doctype")
 
-        # cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
-        # customer = frappe.get_doc("Loan Customer", cust_name)
         loan_name = frappe.db.get_value("Loan", {"customer": cust_name}, "name")
         if loan_name:
             loan = frappe.get_doc("Loan", loan_name)
@@ -287,8 +284,6 @@ class UserKYC(Document):
                     renewal_doc = frappe.get_doc(
                         "Spark Loan Renewal Application", doc.name
                     )
-                    # if renewal_doc.loan not in []
-
                     renewal_doc.status = "Rejected"
                     renewal_doc.workflow_state = "Rejected"
                     renewal_doc.remarks = "KYC Rejected"
@@ -339,8 +334,7 @@ class UserKYC(Document):
                         {
                             "account_number": data.get("account_number"),
                             "is_repeated": 0,
-                            "parent": ["!=", self.name]
-                            # "is_mismatched": 0,
+                            "parent": ["!=", self.name],
                         },
                         "*",
                         order_by="creation desc",
@@ -440,7 +434,6 @@ class UserKYC(Document):
                     else:
                         res_json = lms.au_pennydrop_api(data, self.fullname)
 
-                    # res_json = lms.au_pennydrop_api(data, self.fullname)
                     if res_json:
                         if (
                             res_json.get("status_code") == 200
@@ -463,7 +456,6 @@ class UserKYC(Document):
                                             or matching
                                             < las_settings.penny_name_mismatch_percentage
                                         ):
-                                            # user_kyc = frappe.get_doc("User KYC", self.name)
                                             frappe.get_doc(
                                                 {
                                                     "doctype": "Penny Name Mismatch",
@@ -594,10 +586,3 @@ class UserKYC(Document):
                             )
                 else:
                     frappe.throw("Please approve User KYC")
-            else:
-                frappe.log_error(
-                    message=frappe.get_traceback()
-                    + "\n\nUser kyc :\n"
-                    + str(self.name),
-                    title="Offline penny error",
-                )

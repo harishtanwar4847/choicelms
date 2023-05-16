@@ -6,12 +6,6 @@ from frappe.model.document import Document
 
 
 class SparkHoliday(Document):
-    # pass
-    # def validate(self):
-    #     duplicate_date = frappe.get_value(self.doctype, {"date": self.date}, "name")
-    #     if duplicate_date:
-    #         frappe.throw("This Date already exists.")
-
     def on_update(self):
         self.update_margin_shortfall_deadline()
 

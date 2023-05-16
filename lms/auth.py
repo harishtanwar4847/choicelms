@@ -17,6 +17,8 @@ import lms
 from lms.exceptions import *
 from lms.lms.doctype.user_token.user_token import send_sms
 
+special_char_not_allowed = "Special Characters not allowed."
+
 
 @frappe.whitelist(allow_guest=True)
 def login(**kwargs):
@@ -41,16 +43,13 @@ def login(**kwargs):
                 regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
             )
             if reg:
-                raise lms.exceptions.FailureException(
-                    _("Special Characters not allowed.")
-                )
+                raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         try:
             user = lms.__user(data.get("mobile"))
         except UserNotFoundException:
             user = None
 
-        # frappe.db.begin()
         if data.get("pin"):
             try:
                 frappe.local.login_manager.authenticate(
@@ -139,7 +138,6 @@ def logout(firebase_token):
     get_user_token = frappe.db.get_value(
         "User Token", {"token_type": "Firebase Token", "token": firebase_token}
     )
-    # print(get_user_token)
     if not get_user_token:
         raise lms.ValidationError(_("Firebase Token does not exist."))
     else:
@@ -199,9 +197,7 @@ def verify_otp(**kwargs):
                 regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
             )
             if reg:
-                raise lms.exceptions.FailureException(
-                    _("Special Characters not allowed.")
-                )
+                raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         try:
             is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
@@ -331,7 +327,6 @@ def register(**kwargs):
             regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
         )
         # email validation
-        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         email_regex = (
             r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
         )
@@ -343,7 +338,7 @@ def register(**kwargs):
 
         if reg or firebase_reg:
 
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
         if is_dummy_account:
@@ -364,7 +359,6 @@ def register(**kwargs):
             "email": data.get("email"),
             "tester": True if data.get("email") in emails else False,
         }
-        # frappe.db.begin()
         user = lms.create_user(**user_data)
         customer = lms.create_customer(user)
 
@@ -474,7 +468,6 @@ def verify_user(token, user):
             "entity": user,
             "token_type": "Email Verification Token",
             "token": token,
-            # "used": 0,
         },
         fields=["*"],
     )
@@ -506,7 +499,6 @@ def request_forgot_pin_otp(**kwargs):
             {"email": ["required"]},
         )
         # email validation
-        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         email_regex = (
             r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
         )
@@ -569,7 +561,6 @@ def verify_forgot_pin_otp(**kwargs):
             },
         )
         # email validation
-        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         email_regex = (
             r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
         )
