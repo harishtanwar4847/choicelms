@@ -1184,6 +1184,10 @@ def loan_withdraw_details(**kwargs):
 def request_loan_withdraw_otp():
     try:
         utils.validator.validate_http_method("POST")
+        return utils.respondWithFailure(
+            status=417,
+            message="Withdraw karne nahi dunga",
+        )
 
         user = lms.__user()
         is_dummy_account = lms.validate_spark_dummy_account(

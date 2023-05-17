@@ -1547,6 +1547,7 @@ class Loan(Document):
                 )
         else:
             max_topup_amount = 0
+        return 0
         return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
@@ -2344,22 +2345,3 @@ def interest_booked_till_date(loan_name):
         as_dict=1,
     )[0]["total_amount"]
     return 0.0 if interest_booked == None else interest_booked
-
-
-@frappe.whitelist()
-def available_top_up_update():
-    try:
-        loans = frappe.get_all("Loan", fields=["*"])
-        for loan in loans:
-            loan_doc = frappe.get_doc("Loan", loan.name)
-            if loan_doc.sanctioned_limit > 0 and loan_doc.total_collateral_value > 0:
-                max_top_amt = loan_doc.max_topup_amount()
-                if max_top_amt:
-                    loan_doc.available_topup_amt = max_top_amt
-                    loan_doc.save(ignore_permissions=True)
-                    frappe.db.commit()
-    except Exception:
-        frappe.log_error(
-            frappe.get_traceback() + "\n\nloan name :-\n" + loan.name,
-            title=frappe._("Available Top-up Update"),
-        )

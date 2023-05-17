@@ -71,6 +71,8 @@ def login(**kwargs):
                 raise lms.exceptions.UnauthorizedException(message)
 
             customer = lms.__customer(user.name)
+            # if not customer.loan_open:
+            #     raise lms.exceptions.RespondFailureException("bhagg yaha se")
             try:
                 user_kyc = lms.__user_kyc(user.name)
             except UserKYCNotFoundException:
