@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.17.2] - 2023-05-18
+
+## Fix
+
+- [SPRK-43 - Collateral legder not updating](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/586)
+
 ## [v5.17.1] - 2023-05-10
 
 ## Added
