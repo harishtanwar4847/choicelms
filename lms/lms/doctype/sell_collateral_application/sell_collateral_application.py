@@ -347,7 +347,7 @@ class SellCollateralApplication(Document):
 
     def on_submit(self):
         for i in self.sell_items:
-            if i.sell_quantity > 0 and i.invoke_initiate_remarks == "SUCCESS":
+            if i.sell_quantity > 0:
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
