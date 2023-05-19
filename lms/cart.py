@@ -143,8 +143,9 @@ def upsert(**kwargs):
             data["instrument_type"] = "Shares"
 
         if not data.get("loan_margin_shortfall_name"):
-            raise lms.exceptions.FailureException(
-                _("You can only pledge for Margin Shortfall")
+            lms.log_api_error()
+            return utils.respondForbidden(
+                message="You can only pledge for Margin Shortfall"
             )
 
         if not data.get("pledgor_boid") and data.get("instrument_type") == "Shares":
