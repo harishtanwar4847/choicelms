@@ -144,7 +144,7 @@ def upsert(**kwargs):
 
         if not data.get("loan_margin_shortfall_name"):
             lms.log_api_error()
-            return utils.respondForbidden(
+            return utils.respondWithFailure(
                 message="You can only pledge for Margin Shortfall"
             )
 
