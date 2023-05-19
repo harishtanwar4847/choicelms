@@ -650,6 +650,7 @@ def login_activity(customer):
 @frappe.whitelist(allow_guest=True)
 def onboarding_screen():
     try:
+        raise lms.exceptions.RespondFailureException("bhagg yaha se")
         las_settings = frappe.get_single("LAS Settings")
         onboard_list = []
         for i in las_settings.onboarding_screen:
