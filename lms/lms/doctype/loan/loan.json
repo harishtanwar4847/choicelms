@@ -342,19 +342,6 @@
    "hidden":1
   },
   {
-   "default": "0",
-   "fieldname": "main_is_default",
-   "fieldtype": "Check",
-   "label": "Is Default",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "old_is_default",
-   "fieldtype": "Check",
-   "label": "Old Is Default"
-  },
-  {
    "fieldname": "base_interest_config",
    "fieldtype": "Float",
    "label": "Base Interest Config",
