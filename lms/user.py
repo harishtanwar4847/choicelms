@@ -2784,7 +2784,7 @@ def ckyc_search(**kwargs):
         customer = lms.__customer()
         return utils.respondWithFailure(
             status=417,
-            message="KYC karne nahi dunga",
+            message="Under Maintenance! Please try again after some time.",
         )
 
         res_json = lms.ckyc_dot_net(customer, data.get("pan_no"), is_for_search=True)
