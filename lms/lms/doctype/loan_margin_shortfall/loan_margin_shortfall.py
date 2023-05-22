@@ -27,14 +27,11 @@ class LoanMarginShortfall(Document):
         self.total_collateral_value = loan.total_collateral_value
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
-        # self.allowable_ltv = loan.allowable_ltv
         self.drawing_power = loan.drawing_power
         self.customer_name = loan.customer_name
         self.loan_balance = loan.balance
         self.actual_drawing_power = loan.actual_drawing_power
         self.time_remaining = "00:00:00"
-        # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
-        # Zero division error - handling
 
         if self.instrument_type == "Shares":
             self.ltv = (
@@ -44,16 +41,6 @@ class LoanMarginShortfall(Document):
             )
 
             self.surplus_margin = 100 - self.ltv
-            # self.minimum_collateral_value = (
-            #     100 / self.allowable_ltv
-            # ) * self.loan_balance
-
-            # Previous formula
-            # self.shortfall = math.ceil(
-            #     (self.minimum_collateral_value - self.total_collateral_value)
-            #     if self.loan_balance > self.drawing_power
-            #     else 0
-            # )
 
             # New Formula as per ltv changes
             self.shortfall = math.ceil(
@@ -61,13 +48,6 @@ class LoanMarginShortfall(Document):
                 if self.loan_balance > self.drawing_power
                 else 0
             )
-            # Previous formula
-            # self.shortfall_c = math.ceil(
-            #     ((self.loan_balance - self.drawing_power) * 100 / self.allowable_ltv)
-            #     if self.loan_balance > self.drawing_power
-            #     else 0
-            # )
-
             # New Formula as per ltv changes
             self.shortfall_c = math.ceil(
                 (self.loan_balance - self.drawing_power)
@@ -75,24 +55,15 @@ class LoanMarginShortfall(Document):
                 else 0
             )
 
-            # self.minimum_pledge_amount = self.shortfall_c
-            # self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
-
         self.shortfall_percentage = (
             ((self.loan_balance - self.drawing_power) / self.loan_balance) * 100
             if self.loan_balance > self.drawing_power
             else 0
         )
-        if self.instrument_type == "Mutual Fund":
-            min_cash_amt = self.loan_balance - self.drawing_power
-            self.minimum_cash_amount = (
-                min_cash_amt if self.loan_balance > self.drawing_power else 0
-            )
-        else:
-            min_cash_amt = self.loan_balance - self.drawing_power
-            self.minimum_cash_amount = (
-                min_cash_amt if self.loan_balance > self.drawing_power else 0
-            )
+        min_cash_amt = self.loan_balance - self.drawing_power
+        self.minimum_cash_amount = (
+            min_cash_amt if self.loan_balance > self.drawing_power else 0
+        )
         self.advisable_cash_amount = (
             (self.minimum_cash_amount * 1.1)
             if self.loan_balance > self.drawing_power
@@ -133,15 +104,7 @@ class LoanMarginShortfall(Document):
     def set_deadline(self, old_shortfall_action=None):
         margin_shortfall_action = self.get_shortfall_action()
 
-        if (
-            margin_shortfall_action
-            # and old_shortfall_action != margin_shortfall_action.name
-        ):
-            # if old_shortfall_action:
-            #     old_shortfall_action = frappe.get_doc(
-            #         "Margin Shortfall Action", old_shortfall_action
-            #     ).sell_off_deadline_eod
-
+        if margin_shortfall_action:
             """suppose mg shortfall deadline was after 72 hours and suddenly more shortfall happens the deadline will be
             EOD and before EOD security values increased and margin shortfall percentage gone below 20% then deadline should be 72 hrs which was started at initial stage"""
             if old_shortfall_action and margin_shortfall_action.sell_off_after_hours:
@@ -248,8 +211,6 @@ class LoanMarginShortfall(Document):
                 else:
                     creation_date += timedelta(hours=24)
 
-            # if creation_datetime.date() in holiday_list(is_bank_holiday=1):
-            #     total_hrs[-1] += timedelta(days=1)
             date_of_deadline = datetime.strptime(
                 total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
             )

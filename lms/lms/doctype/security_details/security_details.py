@@ -24,12 +24,6 @@ def security_details():
             try:
                 customer = frappe.get_doc("Loan Customer", loan.customer)
                 user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-                # loan_application = frappe.get_all(
-                #     "Loan Application",
-                #     filters={"customer": loan.customer},
-                #     fields=["pledgor_boid"],
-                # )
-                # pledgor_boid = loan_application[0].pledgor_boid
                 collateral_ledger = frappe.get_all(
                     "Collateral Ledger", filters={"loan": loan.name}, fields=["*"]
                 )

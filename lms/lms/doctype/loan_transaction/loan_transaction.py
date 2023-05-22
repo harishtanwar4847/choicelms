@@ -30,7 +30,6 @@ class LoanTransaction(Document):
         "Stamp Duty": "DR",
         "Documentation Charges": "DR",
         "Mortgage Charges": "DR",
-        # "Sell Collateral": "DR",  # confirm
         "Sell Collateral": "CR",  # confirm
         "Invoke Pledge": "DR",  # confirm
         "Interest": "DR",
@@ -139,7 +138,6 @@ class LoanTransaction(Document):
             frappe.throw(_("Invalid User"))
         user_roles = [role[0] for role in user_roles]
 
-        # loan_cust_transaction_list = ["Withdrawal", "Payment", "Sell Collateral"]
         loan_cust_transaction_list = ["Withdrawal", "Payment"]
         lender_team_transaction_list = [
             "Debit Note",
@@ -184,27 +182,21 @@ class LoanTransaction(Document):
             if self.transaction_type == "Processing Fees":
                 sharing_amount = lender.lender_processing_fees_sharing
                 sharing_type = lender.lender_processing_fees_sharing_type
-                # transaction_type = "Processing Fees"
             elif self.transaction_type == "Stamp Duty":
                 sharing_amount = lender.stamp_duty_sharing
                 sharing_type = lender.stamp_duty_sharing_type
-                # transaction_type = "Stamp Duty"
             elif self.transaction_type == "Documentation Charges":
                 sharing_amount = lender.documentation_charges_sharing
                 sharing_type = lender.documentation_charge_sharing_type
-                # transaction_type = "Documentation Charges"
             elif self.transaction_type == "Mortgage Charges":
                 sharing_amount = lender.mortgage_charges_sharing
                 sharing_type = lender.mortgage_charge_sharing_type
-                # transaction_type = "Mortgage Charges"
 
             lender_sharing_amount = sharing_amount
-            # loan_transaction_type = transaction_type
             if sharing_type == "Percentage":
                 lender_sharing_amount = (lender_sharing_amount / 100) * self.amount
             spark_sharing_amount = self.amount - lender_sharing_amount
 
-            # customer_name = loan.customer_name
             self.create_lender_ledger(
                 lender_sharing_amount,
                 spark_sharing_amount,
@@ -451,7 +443,6 @@ class LoanTransaction(Document):
         ]:
             loan.reload()
             self.update_interest_summary_values(loan)
-            # loan.reload()
 
         # update closing balance
         frappe.db.set_value(
@@ -548,11 +539,6 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
-        # if self.transaction_type == "Payment" and self.settlement_status != "Processed":
-        #     frappe.throw(
-        #         "Can not approve this Payment transaction as its Settlement status is not Processed"
-        #     )
-
     def on_update(self):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()
@@ -576,56 +562,55 @@ class LoanTransaction(Document):
                     fcm_notification=fcm_notification, loan=self.loan, customer=customer
                 )
 
-        if self.loan_margin_shortfall:
-            if self.status == "Rejected":
-                # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
-                loan_margin_shortfall = frappe.get_doc(
-                    "Loan Margin Shortfall", self.loan_margin_shortfall
+        if self.loan_margin_shortfall and self.status == "Rejected":
+            # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", self.loan_margin_shortfall
+            )
+            under_process_la = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": self.loan,
+                    "status": [
+                        "not IN",
+                        ["Approved", "Rejected", "Pledge Failure"],
+                    ],
+                    "pledge_status": ["!=", "Failure"],
+                    "loan_margin_shortfall": loan_margin_shortfall.name,
+                },
+            )
+            pending_loan_transaction = frappe.get_all(
+                "Loan Transaction",
+                filters={
+                    "loan": self.loan,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "razorpay_event": [
+                        "not in",
+                        ["", "Failed", "Payment Cancelled"],
+                    ],
+                    "loan_margin_shortfall": loan_margin_shortfall.name,
+                },
+            )
+            pending_sell_collateral_application = frappe.get_all(
+                "Sell Collateral Application",
+                filters={
+                    "loan": self.loan,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "loan_margin_shortfall": loan_margin_shortfall.name,
+                },
+            )
+            if (
+                (
+                    not pending_loan_transaction
+                    and not pending_sell_collateral_application
+                    and not under_process_la
                 )
-                under_process_la = frappe.get_all(
-                    "Loan Application",
-                    filters={
-                        "loan": self.loan,
-                        "status": [
-                            "not IN",
-                            ["Approved", "Rejected", "Pledge Failure"],
-                        ],
-                        "pledge_status": ["!=", "Failure"],
-                        "loan_margin_shortfall": loan_margin_shortfall.name,
-                    },
-                )
-                pending_loan_transaction = frappe.get_all(
-                    "Loan Transaction",
-                    filters={
-                        "loan": self.loan,
-                        "status": ["not IN", ["Approved", "Rejected"]],
-                        "razorpay_event": [
-                            "not in",
-                            ["", "Failed", "Payment Cancelled"],
-                        ],
-                        "loan_margin_shortfall": loan_margin_shortfall.name,
-                    },
-                )
-                pending_sell_collateral_application = frappe.get_all(
-                    "Sell Collateral Application",
-                    filters={
-                        "loan": self.loan,
-                        "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": loan_margin_shortfall.name,
-                    },
-                )
-                if (
-                    (
-                        not pending_loan_transaction
-                        and not pending_sell_collateral_application
-                        and not under_process_la
-                    )
-                    and loan_margin_shortfall.status == "Request Pending"
-                    and loan_margin_shortfall.shortfall_percentage > 0
-                ):
-                    loan_margin_shortfall.status = "Pending"
-                    loan_margin_shortfall.save(ignore_permissions=True)
-                    frappe.db.commit()
+                and loan_margin_shortfall.status == "Request Pending"
+                and loan_margin_shortfall.shortfall_percentage > 0
+            ):
+                loan_margin_shortfall.status = "Pending"
+                loan_margin_shortfall.save(ignore_permissions=True)
+                frappe.db.commit()
 
         # if rejected then opening balance = closing balance
         if self.status == "Rejected":

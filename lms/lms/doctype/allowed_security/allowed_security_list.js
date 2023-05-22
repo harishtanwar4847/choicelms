@@ -16,9 +16,7 @@ frappe.listview_settings["Allowed Security"] = {
         ],
         primary_action_label: "Submit",
         primary_action(values) {
-          if (values.file.split(".")[1].toLowerCase() == "csv") {
-            // pass
-          } else {
+          if (values.file.split(".").slice(-1)[0].toLowerCase() != "csv") {
             frappe.throw("Other than CSV file format not supported");
           }
           frappe.call({

@@ -22,6 +22,8 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
 )
 from lms.lms.doctype.user_token.user_token import send_sms
 
+special_char_not_allowed = "Special Characters not allowed."
+
 
 @frappe.whitelist()
 def esign(**kwargs):
@@ -44,7 +46,7 @@ def esign(**kwargs):
             + data.get("loan_renewal_application_name")
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         customer = lms.__customer()
         if (
@@ -178,7 +180,6 @@ def esign(**kwargs):
             return utils.respondWithSuccess(
                 message=_("Esign URL."),
                 data={"esign_url": url, "file_id": data.get("id")},
-                # data.get("id")
             )
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
@@ -210,7 +211,7 @@ def esign_done(**kwargs):
             + data.get("file_id")
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         if data.get("file_id").isspace():
             return utils.respondWithFailure(
@@ -561,7 +562,7 @@ def create_topup(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
         user = lms.__user()
@@ -624,7 +625,6 @@ def create_topup(**kwargs):
             for tnc in frappe.get_list(
                 "Terms and Conditions", filters={"is_active": 1}
             ):
-                # if data.get("loan_name"):
                 top_up_approved_tnc = {
                     "doctype": "Top up Application",
                     "docname": topup_application.name,
@@ -679,7 +679,7 @@ def loan_details(**kwargs):
         )
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         customer = lms.__customer()
         try:
@@ -1151,7 +1151,7 @@ def loan_withdraw_details(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1184,6 +1184,10 @@ def loan_withdraw_details(**kwargs):
 def request_loan_withdraw_otp():
     try:
         utils.validator.validate_http_method("POST")
+        # return utils.respondWithFailure(
+        #     status=417,
+        #     message="Withdraw karne nahi dunga",
+        # )
 
         user = lms.__user()
         is_dummy_account = lms.validate_spark_dummy_account(
@@ -1221,7 +1225,7 @@ def loan_withdraw_request(**kwargs):
             search=data.get("loan_name") + data.get("bank_account_name")
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         customer = lms.__customer()
         user = lms.__user()
@@ -1279,9 +1283,7 @@ def loan_withdraw_request(**kwargs):
         # amount validation
         amount = data.get("amount", 0)
         if amount <= 0:
-            raise lms.exceptions.RespondFailureException(
-                _("Special Characters not allowed.")
-            )
+            raise lms.exceptions.RespondFailureException(_(special_char_not_allowed))
 
         max_withdraw_amount = loan.maximum_withdrawable_amount()
         if amount > max_withdraw_amount:
@@ -1363,7 +1365,7 @@ def loan_payment(**kwargs):
             search=data.get("loan_name") + data.get("loan_margin_shortfall_name")
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         if data.get("order_id"):
             # for order id "-_:" these characters are excluded from regex string
@@ -1372,9 +1374,7 @@ def loan_payment(**kwargs):
                 regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
             )
             if reg:
-                raise lms.exceptions.FailureException(
-                    _("Special Characters not allowed.")
-                )
+                raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         customer = lms.__customer()
         try:
@@ -1515,7 +1515,7 @@ def loan_statement(**kwargs):
             search=data.get("loan_name") + data.get("file_format") + data.get("type")
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1752,7 +1752,6 @@ def loan_statement(**kwargs):
             "loan_name": loan.name,
             "email": user_kyc.user,
             "customer_id": customer.name,
-            # "phone": user_kyc.mobile_number,
             "phone": customer.phone,
             "address": address,
             "account_opening_date": (loan.creation).strftime("%d-%B-%Y"),
@@ -2172,7 +2171,7 @@ def loan_unpledge_details(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         customer = lms.__customer()
         msg_type = ["unpledge", "pledged securities"]
@@ -2927,7 +2926,6 @@ def request_loan_renewal_otp():
             user.username, user.name, check_valid=True
         )
         if not is_dummy_account:
-            # frappe.db.begin()
             lms.create_user_token(
                 entity=user.username,
                 token_type="Loan Renewal OTP",
@@ -2957,7 +2955,7 @@ def verify_loan_renewal_otp(**kwargs):
             search=data.get("loan_renewal_application_name")
         )
         if reg:
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+            raise lms.exceptions.FailureException(_(special_char_not_allowed))
 
         customer = lms.__customer()
         user = lms.__user()

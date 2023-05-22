@@ -3,7 +3,6 @@
 
 frappe.ui.form.on("Sanction Letter and CIAL Log", {
   refresh: function (frm) {
-    console.log("akash");
     frm.refresh_field("interest_letter_table");
   },
 });

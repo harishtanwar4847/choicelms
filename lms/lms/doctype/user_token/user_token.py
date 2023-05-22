@@ -37,22 +37,6 @@ class UserToken(Document):
                 doc["token_type"] = token_type
                 doc["token"] = self.token
                 if doc:
-                    # email_otp = frappe.db.sql(
-                    #     "select message from `tabNotification` where name='OTP for Spark Loans';"
-                    # )[0][0]
-                    # email_otp = email_otp.replace("investor_name", doc.fullname)
-                    # email_otp = email_otp.replace("token_type", token_type)
-                    # email_otp = email_otp.replace("token", self.token)
-                    # frappe.enqueue(
-                    #     method=frappe.sendmail,
-                    #     recipients=[doc.email],
-                    #     sender=None,
-                    #     subject="OTP for Spark Loans",
-                    #     message=email_otp,
-                    #     queue="short",
-                    #     delayed=False,
-                    #     job_name="Spark OTP on Email",
-                    # )
                     frappe.enqueue_doc(
                         "Notification",
                         "OTP for Spark Loans",
@@ -68,33 +52,12 @@ class UserToken(Document):
                     doc["token_type"] = token_type
                     doc["token"] = self.token
                     if doc:
-                        # doc[0]["doctype"] = "User"
-                        # doc[0]["otp_info"] = {
-                        #     "token_type": self.token_type.replace(" ", ""),
-                        #     "token": self.token,
-                        # }
                         frappe.enqueue_doc(
                             "Notification",
                             "Other OTP for Spark Loans",
                             method="send",
                             doc=doc,
                         )
-                    # email_otp = frappe.db.sql(
-                    #     "select message from `tabNotification` where name='Other OTP for Spark Loans';"
-                    # )[0][0]
-                    # email_otp = email_otp.replace("investor_name", doc[0].full_name)
-                    # email_otp = email_otp.replace("token_type", token_type)
-                    # email_otp = email_otp.replace("token", self.token)
-                    # frappe.enqueue(
-                    #     method=frappe.sendmail,
-                    #     recipients=[doc[0].email],
-                    #     sender=None,
-                    #     subject="OTP for Spark Loans",
-                    #     message=email_otp,
-                    #     queue="short",
-                    #     delayed=False,
-                    #     job_name="Spark OTP on Email",
-                    # )
 
             if self.token_type == "OTP":
                 mess = """<#> Dear customer, your login OTP is {token}. Thank you for choosing Spark Loans. Do not share OTP for security reasons. Valid for 10 mins
@@ -228,13 +191,6 @@ class UserToken(Document):
                 otp_hash=las_settings.app_identification_hash_string,
             )
             # lms.send_sms_notification(customer=customer,msg=msg)
-            # msg = frappe._(
-            #     "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
-            # ).format(
-            #     token_type=self.token_type.replace(" ", ""),
-            #     token=self.token,
-            #     # expiry_in_minutes=expiry_in_minutes,
-            # )
             if msg:
                 # lms.send_sms_notification(customer=customer,msg=msg)
                 receiver_list = [str(customer.phone)]

@@ -142,6 +142,12 @@ def upsert(**kwargs):
         if not data.get("instrument_type"):
             data["instrument_type"] = "Shares"
 
+        # if not data.get("loan_margin_shortfall_name"):
+        #     lms.log_api_error(mess="You can only pledge for Margin Shortfall")
+        #     return utils.respondWithFailure(
+        #         message="You can only pledge for Margin Shortfall"
+        #     )
+
         if not data.get("pledgor_boid") and data.get("instrument_type") == "Shares":
             raise lms.exceptions.FailureException(_("Pledgor boid required."))
 
@@ -351,7 +357,6 @@ def process(**kwargs):
                 user.username, data.get("otp"), token_type=token_type
             )
 
-        # frappe.db.begin()
         loan_application = {}
         cart.reload()
         if cart.instrument_type != "Mutual Fund":
@@ -653,13 +658,6 @@ def get_tnc(**kwargs):
         interest_charges_in_amount = float(eligibile_loan) * (roi_ / 100)
         interest_per_month = float(interest_charges_in_amount / 12)
         final_payment = float(interest_per_month) + (eligibile_loan)
-        # apr = lms.calculate_apr(
-        #     data.get("cart_name"),
-        #     roi_,
-        #     12,
-        #     int(lms.validate_rupees(eligibile_loan)),
-        #     charges.get("total"),
-        # )
         apr = lms.calculate_irr(
             name_=data.get("cart_name"),
             sanction_limit=float(eligibile_loan),

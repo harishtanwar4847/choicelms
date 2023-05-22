@@ -344,7 +344,6 @@ def update_mycams_scheme_bulk(upload_file):
 
     csv_data = read_csv_content(fcontent)
 
-    # isin = frappe.db.get_list("Allowed Security", pluck="isin")
     existing_security = frappe.db.get_list(
         "Allowed Security",
         fields=["isin", "lender"],
@@ -352,8 +351,6 @@ def update_mycams_scheme_bulk(upload_file):
     exists_scheme = []
     schemedetails = []
     for i in csv_data[1:]:
-        # if i[1] in isin:
-        # exists_scheme.append(i[1])
         for security in existing_security:
             if i[0] == security["isin"] and i[1] == security["lender"]:
                 exists_scheme.append(i[0] + " (" + i[1] + ")")

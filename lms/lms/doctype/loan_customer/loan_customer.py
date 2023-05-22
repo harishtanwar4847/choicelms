@@ -47,12 +47,6 @@ class LoanCustomer(Document):
                 },
                 tokens=lms.get_firebase_tokens(self.user),
             )
-            # fa.send_message(
-            #     title="Customer and KYC details",
-            #     body="Customer name: {}".format(self.full_name),
-            #     data={"customer": self.as_json(), "user_kyc": user_kyc},
-            #     tokens=lms.get_firebase_tokens(self.user),
-            # )
         except Exception:
             pass
         finally:

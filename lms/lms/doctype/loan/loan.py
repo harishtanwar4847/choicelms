@@ -19,9 +19,6 @@ from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class Loan(Document):
-    # def after_insert(self):
-    #     self.create_loan_charges()
-
     def maximum_withdrawable_amount(self, withdraw_req_name=None, req_time=None):
         balance = self.balance
 
@@ -239,7 +236,6 @@ class Loan(Document):
         self.balance_str = lms.amount_formatter(round(summary.get("outstanding"), 2))
         self.save(ignore_permissions=True)
         if check_for_shortfall:
-            # TODO: Change this in min max branch also increase loan scenario
             self.check_for_shortfall(on_approval=True)
 
     def get_transaction_summary(self):
@@ -356,7 +352,6 @@ class Loan(Document):
             for i in self.items:
                 isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
                 curr = collateral_list_map.get(isin_folio_combo)
-                # curr = collateral_list_map.get(i.isin)
                 if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                     check = True
                     self.update_collateral_ledger(curr.price, curr.isin)
@@ -383,7 +378,6 @@ class Loan(Document):
                 )
 
                 self.append("items", loan_item)
-            # update_ltv function merge with this
             return check
         except Exception:
             frappe.log_error(
@@ -762,7 +756,6 @@ class Loan(Document):
 
     def calculate_virtual_and_additional_interest(self, input_date=None):
         # for Virtual Interest Entry
-        # virtual_interest_doc = self.add_virtual_interest(input_date)
         self.add_virtual_interest(input_date)
 
         # Now, check if additional interest applicable
@@ -1554,6 +1547,7 @@ class Loan(Document):
                 )
         else:
             max_topup_amount = 0
+        # return 0
         return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
@@ -2036,8 +2030,6 @@ class Loan(Document):
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "ROI Change", fields=["*"]
             )
-            # fcm_message = fcm_notification.message
-            # fcm_message.replace("wef_date", (str(self.wef_date)))
             message = fcm_notification.message.format(
                 wef_date=(
                     datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime(
@@ -2344,18 +2336,6 @@ def book_all_loans_virtual_interest_for_month():
         )
 
 
-# def job_dates_for_penal(loan_name):
-#     current_date_ = frappe.utils.now_datetime()
-#     current_date_ = current_date_.replace(day=1)
-#     loan = frappe.get_doc("Loan", loan_name)
-#     last_date = (current_date_.replace(day=1) + timedelta(days=32)).replace(
-#         day=1
-#     ) - timedelta(days=1)
-#     while current_date_ <= last_date:
-#         loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
-#         current_date_ += timedelta(days=1)
-
-
 @frappe.whitelist()
 def interest_booked_till_date(loan_name):
     interest_booked = frappe.db.sql(
@@ -2365,22 +2345,3 @@ def interest_booked_till_date(loan_name):
         as_dict=1,
     )[0]["total_amount"]
     return 0.0 if interest_booked == None else interest_booked
-
-
-@frappe.whitelist()
-def available_top_up_update():
-    try:
-        loans = frappe.get_all("Loan", fields=["*"])
-        for loan in loans:
-            loan_doc = frappe.get_doc("Loan", loan.name)
-            if loan_doc.sanctioned_limit > 0 and loan_doc.total_collateral_value > 0:
-                max_top_amt = loan_doc.max_topup_amount()
-                if max_top_amt:
-                    loan_doc.available_topup_amt = max_top_amt
-                    loan_doc.save(ignore_permissions=True)
-                    frappe.db.commit()
-    except Exception:
-        frappe.log_error(
-            frappe.get_traceback() + "\n\nloan name :-\n" + loan.name,
-            title=frappe._("Available Top-up Update"),
-        )
