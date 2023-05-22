@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.17.3] - 2023-05-22
+
+## Added
+
+- [Code cleaning and KYC restrict](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/587)
+
 ## [v5.17.2] - 2023-05-18
 
 ## Fix
