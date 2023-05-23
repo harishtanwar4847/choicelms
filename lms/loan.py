@@ -1187,8 +1187,12 @@ def request_loan_withdraw_otp():
         user = lms.__user()
         loan = frappe.get_last_doc("Loan", {"customer": lms.__customer(user.name).name})
         if loan.balance > 0:
-            lms.log_api_error(mess="withdraw karne nahi dunga")
-            return utils.respondWithFailure(message="withdraw karne nahi dunga")
+            lms.log_api_error(
+                mess="Transaction Outage, No new withdrawals are allowed! Apologies for the inconvenience."
+            )
+            return utils.respondWithFailure(
+                message="Transaction Outage, No new withdrawals are allowed! Apologies for the inconvenience."
+            )
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
