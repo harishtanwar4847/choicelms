@@ -1160,6 +1160,9 @@ def loan_withdraw_details(**kwargs):
         if loan.customer != customer.name:
             raise lms.exceptions.ForbiddenException(_("Please use your own Loan."))
 
+        if loan.balance < 0:
+            lms.log_api_error(mess="withdraw karne nahi dunga")
+            return utils.respondWithFailure(message="withdraw karne nahi dunga")
         # set amount_available_for_withdrawal
         max_withdraw_amount = loan.maximum_withdrawable_amount()
         loan = loan.as_dict()
@@ -1184,11 +1187,6 @@ def loan_withdraw_details(**kwargs):
 def request_loan_withdraw_otp():
     try:
         utils.validator.validate_http_method("POST")
-        # return utils.respondWithFailure(
-        #     status=417,
-        #     message="Withdraw karne nahi dunga",
-        # )
-
         user = lms.__user()
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True

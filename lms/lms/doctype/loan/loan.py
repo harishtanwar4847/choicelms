@@ -54,7 +54,7 @@ class Loan(Document):
         if max_withdraw_amount < 0:
             max_withdraw_amount = 0.0
 
-        return round(max_withdraw_amount, 2) if self.balance < 0 else 0.0
+        return round(max_withdraw_amount, 2)
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
