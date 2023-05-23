@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.17.4] - 2023-05-24
+
+## Fix
+
+- [Restrict withdrawal if balance is > 0, topup and pledge for MF](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/588)
+
 ## [v5.17.3] - 2023-05-22
 
 ## Added
