@@ -149,8 +149,12 @@ def upsert(**kwargs):
         #     )
 
         if not data.get("pledgor_boid") and data.get("instrument_type") != "Shares":
-            lms.log_api_error(mess="Can not pledge for Mutual Fund")
-            return utils.respondWithFailure(message="Can not pledge for Mutual Fund")
+            lms.log_api_error(
+                mess="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
+            )
+            return utils.respondWithFailure(
+                message="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
+            )
 
         if not data.get("pledgor_boid") and data.get("instrument_type") == "Shares":
             raise lms.exceptions.FailureException(_("Pledgor boid required."))
