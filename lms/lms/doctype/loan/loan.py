@@ -1518,7 +1518,7 @@ class Loan(Document):
                     wef_date = self.wef_date
                     if type(wef_date) is str:
                         wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
-                    if wef_date > frappe.utils.now_datetime().date():
+                    if wef_date >= frappe.utils.now_datetime().date():
                         self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
