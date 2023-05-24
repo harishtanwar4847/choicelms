@@ -15,6 +15,7 @@
   "sanctioned_limit_str",
   "balance",
   "balance_str",
+  "is_closed",
   "loan_column_break",
   "customer",
   "customer_name",
@@ -337,9 +338,9 @@
   {
    "fieldname": "old_wef_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Old w.e.f date",
-   "read_only": 1,
-   "hidden":1
+   "read_only": 1
   },
   {
    "fieldname": "base_interest_config",
@@ -352,11 +353,20 @@
    "fieldtype": "Float",
    "label": "Rebate Interest Config",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_closed",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is Closed?",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-05-10 17:24:35.431692",
+ "modified": "2023-05-24 12:30:10.160727",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

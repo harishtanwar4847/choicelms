@@ -53,7 +53,8 @@ class Loan(Document):
         max_withdraw_amount = self.drawing_power - balance
         if max_withdraw_amount < 0:
             max_withdraw_amount = 0.0
-
+        if self.balance < 0 and frappe.utils.get_url() == "https://spark.loans":
+            return round(abs(self.balance), 2)
         return round(max_withdraw_amount, 2)
 
     def get_lender(self):
@@ -766,6 +767,26 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
+            # if (
+            #     not self.is_closed
+            #     and not self.total_collateral_value
+            #     and not self.balance
+            #     and not frappe.get_all(
+            #         "Virtual Interest",
+            #         {"loan": self.name, "is_booked_for_base": 0},
+            #         "sum(base_amount) as amount",
+            #     )[0].get("amount")
+            # ):
+            #     # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount"):
+            #     frappe.db.set_value(
+            #         "Loan",
+            #         self.name,
+            #         {
+            #             "is_closed": 1,
+            #         },
+            #     )
+            #     frappe.db.commit()
+
             if input_date:
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
             else:
@@ -1494,7 +1515,11 @@ class Loan(Document):
                     self.base_interest = self.custom_base_interest
                     self.rebate_interest = self.custom_rebate_interest
                     self.old_wef_date = self.wef_date
-                    self.notify_customer_roi()
+                    wef_date = self.wef_date
+                    if type(wef_date) is str:
+                        wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+                    if wef_date >= frappe.utils.now_datetime().date():
+                        self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
@@ -1547,7 +1572,8 @@ class Loan(Document):
                 )
         else:
             max_topup_amount = 0
-        # return 0
+        if frappe.utils.get_url() == "https://spark.loans":
+            return 0.0
         return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
