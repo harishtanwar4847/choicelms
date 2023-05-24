@@ -12,8 +12,9 @@ from num2words import num2words
 
 import lms
 from lms.exceptions import PledgeSetupFailureException
-from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import \
-    ApprovedTermsandConditions
+from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
+    ApprovedTermsandConditions,
+)
 from lms.lms.doctype.user_token.user_token import send_sms
 
 
@@ -142,9 +143,16 @@ def upsert(**kwargs):
             data["instrument_type"] = "Shares"
 
         if (
-            not data.get("loan_margin_shortfall_name")
-            and frappe.utils.get_url() == "https://spark.loans" and data.get("instrument_type") == "Shares"
-        ) or (not data.get("pledgor_boid") and data.get("instrument_type") == "Mutual Fund" and data.get("cart_name")):
+            (
+                not data.get("loan_margin_shortfall_name")
+                and data.get("instrument_type") == "Shares"
+            )
+            or (
+                not data.get("pledgor_boid")
+                and data.get("instrument_type") == "Mutual Fund"
+                and data.get("cart_name")
+            )
+        ) and frappe.utils.get_url() == "https://spark.loans":
             lms.log_api_error(
                 mess="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
             )
