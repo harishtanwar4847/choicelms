@@ -772,11 +772,11 @@ class Loan(Document):
                 and not self.balance
                 and not frappe.get_all(
                     "Virtual Interest",
-                    {"loan": self.name,"is_booked_for_base":0},
+                    {"loan": self.name, "is_booked_for_base": 0},
                     "sum(base_amount) as amount",
                 )[0].get("amount")
             ):
-                # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name},"sum(base_amount) as amount")[0].get("amount"):
+                # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount"):
                 frappe.db.set_value(
                     "Loan",
                     self.name,
