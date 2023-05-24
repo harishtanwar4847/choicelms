@@ -53,7 +53,8 @@ class Loan(Document):
         max_withdraw_amount = self.drawing_power - balance
         if max_withdraw_amount < 0:
             max_withdraw_amount = 0.0
-
+        if self.balance < 0:
+            return round(abs(self.balance), 2)
         return round(max_withdraw_amount, 2)
 
     def get_lender(self):
