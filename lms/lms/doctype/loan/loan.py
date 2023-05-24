@@ -53,7 +53,7 @@ class Loan(Document):
         max_withdraw_amount = self.drawing_power - balance
         if max_withdraw_amount < 0:
             max_withdraw_amount = 0.0
-        if self.balance < 0:
+        if self.balance < 0 and frappe.utils.get_url() == "https://spark.loans":
             return round(abs(self.balance), 2)
         return round(max_withdraw_amount, 2)
 
@@ -767,25 +767,25 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
-            if (
-                not self.is_closed
-                and not self.total_collateral_value
-                and not self.balance
-                and not frappe.get_all(
-                    "Virtual Interest",
-                    {"loan": self.name, "is_booked_for_base": 0},
-                    "sum(base_amount) as amount",
-                )[0].get("amount")
-            ):
-                # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount"):
-                frappe.db.set_value(
-                    "Loan",
-                    self.name,
-                    {
-                        "is_closed": 1,
-                    },
-                )
-                frappe.db.commit()
+            # if (
+            #     not self.is_closed
+            #     and not self.total_collateral_value
+            #     and not self.balance
+            #     and not frappe.get_all(
+            #         "Virtual Interest",
+            #         {"loan": self.name, "is_booked_for_base": 0},
+            #         "sum(base_amount) as amount",
+            #     )[0].get("amount")
+            # ):
+            #     # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount"):
+            #     frappe.db.set_value(
+            #         "Loan",
+            #         self.name,
+            #         {
+            #             "is_closed": 1,
+            #         },
+            #     )
+            #     frappe.db.commit()
 
             if input_date:
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
@@ -1572,8 +1572,8 @@ class Loan(Document):
                 )
         else:
             max_topup_amount = 0
-        # if frappe.utils.get_url() == "https://spark.loans":
-        return 0.0
+        if frappe.utils.get_url() == "https://spark.loans":
+            return 0.0
         return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
