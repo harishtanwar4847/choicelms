@@ -1193,12 +1193,7 @@ def request_loan_withdraw_otp():
             return utils.respondWithFailure(
                 message="Transaction Outage, No new withdrawals are allowed! Apologies for the inconvenience."
             )
-        else:
-            return utils.respondWithFailure(
-                message="Withdrawal amount should not be greater than {}".format(
-                    abs(loan.balance)
-                )
-            )
+
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
