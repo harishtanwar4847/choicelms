@@ -58,9 +58,9 @@ def set_pin(**kwargs):
 @frappe.whitelist()
 def schemes(**kwargs):
     try:
-        return utils.respondWithFailure(
-            message="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
-        )
+        # return utils.respondWithFailure(
+        #     message="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
+        # )
 
         utils.validator.validate_http_method("GET")
 
