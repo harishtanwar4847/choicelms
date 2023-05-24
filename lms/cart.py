@@ -142,23 +142,25 @@ def upsert(**kwargs):
         if not data.get("instrument_type"):
             data["instrument_type"] = "Shares"
 
-        # if not data.get("loan_margin_shortfall_name") and frappe.utils.get_url() == "https://spark.loans":
-        #     lms.log_api_error(mess="You can only pledge for Margin Shortfall")
-        #     return utils.respondWithFailure(
-        #         message="You can only pledge for Margin Shortfall"
-        #     )
-
-        if (
-            not data.get("pledgor_boid")
-            and data.get("instrument_type") != "Shares"
-            and frappe.utils.get_url() == "https://spark.loans"
-        ):
+        if not data.get("loan_margin_shortfall_name"):
             lms.log_api_error(
                 mess="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
             )
             return utils.respondWithFailure(
                 message="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
             )
+
+        # if (
+        #     not data.get("pledgor_boid")
+        #     and data.get("instrument_type") != "Shares"
+        #     and frappe.utils.get_url() == "https://spark.loans"
+        # ):
+        #     lms.log_api_error(
+        #         mess="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
+        #     )
+        #     return utils.respondWithFailure(
+        #         message="Pledge is currently unavailable due to operational downtime. Apologies for the inconvenience."
+        #     )
 
         if not data.get("pledgor_boid") and data.get("instrument_type") == "Shares":
             raise lms.exceptions.FailureException(_("Pledgor boid required."))
