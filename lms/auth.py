@@ -71,7 +71,7 @@ def login(**kwargs):
                 raise lms.exceptions.UnauthorizedException(message)
 
             customer = lms.__customer(user.name)
-            # if not customer.loan_open:
+            # if not customer.loan_open and frappe.utils.get_url() == "https://spark.loans":
             #     raise lms.exceptions.RespondFailureException("bhagg yaha se")
             try:
                 user_kyc = lms.__user_kyc(user.name)
@@ -650,7 +650,8 @@ def login_activity(customer):
 @frappe.whitelist(allow_guest=True)
 def onboarding_screen():
     try:
-        # raise lms.exceptions.RespondFailureException("bhagg yaha se")
+        # if frappe.utils.get_url() == "https://spark.loans":
+        #     raise lms.exceptions.RespondFailureException("bhagg yaha se")
         las_settings = frappe.get_single("LAS Settings")
         onboard_list = []
         for i in las_settings.onboarding_screen:

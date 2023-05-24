@@ -1186,7 +1186,7 @@ def request_loan_withdraw_otp():
         utils.validator.validate_http_method("POST")
         user = lms.__user()
         loan = frappe.get_last_doc("Loan", {"customer": lms.__customer(user.name).name})
-        if loan.balance > 0:
+        if loan.balance > 0 and frappe.utils.get_url() == "https://spark.loans":
             lms.log_api_error(
                 mess="Transaction Outage, No new withdrawals are allowed! Apologies for the inconvenience."
             )
