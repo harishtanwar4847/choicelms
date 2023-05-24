@@ -1515,7 +1515,11 @@ class Loan(Document):
                     self.base_interest = self.custom_base_interest
                     self.rebate_interest = self.custom_rebate_interest
                     self.old_wef_date = self.wef_date
-                    self.notify_customer_roi()
+                    wef_date = self.wef_date
+                    if type(wef_date) is str:
+                        wef_date = datetime.strptime(str(wef_date), "%Y-%m-%d").date()
+                    if wef_date > frappe.utils.now_datetime().date():
+                        self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
