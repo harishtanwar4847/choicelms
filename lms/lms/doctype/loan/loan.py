@@ -54,7 +54,14 @@ class Loan(Document):
         if max_withdraw_amount < 0:
             max_withdraw_amount = 0.0
         if self.balance < 0 and frappe.utils.get_url() == "https://spark.loans":
-            return round(abs(self.balance), 2)
+            return round(
+                abs(
+                    self.balance + virtual_interest_sum[0]["amount"]
+                    if virtual_interest_sum[0]["amount"]
+                    else 0
+                ),
+                2,
+            )
         return round(max_withdraw_amount, 2)
 
     def get_lender(self):
