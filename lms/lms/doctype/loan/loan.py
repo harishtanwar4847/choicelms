@@ -774,25 +774,26 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
-            # if (
-            #     not self.is_closed
-            #     and not self.total_collateral_value
-            #     and not self.balance
-            #     and not frappe.get_all(
-            #         "Virtual Interest",
-            #         {"loan": self.name, "is_booked_for_base": 0},
-            #         "sum(base_amount) as amount",
-            #     )[0].get("amount")
-            # ):
-            #     # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount"):
-            #     frappe.db.set_value(
-            #         "Loan",
-            #         self.name,
-            #         {
-            #             "is_closed": 1,
-            #         },
-            #     )
-            #     frappe.db.commit()
+            if (
+                not self.is_closed
+                and not self.total_collateral_value
+                and not self.balance
+                and not frappe.get_all(
+                    "Virtual Interest",
+                    {"loan": self.name, "is_booked_for_base": 0},
+                    "sum(base_amount) as amount",
+                )[0].get("amount")
+            ):
+                # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount"):
+                frappe.db.set_value(
+                    "Loan",
+                    self.name,
+                    {
+                        "is_closed": 1,
+                    },
+                )
+                frappe.db.commit()
+                self.reload()
 
             if input_date:
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
