@@ -58,7 +58,7 @@ class Loan(Document):
                 abs(
                     self.balance + virtual_interest_sum[0]["amount"]
                     if virtual_interest_sum[0]["amount"]
-                    else 0
+                    else self.balance
                 ),
                 2,
             )

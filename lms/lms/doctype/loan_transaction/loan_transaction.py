@@ -111,11 +111,10 @@ class LoanTransaction(Document):
             and "Loan Customer" not in user_roles
         ):
             self.requested = self.amount
+            self.allowable = loan.maximum_withdrawable_amount()
             self.bank = bank
             self.account_number = account_number
             self.ifsc = ifsc
-        if self.transaction_type == "Withdrawal":
-            self.allowable = loan.maximum_withdrawable_amount()
 
         # if there is interest for loan, mark is_for_interest=True for loan transaction with record type CR
         if self.record_type == "CR":
