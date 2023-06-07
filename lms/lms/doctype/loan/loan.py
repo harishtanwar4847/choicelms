@@ -783,8 +783,19 @@ class Loan(Document):
                     {"loan": self.name, "is_booked_for_base": 0},
                     "sum(base_amount) as amount",
                 )[0].get("amount")
+                and not frappe.db.sql(
+                    "select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0 ".format(
+                        self.name
+                    ),
+                    as_dict=1,
+                )[0]["total_amount"]
             ):
-                # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount"):
+                # if frappe.utils.get_url() == "https://spark.loans" and not self.is_closed and not self.total_collateral_value and not self.balance and not frappe.get_all("Virtual Interest",{"loan":self.name,"is_booked_for_base":0},"sum(base_amount) as amount")[0].get("amount") and not frappe.db.sql(
+                #     "select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0 ".format(
+                #         self.name
+                #     ),
+                #     as_dict=1,
+                # )[0]["total_amount"]:
                 frappe.db.set_value(
                     "Loan",
                     self.name,
