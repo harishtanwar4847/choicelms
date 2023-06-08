@@ -51,7 +51,7 @@ from lms.lms.doctype.user_token.user_token import send_sms
 
 from .exceptions import *
 
-__version__ = "5.17.4"
+__version__ = "5.17.5"
 
 user_token_expiry_map = {
     "OTP": 10,
