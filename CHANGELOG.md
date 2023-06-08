@@ -2,11 +2,11 @@
 
 ## [Unreleased]
 
-## [v5.17.5] - 2023-05-24
+## [v5.17.5] - 2023-06-08
 
 ## Added
 
-- [Loan Is closed flag handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/589)
+- [Loan Is closed flag handling](https://gitlab.com/omkar.darves/choicelms/-/merge_requests/1)
 
 ## [v5.17.4] - 2023-05-24
 
